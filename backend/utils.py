@@ -1,0 +1,60 @@
+app_overview = """The web application is an online hub for students and tutors to exchange materials and information related 
+to lectures of a particular course."""
+
+user_task = """View all available courses in the system."""
+
+source_code = """{% extends 'courses/dashboard.html' %}
+
+{% block content_courses %}
+{% load static %}
+
+<div style="margin-left: auto; margin-right: auto; width:75%; margin-top: 5%; position: relative;">
+  <img class="col-sm-4 col-md-4 col-lg-4" src="{% static 'img/course.png' %}"
+       style="width:7%;">
+
+  <div class="col-sm-8 col-md-8 col-lg-8 availableCourses">
+    <h5 class="title">AVAILABLE COURSES</h5>
+  </div>
+</div>
+
+<hr style="width: 80%; margin-left: auto; margin-right: auto; background-color: black;
+           opacity: 1; margin-top: 0; height: 2px;">
+
+    <div class="container coursesBox">
+
+        <div class="row centerCourses equal">
+
+        
+        {% if all_courses %}
+        {% for course in all_courses %}
+
+        <div class="cols-sm-6 col-md-4 col-lg-3" style="margin-bottom: 2%;">
+
+          <div class="card" style="max-width: 300px; min-width: 100px; border-radius: 0px; height: 100%;">
+            <img class="card-img-top" src="{{ course.image.url }}" alt="Card image" style="width: 100%;padding: 10px;">
+            <div class="card-body" style="display: flex; flex-direction: column; justify-content: space-between;">
+              <div style="margin-bottom: 3%;">
+                <h4 class="card-title">{{course.name}}</h4>
+                <p class="card-text">{{course.summary}}</p>
+              </div>
+              <div>
+                {% if user.is_student %}
+                  <a href="{% url 'course' course_id=course.pk %}" class="btn btn-primary">View</a>
+                {% else %}
+                  <a href="{% url 'tutor_course' course_id=course.pk %}" class="btn btn-primary">View</a>
+                {% endif%}
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {% endfor %}
+        {% else %}
+        <h2 style="text-align: center;">There are no courses yet!</h2>
+        {% endif %} 
+
+    </div>
+</div>
+
+{% endblock %}"""
