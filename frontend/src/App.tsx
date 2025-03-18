@@ -6,6 +6,7 @@ import { Container, Button, Paper, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { css } from '@emotion/react';
 import LLMContext from './components/LLMContext';
+import ImageUpload from './components/ImageUpload';
 
 function App() {
   return (
@@ -22,12 +23,13 @@ function App() {
           {/* Left Section */}
           <Grid className="App-Grid-LeftSide" size={4}>
             <LLMContext />
+            <br />
+            <Button variant="contained" style={{backgroundColor: "#3e0aef",}}>Start</Button>
           </Grid>
 
           {/* Right Section */}
           <Grid className="App-Grid-RightSide" size={8}>
-            <Typography variant="h3" gutterBottom>
-            </Typography>
+            <ImageUpload />
           </Grid>
         </Grid>
       </Container>

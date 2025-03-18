@@ -1,0 +1,22 @@
+.ImageUpload-Container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #ccc;
+  padding: 20px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 700px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 45px;
+}
+
+.ImageUpload-Preview {
+  margin-top: 16px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}

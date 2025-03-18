@@ -64,3 +64,7 @@
   font-weight: bold;
   text-transform: uppercase;
 }
+
+.App-Start-Button {
+  width: 100%;
+}
