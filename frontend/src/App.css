@@ -49,6 +49,7 @@
 
 .App-Grid-Middle {
   background-color: rgba(242,244,245,255);
+  padding: 0px 10px 0px 10px;
 }
 
 .App-Grid-RightSide {
