@@ -7,6 +7,7 @@ const ImageUploader: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
   const [base64Image, setBase64Image] = useState<string | null>(null);
   const [usabilityIssues, setUsabilityIssues] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -31,6 +32,8 @@ const ImageUploader: React.FC = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
       const response = await axios.post('http://localhost:5000/detect-usability', {
         app_overview: appOverview,
@@ -43,6 +46,8 @@ const ImageUploader: React.FC = () => {
     } catch (error) {
       console.error("Error:", error);
       alert("Failed to get usability issues.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,13 +62,13 @@ const ImageUploader: React.FC = () => {
         onChange={handleImageUpload}
       />
       <label htmlFor="upload-button">
-        <Button variant="contained" component="span" style={{ backgroundColor: "#3e0aef" }}>
+        <Button variant="contained" component="span">
           Choose Image
         </Button>
       </label>
       {image && <img src={image} alt="Uploaded preview" className='ImageUpload-Preview' />}
       
-      <Button onClick={handleSubmit} variant="contained" style={{ marginTop: "10px", backgroundColor: "#3e0aef" }}>
+      <Button loading={loading} loadingPosition="end" onClick={handleSubmit} variant="contained" style={{ marginTop: "10px"}}>
         Detect Usability Issues
       </Button>
 

@@ -13,7 +13,7 @@ function App() {
     <div>
       {/* Header */}
       <header className="Header">
-        <Typography variant="h5" className="Header-Title">
+        <Typography variant="h5" className="Header-Title" color='primary'>
           UX/UI LMM
         </Typography>
       </header>
