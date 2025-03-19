@@ -10,6 +10,7 @@ const LLMContext = () => {
                   App Overview
             </p>
             <TextField
+                id="app-overview"
                 multiline
                 rows={2}
                 placeholder='Enter an app overview'
@@ -22,6 +23,7 @@ const LLMContext = () => {
                   User Task
             </p>
             <TextField
+                id="user-task"
                 multiline
                 rows={2}
                 placeholder='Describe the user task'
@@ -34,14 +36,13 @@ const LLMContext = () => {
                   Source code
             </p>
             <TextField
+                id="source-code"
                 multiline
                 rows={4}
                 placeholder='Enter the source code'
                 fullWidth
             />
         </div>
-        <br />
-        <Button variant="contained" fullWidth style={{backgroundColor: "#3e0aef"}}>Start</Button>
     </div>
   );
 };
