@@ -44,11 +44,16 @@
 
 .App-Grid-LeftSide {
   background-color: white;
-  padding: 35px;
+  padding: 7px 35px;
+}
+
+.App-Grid-Middle {
+  background-color: rgba(242,244,245,255);
 }
 
 .App-Grid-RightSide {
-  background-color: rgba(242,244,245,255);
+  background-color: white;
+  padding: 7px 35px;
 }
 
 .Header {

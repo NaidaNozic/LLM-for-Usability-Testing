@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField, Typography } from '@mui/material';
+import { TextField, Typography, Button } from '@mui/material';
 import './LLMContext.css';
 
 const LLMContext = () => {
@@ -40,6 +40,8 @@ const LLMContext = () => {
                 fullWidth
             />
         </div>
+        <br />
+        <Button variant="contained" fullWidth style={{backgroundColor: "#3e0aef"}}>Start</Button>
     </div>
   );
 };
