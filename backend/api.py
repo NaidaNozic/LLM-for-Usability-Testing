@@ -4,11 +4,12 @@ import base64
 import os
 import config
 from openai import OpenAI
+import time  # Import time for simulating timeout
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend communication
 
-client = OpenAI(api_key=config.custom_api_key)
+# client = OpenAI(api_key=config.custom_api_key)
 
 system_prompt = """You are a UX expert for web applications.
 Your task is to identify usability issues with the
@@ -41,7 +42,21 @@ def detect_usability():
         Source Code:
         {source_code}"""
 
-        response = client.chat.completions.create(
+        # Simulate a timeout for fetching data
+        time.sleep(2)  # Simulating delay (e.g., fetching data)
+
+        # Mockup response
+        mockup_response = """
+        Usability Issues:
+        1. The buttons on the page are too small and hard to click.
+        
+        2. The navigation menu is cluttered and not user-friendly.
+
+        3. There's no clear visual feedback when a user clicks a button.
+        """
+
+
+        """response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -61,7 +76,9 @@ def detect_usability():
         )
 
         usability_issues = response.choices[0].message.content
-        return jsonify({"usability_issues": usability_issues})
+        return jsonify({"usability_issues": usability_issues})"""
+    
+        return jsonify({"usability_issues": mockup_response})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
