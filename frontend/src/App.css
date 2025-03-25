@@ -45,16 +45,22 @@
 .App-Grid-LeftSide {
   background-color: white;
   padding: 7px 35px;
+  overflow: auto;
+  height: 100vh;
 }
 
 .App-Grid-Middle {
   background-color: rgba(242,244,245,255);
   padding: 0px 10px 0px 10px;
+  overflow: auto;
+  height: 100vh;
 }
 
 .App-Grid-RightSide {
   background-color: white;
   padding: 7px 35px;
+  overflow: auto;
+  height: 100vh;
 }
 
 .Header {
