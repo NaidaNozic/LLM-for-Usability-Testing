@@ -1,0 +1,15 @@
+{
+    "manifest_version": 3,
+    "name": "UX/UI LMM",
+    "version": "1.0.0",
+    "description": "LLM for Usability Testing",
+    "icons": {
+      "48": "vite.svg",
+      "128": "vite.svg"
+    },
+    "action": {
+      "default_popup": "index.html"
+    },
+    "host_permissions": ["<all_urls>"],
+    "permissions": ["storage", "scripting"]
+  }
