@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect  } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -7,6 +7,7 @@ function App() {
   const [screenshot, setScreenshot] = useState('');
   const [output, setOutput] = useState(''); 
   const [loading, setLoading] = useState(false); 
+  const [logJSON, setLogJSON] = useState(null);
 
   const handleScrape = () => {
     setLoading(true);
@@ -34,6 +35,17 @@ function App() {
         setLoading(false);
         setOutput('Failed to capture screenshot.');
       }
+    });
+  };
+
+  const startRecording = () => {
+    chrome.runtime.sendMessage({ type: 'START_RECORDING' });
+  };
+
+  
+  const stopRecording = () => {
+    chrome.runtime.sendMessage({ type: 'END_RECORDING' }, (response) => {
+      setLogJSON(response.log);
     });
   };
 
@@ -83,6 +95,43 @@ function App() {
               </div>
             )
           )}
+          <br />
+          {/* Interaction usability issues */}
+          <button onClick={startRecording}>Start Recording</button>
+          <button onClick={stopRecording}>Stop Recording</button>
+          <br/>
+          {logJSON && (
+            <>
+              <h3>Interaction Logs</h3>
+              {logJSON.map((entry, index) => (
+                <div key={index} style={{ marginBottom: '20px', borderBottom: '1px solid #ccc', paddingBottom: '10px' }}>
+                  <strong>{entry.title}</strong>
+                  <p><em>{entry.timestamp}</em></p>
+                  <p>{entry.log}</p>
+                  {entry.screenshot && (
+                    <img
+                      src={entry.screenshot}
+                      alt="Interaction screenshot"
+                      style={{ maxWidth: '100%', border: '1px solid #ccc', borderRadius: '8px' }}
+                    />
+                  )}
+                </div>
+              ))}
+              <button
+                onClick={() => {
+                  const blob = new Blob([JSON.stringify(logJSON, null, 2)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'interaction_logs.json';
+                  a.click();
+                }}
+              >
+                Download JSON
+              </button>
+            </>
+          )}
+
 
         </div>
 
