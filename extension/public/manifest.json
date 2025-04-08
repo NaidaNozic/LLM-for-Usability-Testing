@@ -8,7 +8,7 @@
       "128": "vite.svg"
     },
     "action": {
-      "default_popup": "index.html"
+      "default_title": "UX/UI LMM"
     },
     "host_permissions": ["<all_urls>"],
       "permissions": ["storage", "scripting", "activeTab", "tabs"],
