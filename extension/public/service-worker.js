@@ -2,6 +2,7 @@ importScripts('config.js');
 
 let lastActiveTabId = null;
 let lastActiveTab = null;
+let isRecording = false; 
 
 const createPopup = () => {
   chrome.windows.create({
@@ -18,15 +19,14 @@ const startRecording = (sendResponse) => {
     return;
   }
 
-  console.log("User clicked on start recording");
   chrome.tabs.update(lastActiveTabId, { active: true });
 
   chrome.scripting.executeScript({
     target: { tabId: lastActiveTabId },
     files: ['content.js'],
   }, () => {
-    console.log("Start recording after");
     interactionLogs = [];
+    isRecording = true; 
     sendResponse({ status: 'started' });
   });
 };
@@ -47,6 +47,7 @@ const logInteraction = (request, sendResponse) => {
 };
 
 const endRecording = (sendResponse) => {
+  isRecording = false; 
   sendResponse({ log: interactionLogs });
 };
 
@@ -155,5 +156,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     default:
       sendResponse({ result: 'Unknown request type' });
       break;
+  }
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (tabId === lastActiveTabId && changeInfo.status === 'complete' && isRecording) {
+    chrome.scripting.executeScript({
+      target: { tabId: tabId },
+      files: ['content.js'],
+    }, () => {
+      console.log(`Re-injected content.js on tab update because recording is in progress`);
+    });
   }
 });
