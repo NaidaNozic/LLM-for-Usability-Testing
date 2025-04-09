@@ -46,3 +46,14 @@
   width: 100%;
   overflow: hidden;
 }
+
+.interaction-logs-container {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.interaction-logs {
+  text-align: left;
+}

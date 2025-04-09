@@ -33,12 +33,15 @@ const startRecording = (sendResponse) => {
 
 const logInteraction = (request, sendResponse) => {
   chrome.tabs.captureVisibleTab(null, { format: 'png' }, (screenshot) => {
-    interactionLogs.push({
+    const logEntry = {
       title: request.title,
       timestamp: request.timestamp,
       log: request.log,
+      details: request.details || {},
       screenshot: screenshot || '',
-    });
+    };
+
+    interactionLogs.push(logEntry);
     sendResponse({ status: 'logged' });
   });
 };

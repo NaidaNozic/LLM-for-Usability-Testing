@@ -42,10 +42,13 @@ function App() {
     chrome.runtime.sendMessage({ type: 'START_RECORDING' });
   };
 
-  
   const stopRecording = () => {
     chrome.runtime.sendMessage({ type: 'END_RECORDING' }, (response) => {
-      setLogJSON(response.log);
+      if (response) {
+        setLogJSON(response.log);
+      } else {
+        console.error('Failed to retrieve interaction logs');
+      }
     });
   };
 
@@ -104,22 +107,51 @@ function App() {
             <>
               <h3>Interaction Logs</h3>
               {logJSON.map((entry, index) => (
-                <div key={index} style={{ marginBottom: '20px', borderBottom: '1px solid #ccc', paddingBottom: '10px' }}>
-                  <strong>{entry.title}</strong>
-                  <p><em>{entry.timestamp}</em></p>
-                  <p>{entry.log}</p>
+                <div key={index}nclassName='interaction-logs-container'>
+                  <div className='interaction-logs'>
+                    <p><strong>Action title: </strong>{entry.title}</p>
+                    <p><strong>Timestamp: </strong><em>{entry.timestamp}</em></p>
+                    <p><strong>Action log: </strong>
+                      {typeof entry.log === 'object'
+                        ? JSON.stringify(entry.log, null, 2)
+                        : entry.log}
+                    </p>
+
+                    {/* Display element details */}
+                    {entry.details && (
+                      <div style={{ marginTop: '10px' }}>
+                        <strong>Clicked element details:</strong>
+                        <ul>
+                          {Object.entries(entry.details).map(([key, value]) => (
+                            <li key={key}>
+                              <strong>{key}:</strong>{' '}
+                              {typeof value === 'object' ? JSON.stringify(value) : value}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+
                   {entry.screenshot && (
                     <img
                       src={entry.screenshot}
                       alt="Interaction screenshot"
-                      style={{ maxWidth: '100%', border: '1px solid #ccc', borderRadius: '8px' }}
+                      style={{
+                        maxWidth: '100%',
+                        border: '1px solid #ccc',
+                        borderRadius: '8px',
+                        marginTop: '10px',
+                      }}
                     />
                   )}
                 </div>
               ))}
               <button
                 onClick={() => {
-                  const blob = new Blob([JSON.stringify(logJSON, null, 2)], { type: 'application/json' });
+                  const blob = new Blob([JSON.stringify(logJSON, null, 2)], {
+                    type: 'application/json',
+                  });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement('a');
                   a.href = url;
@@ -131,8 +163,6 @@ function App() {
               </button>
             </>
           )}
-
-
         </div>
 
         <p className="read-the-docs">
