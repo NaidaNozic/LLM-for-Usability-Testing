@@ -107,7 +107,7 @@ function App() {
             <>
               <h3>Interaction Logs</h3>
               {logJSON.map((entry, index) => (
-                <div key={index}nclassName='interaction-logs-container'>
+                <div key={index} className='interaction-logs-container'>
                   <div className='interaction-logs'>
                     <p><strong>Action title: </strong>{entry.title}</p>
                     <p><strong>Timestamp: </strong><em>{entry.timestamp}</em></p>

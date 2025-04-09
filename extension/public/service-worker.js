@@ -3,6 +3,7 @@ importScripts('config.js');
 let lastActiveTabId = null;
 let lastActiveTab = null;
 let isRecording = false; 
+let interactionLogs = [];
 
 const createPopup = () => {
   chrome.windows.create({
@@ -27,29 +28,69 @@ const startRecording = (sendResponse) => {
   }, () => {
     interactionLogs = [];
     isRecording = true; 
+
+    chrome.tabs.get(lastActiveTabId, (tab) => {
+      chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }, (screenshot) => {
+        const startLogEntry = {
+          title: "Recording activated",
+          timestamp: new Date().toISOString(),
+          log: "The user interaction began",
+          details: {},
+          screenshot: screenshot || '',
+        };
+        interactionLogs.push(startLogEntry);
+      });
+    });
     sendResponse({ status: 'started' });
   });
 };
 
 const logInteraction = (request, sendResponse) => {
-  chrome.tabs.captureVisibleTab(null, { format: 'png' }, (screenshot) => {
-    const logEntry = {
-      title: request.title,
-      timestamp: request.timestamp,
-      log: request.log,
-      details: request.details || {},
-      screenshot: screenshot || '',
-    };
-
-    interactionLogs.push(logEntry);
-    sendResponse({ status: 'logged' });
+  chrome.tabs.get(lastActiveTabId, (tab) => {
+    chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }, (screenshot) => {
+      const logEntry = {
+        title: request.title,
+        timestamp: request.timestamp,
+        log: request.log,
+        details: request.details || {},
+        screenshot: screenshot || '',
+      };
+      interactionLogs.push(logEntry);
+      sendResponse({ status: 'logged' });
+    });
   });
 };
 
 const endRecording = (sendResponse) => {
   isRecording = false; 
-  sendResponse({ log: interactionLogs });
+
+  chrome.tabs.get(lastActiveTabId, (tab) => {
+    if (!tab) {
+      sendResponse({ log: interactionLogs, status: 'error', message: 'Tab not found' });
+      return;
+    }
+
+    chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }, (screenshot) => {
+      if (chrome.runtime.lastError || !screenshot) {
+        console.error('Screenshot error:', chrome.runtime.lastError);
+        sendResponse({ log: interactionLogs, status: 'error', message: 'Failed to capture screenshot' });
+        return;
+      }
+
+      const endLogEntry = {
+        title: "Recording ended",
+        timestamp: new Date().toISOString(),
+        log: "The user interaction ended",
+        details: {},
+        screenshot: screenshot || '',
+      };
+
+      interactionLogs.push(endLogEntry);
+      sendResponse({ log: interactionLogs, status: 'ended' });
+    });
+  });
 };
+
 
 const takeScreenshot = (sendResponse) => {
   if (!lastActiveTabId) {
@@ -144,7 +185,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     case 'END_RECORDING':
       endRecording(sendResponse);
-      return;
+      return true;
 
     case 'TAKE_SCREENSHOT':
       return takeScreenshot(sendResponse);
