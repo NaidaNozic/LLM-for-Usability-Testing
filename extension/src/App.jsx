@@ -46,11 +46,25 @@ function App() {
     chrome.runtime.sendMessage({ type: 'END_RECORDING' }, (response) => {
       if (response) {
         setLogJSON(response.log);
+  
+        const base64Images = response.log.map(entry => entry.screenshot.split(',')[1]);
+  
+        chrome.runtime.sendMessage(
+          { type: 'DETECT_USABILITY_MULTIPLE', base64Images },
+          (responseFromSW) => {
+            if (responseFromSW?.result) {
+              console.log(responseFromSW?.result);
+              setOutput(responseFromSW.result);
+            } else {
+              setOutput('Sorry, I could not detect any usability issues.');
+            }
+          }
+        );
       } else {
         console.error('Failed to retrieve interaction logs');
       }
     });
-  };
+  };  
 
   return (
     <>
@@ -162,6 +176,20 @@ function App() {
                 Download JSON
               </button>
             </>
+          )}
+
+          {/* Output from OpenAI for multiple images */}
+          {!logJSON ? (
+            <p>Loading...</p>
+          ) : (
+            output && (
+              <div>
+                <h3>Detected usability issues for multiple images:</h3>
+                <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+                  {output}
+                </pre>
+              </div>
+            )
           )}
         </div>
 
