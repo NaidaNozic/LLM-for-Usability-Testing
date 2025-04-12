@@ -1,6 +1,8 @@
 console.log("Content script injected and running!");
 
-document.addEventListener('click', (event) => {
+function handleClick(event) {
+    if (!event.isTrusted) return;
+
     const target = event.target;
     const tagName = target.tagName;
 
@@ -35,4 +37,13 @@ document.addEventListener('click', (event) => {
         type: 'INTERACTION_LOG',
         ...log,
     });
+}
+
+document.addEventListener('click', handleClick);
+
+chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === 'STOP_RECORDING') {
+        document.removeEventListener('click', handleClick);
+        console.log("Recording stopped and event listener removed.");
+    }
 });

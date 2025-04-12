@@ -4,6 +4,8 @@ let lastActiveTabId = null;
 let lastActiveTab = null;
 let isRecording = false; 
 let interactionLogs = [];
+let lastScreenshotTime = 0;
+const SCREENSHOT_THROTTLE_MS = 1000;
 
 const createPopup = () => {
   chrome.windows.create({
@@ -22,73 +24,66 @@ const startRecording = (sendResponse) => {
 
   chrome.tabs.update(lastActiveTabId, { active: true });
 
-  chrome.scripting.executeScript({
-    target: { tabId: lastActiveTabId },
-    files: ['content.js'],
-  }, () => {
-    interactionLogs = [];
-    isRecording = true; 
-
-    chrome.tabs.get(lastActiveTabId, (tab) => {
+  chrome.tabs.get(lastActiveTabId, (tab) => {
+    setTimeout(() => {
       chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }, (screenshot) => {
         const startLogEntry = {
-          title: "Recording activated",
+          title: "Recording initiated",
           timestamp: new Date().toISOString(),
           log: "The user interaction began",
           details: {},
           screenshot: screenshot || '',
         };
-        interactionLogs.push(startLogEntry);
+        interactionLogs = [startLogEntry];
+        isRecording = true;
+
+        chrome.scripting.executeScript({
+          target: { tabId: lastActiveTabId },
+          files: ['content.js'],
+        }, () => {
+          sendResponse({ status: 'started' });
+        });
       });
-    });
-    sendResponse({ status: 'started' });
+    }, 200);
   });
 };
 
 const logInteraction = (request, sendResponse) => {
+  const now = Date.now();
+  const shouldTakeScreenshot = now - lastScreenshotTime > SCREENSHOT_THROTTLE_MS;
+
+  const logEntry = {
+    title: request.title,
+    timestamp: request.timestamp,
+    log: request.log,
+    details: request.details || {},
+    screenshot: '',
+  };
+
+  if (!shouldTakeScreenshot || !lastActiveTabId) {
+    interactionLogs.push(logEntry);
+    sendResponse({ status: 'logged (no screenshot)' });
+    return;
+  }
+
   chrome.tabs.get(lastActiveTabId, (tab) => {
-    chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }, (screenshot) => {
-      const logEntry = {
-        title: request.title,
-        timestamp: request.timestamp,
-        log: request.log,
-        details: request.details || {},
-        screenshot: screenshot || '',
-      };
-      interactionLogs.push(logEntry);
-      sendResponse({ status: 'logged' });
-    });
+    setTimeout(() => {
+      chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }, (screenshot) => {
+        logEntry.screenshot = screenshot || '';
+        interactionLogs.push(logEntry);
+        lastScreenshotTime = now;
+        sendResponse({ status: 'logged' });
+      });
+    }, 200);
   });
 };
 
+
 const endRecording = (sendResponse) => {
-  isRecording = false; 
-
-  chrome.tabs.get(lastActiveTabId, (tab) => {
-    if (!tab) {
-      sendResponse({ log: interactionLogs, status: 'error', message: 'Tab not found' });
-      return;
-    }
-
-    chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }, (screenshot) => {
-      if (chrome.runtime.lastError || !screenshot) {
-        console.error('Screenshot error:', chrome.runtime.lastError);
-        sendResponse({ log: interactionLogs, status: 'error', message: 'Failed to capture screenshot' });
-        return;
-      }
-
-      const endLogEntry = {
-        title: "Recording ended",
-        timestamp: new Date().toISOString(),
-        log: "The user interaction ended",
-        details: {},
-        screenshot: screenshot || '',
-      };
-
-      interactionLogs.push(endLogEntry);
-      sendResponse({ log: interactionLogs, status: 'ended' });
-    });
-  });
+  if (lastActiveTabId) {
+    chrome.tabs.sendMessage(lastActiveTabId, { type: 'STOP_RECORDING' });
+  }
+  sendResponse({ log: interactionLogs });
 };
 
 
