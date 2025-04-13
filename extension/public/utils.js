@@ -15,7 +15,6 @@ while still remaining simple and accessible for new users?
 
 const system_prompt = `
 You are a UX/UI expert tasked with detecting usability issues in a web application by reviewing it for compliance with Nielsen's heuristics.
-
 You are given image(s) of a static web application to evaluate.`;
 
 const request_for_evaluation = `
@@ -27,7 +26,7 @@ For each issue, follow exactly this format:
 
 [Title for the issue]  
 Description: [A clear and concise explanation of the problem.]  
-Severity: [A number from 0–4, where 0 = Not a usability problem at all, and 4 = Usability catastrophe; imperative to fix.]  
+Severity: [A number from 0-4, where 0 = Not a usability problem at all, and 4 = Usability catastrophe; imperative to fix.]  
 Suggestion: [A specific recommendation for fixing the issue.]
 
 Guidelines:

@@ -1,9 +1,6 @@
 importScripts('config.js');
 importScripts('utils.js');
 
-let lastActiveTabId = null;
-let lastActiveTab = null;
-
 const createPopup = () => {
   chrome.windows.create({
     url: chrome.runtime.getURL("index.html"),
@@ -14,25 +11,30 @@ const createPopup = () => {
 };
 
 const takeScreenshot = (sendResponse) => {
-  if (!lastActiveTabId) {
-    sendResponse({ screenshot: null });
-    return true;
-  }
+  chrome.storage.local.get(['lastActiveTabId'], (result) => {
+    const tabId = result.lastActiveTabId;
 
-  chrome.tabs.get(lastActiveTabId, (tab) => {
-    if (chrome.runtime.lastError || !tab) {
-      console.error('Could not get tab:', chrome.runtime.lastError);
+    if (!tabId) {
+      console.log("The last active tab is not stored anymore.");
       sendResponse({ screenshot: null });
       return;
     }
 
-    chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }, (dataUrl) => {
-      if (chrome.runtime.lastError || !dataUrl) {
-        console.error('Screenshot error:', chrome.runtime.lastError);
+    chrome.tabs.get(tabId, (tab) => {
+      if (chrome.runtime.lastError || !tab) {
+        console.error('Could not get tab:', chrome.runtime.lastError);
         sendResponse({ screenshot: null });
         return;
       }
-      sendResponse({ screenshot: dataUrl });
+
+      chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }, (dataUrl) => {
+        if (chrome.runtime.lastError || !dataUrl) {
+          console.error('Screenshot error:', chrome.runtime.lastError);
+          sendResponse({ screenshot: null });
+          return;
+        }
+        sendResponse({ screenshot: dataUrl });
+      });
     });
   });
   return true;
@@ -40,7 +42,7 @@ const takeScreenshot = (sendResponse) => {
 
 const detectUsabilityIssues = async (request, sendResponse) => {
   const base64Images = request.base64Images;
-  
+  console.log(`Number of images: ${base64Images.length}`);
   for (let i = 0; i < base64Images.length; i++) {
     const base64Image = base64Images[i];
     const imageSizeInBytes = Math.ceil((base64Image.length * 3) / 4);
@@ -79,6 +81,9 @@ const detectUsabilityIssues = async (request, sendResponse) => {
       text: request_for_evaluation
     });
 
+
+    console.log(content);    
+    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -94,7 +99,6 @@ const detectUsabilityIssues = async (request, sendResponse) => {
           },
         ],
         max_tokens: 4000,
-        temperature: 1.5, 
       }),
     });
 
@@ -112,8 +116,7 @@ const detectUsabilityIssues = async (request, sendResponse) => {
 };
 
 chrome.action.onClicked.addListener(async (tab) => {
-  lastActiveTabId = tab.id;
-  lastActiveTab = tab;
+  chrome.storage.local.set({ lastActiveTabId: tab.id });
   createPopup();
 });
 

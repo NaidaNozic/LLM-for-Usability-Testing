@@ -31,7 +31,7 @@ function App() {
 
     setLoading(true);
     const base64Images = screenshots.map((img) => img.split(',')[1]);
-
+    
     chrome.runtime.sendMessage(
       {
         type: 'DETECT_USABILITY',
@@ -53,6 +53,7 @@ function App() {
   const handleClear = () => {
     setScreenshots([]);
     setOutput('');
+    setLoading(false);
   };
 
   return (
