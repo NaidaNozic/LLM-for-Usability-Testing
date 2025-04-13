@@ -16,15 +16,13 @@ while still remaining simple and accessible for new users?
 const system_prompt = `
 You are a UX/UI expert tasked with detecting usability issues in a web application by reviewing it for compliance with Nielsen's heuristics.
 
-You are given an image of a web application screen to evaluate. Do not assume any dynamic interactions
-(e.g., hover effects, focus states, animations, or tooltips), since the screen is static and represents what the user sees 
-without interacting with the interface.`;
+You are given image(s) of a static web application to evaluate.`;
 
 const request_for_evaluation = `
 Review the design based on the following heuristics:
 ${nielsen_heuristics}
 
-Detect and list distinct usability issues you observe in the provided screen.
+Detect and list distinct usability issues you observe in the provided screen(s).
 For each issue, follow exactly this format:
 
 [Title for the issue]  

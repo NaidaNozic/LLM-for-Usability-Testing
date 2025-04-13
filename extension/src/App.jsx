@@ -3,16 +3,19 @@ import './App.css'
 import { TextField, Typography, Button } from '@mui/material';
 
 function App() {
-  const [screenshot, setScreenshot] = useState('');
+  const [screenshots, setScreenshots] = useState([]);
   const [output, setOutput] = useState(''); 
   const [loading, setLoading] = useState(false); 
   const [overview, setOverview] = useState('');
   const [task, setTask] = useState('');
+  const [capturing, setCapturing] = useState(false);
 
   const handleCaptureScreenshot = () => {
+    setCapturing(true);
     chrome.runtime.sendMessage({ type: 'TAKE_SCREENSHOT' }, (response) => {
+      setCapturing(false);
       if (response?.screenshot) {
-        setScreenshot(response.screenshot);
+        setScreenshots((prev) => [...prev, response.screenshot]);
       } else {
         setOutput('Failed to capture screenshot.');
       }
@@ -20,18 +23,19 @@ function App() {
   };
 
   const handleDetectUsability = () => {
-    if (!screenshot) {
-      setOutput('Please capture a screenshot first.');
+    setOutput("");
+    if (screenshots.length === 0) {
+      setOutput('Please capture at least one screenshot first.');
       return;
     }
-  
+
     setLoading(true);
-    const base64Image = screenshot.split(',')[1];
-  
+    const base64Images = screenshots.map((img) => img.split(',')[1]);
+
     chrome.runtime.sendMessage(
       {
         type: 'DETECT_USABILITY',
-        base64Image,
+        base64Images: base64Images,
         overview,
         task,
       },
@@ -44,6 +48,11 @@ function App() {
         }
       }
     );
+  };
+
+  const handleClear = () => {
+    setScreenshots([]);
+    setOutput('');
   };
 
   return (
@@ -70,22 +79,33 @@ function App() {
               onChange={(e) => setTask(e.target.value)}
           />
           <br />
-          <button onClick={handleCaptureScreenshot}>
-            Capture screen
+          <button onClick={handleCaptureScreenshot} disabled={capturing}>
+            {capturing ? 'Capturing...' : 'Capture screen'}
           </button>
           <br />
-          <button onClick={handleDetectUsability}>
-            Detect Usability Issues
-          </button>
+          <button onClick={handleDetectUsability}>Detect Usability Issues</button>
+          <br />
+          <button onClick={handleClear}>Clear</button>
 
-          {screenshot && (
+          {screenshots.length > 0 && (
             <div>
-              <h3>Screenshot Preview:</h3>
-              <img
-                src={screenshot}
-                alt="Screenshot"
-                style={{ maxWidth: '100%', border: '1px solid #ccc', borderRadius: '8px', marginTop: '10px' }}
-              />
+              <h3>Screenshot Previews:</h3>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                {screenshots.map((src, idx) => (
+                  <img
+                    key={idx}
+                    src={src}
+                    alt={`Screenshot ${idx + 1}`}
+                    style={{
+                      maxWidth: '100%',
+                      width: '200px',
+                      border: '1px solid #ccc',
+                      borderRadius: '8px',
+                      marginTop: '10px',
+                    }}
+                  />
+                ))}
+              </div>
             </div>
           )}
 
