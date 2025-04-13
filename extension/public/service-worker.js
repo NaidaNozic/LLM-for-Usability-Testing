@@ -127,6 +127,28 @@ const detectUsability = async (request, sendResponse) => {
   }
 
   try {
+    const content = [
+      { type: 'text', text: system_prompt },
+    ];
+
+    content.push({
+      type: 'image_url',
+      image_url: { url: `data:image/png;base64,${base64Image}` }
+    });
+
+    if (request.overview && request.overview.trim() !== '') {
+      content.push({ type: 'text', text: `You are given a web application about: ${request.overview.trim()}` });
+    }
+
+    if (request.task && request.task.trim() !== '') {
+      content.push({ type: 'text', text: `The user's task in the given app view is: ${request.task.trim()}` });
+    }
+
+    content.push({
+      type: 'text',
+      text: request_for_evaluation
+    });
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -138,10 +160,7 @@ const detectUsability = async (request, sendResponse) => {
         messages: [
           {
             role: 'user',
-            content: [
-              { type: 'text', text: system_prompt},
-              { type: 'image_url', image_url: { url: `data:image/png;base64,${base64Image}` } },
-            ],
+            content: content,
           },
         ],
         max_tokens: 4000,
@@ -164,35 +183,26 @@ const detectUsability = async (request, sendResponse) => {
 /* Usability detection with multiple images */
 const detectUsabilityMultiple = async (request, sendResponse) => {
   const base64Images = request.base64Images;
-  
-  const imageSizeInBytes = base64Images.reduce((acc, image) => {
-    if (image) {
-      acc += Math.ceil((image.length * 3) / 4);
-    }
-    return acc;
-  }, 0);
-  
-  const imageSizeInMB = imageSizeInBytes / (1024 * 1024);
-  console.log(`Total image size: ${imageSizeInMB.toFixed(2)} MB`);
 
-  if (imageSizeInMB > 20) {
-    sendResponse({
-      result: `Images too large (${imageSizeInMB.toFixed(2)} MB). OpenAI only accepts images under 20MB.`,
-    });
-    return true;
+  /* */
+  
+  for (let i = 0; i < base64Images.length; i++) {
+    const base64 = base64Images[i];
+    const sizeInBytes = Math.ceil((base64.length * 3) / 4);
+    const sizeInMB = sizeInBytes / (1024 * 1024);
+
+    if (sizeInMB > 20) {
+      sendResponse({
+        result: `Image at index ${i} is too large (${sizeInMB.toFixed(2)} MB). Each image must be under 20MB.`,
+      });
+      return true;
+    }
   }
 
   try {
     const prompt = `You are given a series of screenshots from a website. 
                     Please analyze the relationship between these screens and identify any usability issues that might arise from 
                     moving from one screen to another. Look for inconsistencies between the screens, and highlight potential issues.`;
-
-    const promptSizeInBytes = new TextEncoder().encode(prompt).length;
-    console.log(`Prompt size: ${promptSizeInBytes} bytes`);
-
-    const totalRequestSizeInBytes = promptSizeInBytes + imageSizeInBytes;
-    const totalRequestSizeInMB = totalRequestSizeInBytes / (1024 * 1024);
-    console.log(`Total request size: ${totalRequestSizeInMB.toFixed(2)} MB`);
 
     const messages = [
       {

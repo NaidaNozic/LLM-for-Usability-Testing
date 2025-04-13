@@ -1,41 +1,49 @@
-import { useState, useEffect  } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState } from 'react'
 import './App.css'
+import { TextField, Typography, Button } from '@mui/material';
 
 function App() {
   const [screenshot, setScreenshot] = useState('');
   const [output, setOutput] = useState(''); 
   const [loading, setLoading] = useState(false); 
-  const [logJSON, setLogJSON] = useState(null);
+  const [overview, setOverview] = useState('');
+  const [task, setTask] = useState('');
 
-  const handleScrape = () => {
-    setLoading(true);
-
+  const handleCaptureScreenshot = () => {
     chrome.runtime.sendMessage({ type: 'TAKE_SCREENSHOT' }, (response) => {
       if (response?.screenshot) {
-        const base64Image = response.screenshot.split(',')[1];
-        setScreenshot(response.screenshot)
-  
-        chrome.runtime.sendMessage(
-          {
-            type: 'DETECT_USABILITY',
-            base64Image,
-          },
-          (responseFromSW) => {
-            setLoading(false);
-            if (responseFromSW?.result) {
-              setOutput(responseFromSW.result);
-            } else {
-              setOutput('Sorry, I could not detect any usability issues.');
-            }
-          }
-        );
+        setScreenshot(response.screenshot);
       } else {
-        setLoading(false);
         setOutput('Failed to capture screenshot.');
       }
     });
+  };
+
+  const handleDetectUsability = () => {
+    if (!screenshot) {
+      setOutput('Please capture a screenshot first.');
+      return;
+    }
+  
+    setLoading(true);
+    const base64Image = screenshot.split(',')[1];
+  
+    chrome.runtime.sendMessage(
+      {
+        type: 'DETECT_USABILITY',
+        base64Image,
+        overview,
+        task,
+      },
+      (responseFromSW) => {
+        setLoading(false);
+        if (responseFromSW?.result) {
+          setOutput(responseFromSW.result);
+        } else {
+          setOutput('Sorry, I could not detect any usability issues.');
+        }
+      }
+    );
   };
 
   return (
@@ -44,10 +52,29 @@ function App() {
         <h1>UX/UI LLM</h1>
 
         <div className="card">
-          <p>
-            Click the button below to capture a screenshot of the current tab and detect any usability issues using AI.
-          </p>
-          <button onClick={handleScrape}>
+          <p>App overview</p>
+          <TextField
+              multiline
+              rows={2}
+              placeholder='Enter an app overview'
+              value={overview}
+              onChange={(e) => setOverview(e.target.value)}
+          />
+          <br />
+          <p>User task</p>
+          <TextField
+              multiline
+              rows={2}
+              placeholder='Enter the user task'
+              value={task}
+              onChange={(e) => setTask(e.target.value)}
+          />
+          <br />
+          <button onClick={handleCaptureScreenshot}>
+            Capture screen
+          </button>
+          <br />
+          <button onClick={handleDetectUsability}>
             Detect Usability Issues
           </button>
 

@@ -14,22 +14,29 @@ while still remaining simple and accessible for new users?
 10. Help and Documentation - Is there clear help or guidance where needed?`;
 
 const system_prompt = `
-You are a UX/UI expert tasked with detecting usability issues in a web application by reviewing it for compliance with 
-recognized usability principles called Nielsen's heuristics.
+You are a UX/UI expert tasked with detecting usability issues in a web application by reviewing it for compliance with Nielsen's heuristics.
 
-You are given an image of a web application screen to evaluate. Please **do not assume any dynamic interactions** 
+You are given an image of a web application screen to evaluate. Do not assume any dynamic interactions
 (e.g., hover effects, focus states, animations, or tooltips), since the screen is static and represents what the user sees 
-without interacting with the interface.
+without interacting with the interface.`;
 
+const request_for_evaluation = `
 Review the design based on the following heuristics:
 ${nielsen_heuristics}
 
-Identify and list distinct usability issues you observe in the screen. For each issue, include:
-- A clear description of the problem.
-- The heuristic(s) that are violated (you can list multiple heuristics per issue).
-- A severity rating from 0-4, from "not a usability problem at all" to "usability catastrophe; imperative to fix".
+Detect and list distinct usability issues you observe in the provided screen.
+For each issue, follow exactly this format:
 
-If multiple issues are found under the same heuristic, list them separately.  
-Avoid repeating the same issue under multiple heuristics — if one issue relates to more than one heuristic, list it once and 
-mention all relevant heuristics. Order the issues by severity (highest to lowest).  
-If relevant, suggest missing elements or improvements that would enhance the overall interaction across the screens.`;
+[Title for the issue]  
+Description: [A clear and concise explanation of the problem.]  
+Severity: [A number from 0–4, where 0 = Not a usability problem at all, and 4 = Usability catastrophe; imperative to fix.]  
+Suggestion: [A specific recommendation for fixing the issue.]
+
+Guidelines:
+- Only include a list of usability issues — no additional text, summaries, or sections.
+- Do not repeat the same issue under different heuristics; instead, describe the issue once and consider all relevant aspects.
+- It is acceptable to include multiple problems related to the same heuristic, as long as they are clearly distinct.
+- Order the issues from highest to lowest severity.
+- If applicable, also point out missing elements or changes that could improve the overall user experience.
+`;
+
