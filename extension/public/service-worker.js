@@ -1,4 +1,5 @@
 importScripts('config.js');
+importScripts('utils.js');
 
 let lastActiveTabId = null;
 let lastActiveTab = null;
@@ -106,11 +107,9 @@ const takeScreenshot = (sendResponse) => {
         sendResponse({ screenshot: null });
         return;
       }
-
       sendResponse({ screenshot: dataUrl });
     });
   });
-
   return true;
 };
 
@@ -140,12 +139,12 @@ const detectUsability = async (request, sendResponse) => {
           {
             role: 'user',
             content: [
-              { type: 'text', text: 'Look at this image and identify any usability issues it may have.' },
+              { type: 'text', text: system_prompt},
               { type: 'image_url', image_url: { url: `data:image/png;base64,${base64Image}` } },
             ],
           },
         ],
-        max_tokens: 2000,
+        max_tokens: 4000,
       }),
     });
 
@@ -184,7 +183,9 @@ const detectUsabilityMultiple = async (request, sendResponse) => {
   }
 
   try {
-    const prompt = `You are given a series of screenshots from a website. Please analyze the relationship between these screens and identify any usability issues that might arise from moving from one screen to another. Look for inconsistencies between the screens, and highlight potential issues.`;
+    const prompt = `You are given a series of screenshots from a website. 
+                    Please analyze the relationship between these screens and identify any usability issues that might arise from 
+                    moving from one screen to another. Look for inconsistencies between the screens, and highlight potential issues.`;
 
     const promptSizeInBytes = new TextEncoder().encode(prompt).length;
     console.log(`Prompt size: ${promptSizeInBytes} bytes`);
@@ -197,7 +198,7 @@ const detectUsabilityMultiple = async (request, sendResponse) => {
       {
         role: 'user',
         content: [
-          { type: 'text', text: prompt },
+          { type: 'text', text: nielsen_principles_prompt },
           ...base64Images.map(image => ({
             type: 'image_url',
             image_url: {
