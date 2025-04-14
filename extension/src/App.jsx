@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { styled } from '@mui/material/styles';
 import './App.css'
 import { TextField, Typography, Button } from '@mui/material';
 
@@ -59,26 +60,28 @@ function App() {
   return (
     <>
       <div class="main-container">
-        <h1>UX/UI LLM</h1>
 
         <div className="card">
-          <p>App overview</p>
-          <TextField
+        <div>
+          <p className='text-field-label'>App overview</p>
+            <CustomTextField
+                multiline
+                rows={2}
+                placeholder='The application is...'
+                value={overview}
+                onChange={(e) => setOverview(e.target.value)}
+            />
+        </div>
+        <div>
+          <p className='text-field-label'>User task</p>
+          <CustomTextField
               multiline
               rows={2}
-              placeholder='Enter an app overview'
-              value={overview}
-              onChange={(e) => setOverview(e.target.value)}
-          />
-          <br />
-          <p>User task</p>
-          <TextField
-              multiline
-              rows={2}
-              placeholder='Enter the user task'
+              placeholder='The user task is...'
               value={task}
               onChange={(e) => setTask(e.target.value)}
           />
+        </div>
           <br />
           <button onClick={handleCaptureScreenshot} disabled={capturing}>
             {capturing ? 'Capturing...' : 'Capture screen'}
@@ -133,5 +136,55 @@ function App() {
     </>
   )
 }
+
+const CustomTextField = styled(TextField)({
+  width: '100%',
+  '& .MuiOutlinedInput-root': {
+    borderRadius: '5px',
+    padding:'8px',
+    '& fieldset': {
+      borderColor: 'white',
+    },
+    '&:hover fieldset': {
+      borderColor: 'white',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: 'white',
+    },
+  },
+  '& .MuiInputBase-input': {
+    color: 'white',
+    fontSize: '12px',
+    '&::placeholder': {
+      fontSize: '12px',
+      color: 'rgba(255, 255, 255, 0.6)',
+    },
+    '&::-webkit-scrollbar': {
+      width: '8px',
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'rgba(255, 255, 255, 0.1)',
+      borderRadius: '4px',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      background: 'rgba(255, 255, 255, 0.4)',
+      borderRadius: '4px',
+    },
+    '&::-webkit-scrollbar-thumb:hover': {
+      background: 'rgba(255, 255, 255, 0.6)',
+    },
+  },
+  '& textarea::placeholder': {
+    fontSize: '12px',
+    color: 'rgba(255, 255, 255, 0.6)',
+  },
+  '& .MuiInputLabel-root': {
+    color: 'white',
+  },
+  '& .MuiInputLabel-root.Mui-focused': {
+    color: 'white',
+  },
+});
+
 
 export default App
