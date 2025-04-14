@@ -6,6 +6,8 @@ import {
   Menu,
   MenuItem,
   IconButton,
+  Snackbar,
+  Alert,
   ClickAwayListener
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -16,12 +18,13 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 function App() {
   const [screenshots, setScreenshots] = useState([]);
-  const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
   const [overview, setOverview] = useState('');
   const [task, setTask] = useState('');
   const [capturing, setCapturing] = useState(false);
   const [anchorEls, setAnchorEls] = useState({});
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const handleCaptureScreenshot = () => {
     setCapturing(true);
@@ -38,7 +41,8 @@ function App() {
           },
         ]);
       } else {
-        setOutput('Failed to capture screenshot.');
+        setSnackbarMessage('Failed to capture screenshot.');
+        setSnackbarOpen(true);
       }
     });
   };
@@ -48,7 +52,7 @@ function App() {
   
     setLoading(true);
     const base64Image = selectedScreenshot.src.split(',')[1];
-  
+
     chrome.runtime.sendMessage(
       {
         type: 'DETECT_USABILITY',
@@ -63,7 +67,8 @@ function App() {
             window.open(chrome.runtime.getURL('result.html'), '_blank');
           });
         } else {
-          alert('Sorry, I could not detect any usability issues.');
+          setSnackbarMessage('Sorry, I could not detect any usability issues.');
+          setSnackbarOpen(true);
         }
       }
     );
@@ -103,6 +108,10 @@ function App() {
 
   const handleMenuClose = (index) => {
     setAnchorEls({ ...anchorEls, [index]: null });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
   };
 
   return (
@@ -199,6 +208,16 @@ function App() {
       </div>
 
       {loading && <LoadingOverlay message="Detecting usability issues..." />}
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="error">
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 }
