@@ -1,0 +1,18 @@
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.content-title {
+    margin-top: 5px;
+    font-weight: 600;
+    text-align: left;
+    font-size: 14px;
+}
+
+.no-content-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 40px;
+}

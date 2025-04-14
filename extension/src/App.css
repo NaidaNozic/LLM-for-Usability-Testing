@@ -3,7 +3,10 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
-  padding: 8px;
+  padding: 8px 8px 57px 8px;
+  gap: 8px;
+  display: flex;
+  flex-direction: column;
 }
 
 .logo {
@@ -35,9 +38,21 @@
 }
 
 .card {
-  padding: 1em;
+  padding: 1em 0 1em 0;
   display: flex;
   flex-direction: column;
+  background-color: rgba(70,56,58,255);
+  border-radius: 10px;
+}
+
+.title {
+  font-weight: 600;
+  text-align: left;
+  width: 100%;
+  font-size: 14px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-left: 8px;
 }
 
 .read-the-docs {
@@ -45,11 +60,10 @@
 }
 
 .main-container {
-  height: calc(100vh - 16px);
   border-radius: 10px;
   width: 100%;
   overflow: hidden;
-  background-color: rgba(39,63,66,255);
+  background-color: rgba(70,56,58,255);
 }
 
 .interaction-logs-container {
@@ -65,7 +79,34 @@
 
 .text-field-label {
   font-weight: 600;
+  margin: 0px 0px 10px 0px;
   text-align: left;
   width: 100%;
   font-size: 12px;
+}
+
+.text-field-hint {
+  color: rgb(255, 255, 255, 0.6);
+}
+
+.image-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0px;
+  width: 100%;
+  flex-direction: column;
+  padding-top: 10px;
+}
+
+.image-item {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  min-height: 70px;
+  padding: 8px 0px 8px 0px;
+  align-items: center;
+}
+
+.image-item:hover {
+  background-color: rgba(150, 120, 125, 0.7);
 }

@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { styled } from '@mui/material/styles';
+import { TextField, Button } from '@mui/material';
 import './App.css'
-import { TextField, Typography, Button } from '@mui/material';
+import NoContent from './components/NoContent';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 function App() {
   const [screenshots, setScreenshots] = useState([]);
@@ -59,29 +61,29 @@ function App() {
 
   return (
     <>
+      {/*
       <div class="main-container">
-
         <div className="card">
-        <div>
-          <p className='text-field-label'>App overview</p>
+          <div>
+            <p className='text-field-label'>App overview</p>
+              <CustomTextField
+                  multiline
+                  rows={2}
+                  placeholder='The application is...'
+                  value={overview}
+                  onChange={(e) => setOverview(e.target.value)}
+              />
+          </div>
+          <div>
+            <p className='text-field-label'>User task</p>
             <CustomTextField
                 multiline
                 rows={2}
-                placeholder='The application is...'
-                value={overview}
-                onChange={(e) => setOverview(e.target.value)}
+                placeholder='The user task is...'
+                value={task}
+                onChange={(e) => setTask(e.target.value)}
             />
-        </div>
-        <div>
-          <p className='text-field-label'>User task</p>
-          <CustomTextField
-              multiline
-              rows={2}
-              placeholder='The user task is...'
-              value={task}
-              onChange={(e) => setTask(e.target.value)}
-          />
-        </div>
+          </div>
           <br />
           <button onClick={handleCaptureScreenshot} disabled={capturing}>
             {capturing ? 'Capturing...' : 'Capture screen'}
@@ -113,7 +115,6 @@ function App() {
             </div>
           )}
 
-          {/* Display the output from OpenAI */}
           {loading ? (
             <p>Loading...</p>
           ) : (
@@ -132,10 +133,90 @@ function App() {
         <p className="read-the-docs">
          Chrome extension for usability testing.
         </p>
+      </div>*/}
+      <div className="card">
+        <div style={{padding: '0px 8px 0px 8px'}}>
+          <p className='text-field-label'>App overview</p>
+          <div style={{textAlign: 'left', marginBottom: '5px'}}>
+            <span className='text-field-hint'>Briefly explain what the web app does, who it's for and/or its goals.</span>
+          </div>
+          <CustomTextField
+              multiline
+              rows={2}
+              placeholder='The application is...'
+              value={overview}
+              onChange={(e) => setOverview(e.target.value)}
+          />
+        </div>
+      </div>
+      <div className="card">
+        <p className='title'>All pages</p>
+
+        {screenshots.length === 0 ? (
+          <NoContent />
+        ) : (
+          <div className='image-container '>
+            {screenshots.map((src, idx) => (
+              <div className='image-item'>
+                <img
+                  key={idx}
+                  src={src}
+                  alt={`Screenshot ${idx + 1}`}
+                  style={{
+                    width: '100px',
+                    borderRadius: '8px',
+                    marginLeft: '8px'
+                }}
+              />
+              <span></span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div style={{
+        position: 'fixed',
+        backgroundColor: 'rgba(47,35,37,255)',
+        bottom: '0px',
+        padding: '8px 0px 8px 0px',
+        width: '100%',
+        textAlign: 'left'
+      }}>
+        <CustomButton variant="contained" startIcon={<AddCircleOutlineIcon />} onClick={handleCaptureScreenshot} 
+                      disabled={capturing}>
+          {capturing ? 'Adding...' : 'Add current screenn'}
+        </CustomButton>
       </div>
     </>
   )
 }
+
+const CustomButton = styled(Button)({
+  borderRadius: '10px',
+  backgroundColor: 'rgba(87,65,69,255)',
+  color: '#fff',
+  textTransform: 'none',
+  fontSize: '12px',
+  fontWeight: '500',
+  padding: '10px 0px 10px 0px',
+  width: '180px',
+  height: '41px',
+  boxShadow: 'none',
+  '&:hover': {
+    backgroundColor: 'rgba(150, 120, 125, 0.7)',
+    boxShadow: 'none',
+  },
+  '&:focus': {
+    boxShadow: 'none',
+    outline: 'none'
+  },
+  '&:active': {
+    boxShadow: 'none',
+    outline: 'none'
+  },
+});
+
 
 const CustomTextField = styled(TextField)({
   width: '100%',
