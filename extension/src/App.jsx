@@ -42,6 +42,32 @@ function App() {
     });
   };
 
+  const handleImageClick = (index) => {
+    const selectedScreenshot = screenshots[index];
+  
+    setLoading(true);
+    const base64Image = selectedScreenshot.src.split(',')[1];
+  
+    chrome.runtime.sendMessage(
+      {
+        type: 'DETECT_USABILITY',
+        base64Images: [base64Image],
+        overview,
+        task,
+      },
+      (responseFromSW) => {
+        setLoading(false);
+        if (responseFromSW?.result) {
+          chrome.storage.local.set({ usabilityOutput: responseFromSW.result }, () => {
+            window.open(chrome.runtime.getURL('result.html'), '_blank');
+          });
+        } else {
+          alert('Sorry, I could not detect any usability issues.');
+        }
+      }
+    );
+  };
+
   const handleDetectUsability = () => {
     setOutput("");
     if (screenshots.length === 0) {
@@ -132,7 +158,7 @@ function App() {
         ) : (
           <div className='image-container'>
             {screenshots.map((screenshot, idx) => (
-              <div className='image-item' key={idx}>
+              <div className='image-item' key={idx} onClick={() => handleImageClick(idx)}>
                 <img
                   src={screenshot.src}
                   alt={`Screenshot ${idx + 1}`}
