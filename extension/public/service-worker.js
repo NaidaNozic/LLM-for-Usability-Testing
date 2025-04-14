@@ -1,28 +1,21 @@
 importScripts('config.js');
 importScripts('utils.js');
 
-const createPopup = () => {
-  chrome.windows.create({
-    url: chrome.runtime.getURL("index.html"),
-    type: "popup",
-    width: 800,
-    height: 600
-  });
-};
+chrome.action.onClicked.addListener((tab) => {
+  chrome.sidePanel.open({ windowId: tab.windowId });
+});
 
-const takeScreenshot = (sendResponse) => {
-  chrome.storage.local.get(['lastActiveTabId'], (result) => {
-    const tabId = result.lastActiveTabId;
+async function getCurrentTab() {
+  const queryOptions = { active: true, lastFocusedWindow: true };
+  const [tab] = await chrome.tabs.query(queryOptions);
+  return tab;
+}
 
-    if (!tabId) {
-      console.log("The last active tab is not stored anymore.");
-      sendResponse({ screenshot: null });
-      return;
-    }
-
-    chrome.tabs.get(tabId, (tab) => {
-      if (chrome.runtime.lastError || !tab) {
-        console.error('Could not get tab:', chrome.runtime.lastError);
+function takeScreenshot(sendResponse) {
+  getCurrentTab()
+    .then((tab) => {
+      if (!tab) {
+        console.log("No active tab found.");
         sendResponse({ screenshot: null });
         return;
       }
@@ -31,14 +24,18 @@ const takeScreenshot = (sendResponse) => {
         if (chrome.runtime.lastError || !dataUrl) {
           console.error('Screenshot error:', chrome.runtime.lastError);
           sendResponse({ screenshot: null });
-          return;
+        } else {
+          sendResponse({ screenshot: dataUrl });
         }
-        sendResponse({ screenshot: dataUrl });
       });
+    })
+    .catch((error) => {
+      console.error("Unexpected error taking screenshot:", error);
+      sendResponse({ screenshot: null });
     });
-  });
+
   return true;
-};
+}
 
 const detectUsabilityIssues = async (request, sendResponse) => {
   const base64Images = request.base64Images;
@@ -114,11 +111,6 @@ const detectUsabilityIssues = async (request, sendResponse) => {
     sendResponse({ result: 'Sorry, there was an error analyzing the usability.' });
   }
 };
-
-chrome.action.onClicked.addListener(async (tab) => {
-  chrome.storage.local.set({ lastActiveTabId: tab.id });
-  createPopup();
-});
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   switch (request.type) {

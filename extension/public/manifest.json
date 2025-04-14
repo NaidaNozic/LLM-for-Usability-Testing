@@ -10,8 +10,11 @@
     "action": {
       "default_title": "UX/UI LMM"
     },
+    "side_panel": {
+      "default_path": "index.html"
+    },
     "host_permissions": ["<all_urls>"],
-      "permissions": ["storage", "scripting", "activeTab", "tabs"],
+      "permissions": ["storage", "scripting", "activeTab", "tabs", "sidePanel"],
     "background": {
       "service_worker": "service-worker.js"
     }
