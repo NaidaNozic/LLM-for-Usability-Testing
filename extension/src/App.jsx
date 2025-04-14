@@ -176,6 +176,7 @@ function App() {
                         variant="outlined"
                         size="small"
                         value={screenshot.title}
+                        onClick={(e) => {e.stopPropagation();}}
                         onChange={(e) => handleTitleChange(idx, e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
@@ -191,7 +192,7 @@ function App() {
 
                   <CustomIconButton
                     size="small"
-                    onClick={(e) => handleMenuOpen(idx, e)}
+                    onClick={(e) => {handleMenuOpen(idx, e); e.stopPropagation();}}
                     style={{ marginLeft: '4px' }}
                   >
                     <MoreVertIcon fontSize="small" />
@@ -200,6 +201,7 @@ function App() {
                   <Menu
                     anchorEl={anchorEls[idx]}
                     open={Boolean(anchorEls[idx])}
+                    onClick={(e) => {e.stopPropagation();}}
                     onClose={() => handleMenuClose(idx)}
                   >
                     <MenuItem onClick={() => handleRenameClick(idx)}>Rename</MenuItem>
