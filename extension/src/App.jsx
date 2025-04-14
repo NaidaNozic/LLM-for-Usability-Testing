@@ -11,6 +11,7 @@ import {
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import './App.css';
 import NoContent from './components/NoContent';
+import LoadingOverlay from './components/LoadingOverlay';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 function App() {
@@ -223,6 +224,8 @@ function App() {
           {capturing ? 'Adding...' : 'Add current screen'}
         </CustomButton>
       </div>
+
+      {loading && <LoadingOverlay message="Detecting usability issues..." />}
     </>
   );
 }
