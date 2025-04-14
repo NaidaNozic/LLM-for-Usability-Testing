@@ -69,38 +69,10 @@ function App() {
     );
   };
 
-  const handleDetectUsability = () => {
-    setOutput("");
-    if (screenshots.length === 0) {
-      setOutput('Please capture at least one screenshot first.');
-      return;
-    }
-
-    setLoading(true);
-    const base64Images = screenshots.map((s) => s.src.split(',')[1]);
-
-    chrome.runtime.sendMessage(
-      {
-        type: 'DETECT_USABILITY',
-        base64Images,
-        overview,
-        task,
-      },
-      (responseFromSW) => {
-        setLoading(false);
-        if (responseFromSW?.result) {
-          setOutput(responseFromSW.result);
-        } else {
-          setOutput('Sorry, I could not detect any usability issues.');
-        }
-      }
-    );
-  };
-
-  const handleClear = () => {
-    setScreenshots([]);
-    setOutput('');
-    setLoading(false);
+  const handleDeleteClick = (index) => {
+    const updated = screenshots.filter((_, i) => i !== index);
+    setScreenshots(updated);
+    setAnchorEls({});
   };
 
   const handleRenameClick = (index) => {
@@ -206,6 +178,7 @@ function App() {
                     onClose={() => handleMenuClose(idx)}
                   >
                     <MenuItem onClick={() => handleRenameClick(idx)}>Rename</MenuItem>
+                    <MenuItem onClick={() => handleDeleteClick(idx)}>Delete</MenuItem>
                   </Menu>
                 </div>
               </div>
