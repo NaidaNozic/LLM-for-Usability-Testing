@@ -11,28 +11,37 @@ async function getCurrentTab() {
   return tab;
 }
 
-function takeScreenshot(sendResponse) {
-  getCurrentTab()
-    .then((tab) => {
-      if (!tab) {
-        console.log("No active tab found.");
-        sendResponse({ screenshot: null });
-        return;
-      }
+let debounceTimeout;
 
-      chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }, (dataUrl) => {
-        if (chrome.runtime.lastError || !dataUrl) {
-          console.error('Screenshot error:', chrome.runtime.lastError);
+function takeScreenshot(sendResponse) {
+  if (debounceTimeout) return;
+  
+  debounceTimeout = setTimeout(() => {
+    getCurrentTab()
+      .then((tab) => {
+        if (!tab) {
+          console.log("No active tab found.");
           sendResponse({ screenshot: null });
-        } else {
-          sendResponse({ screenshot: dataUrl });
+          return;
         }
+
+        chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' }, (dataUrl) => {
+          clearTimeout(debounceTimeout);
+          debounceTimeout = null;
+
+          if (chrome.runtime.lastError || !dataUrl) {
+            console.error('Screenshot error:', JSON.stringify(chrome.runtime.lastError));
+            sendResponse({ screenshot: null });
+          } else {
+            sendResponse({ screenshot: dataUrl });
+          }
+        });
+      })
+      .catch((error) => {
+        console.error("Unexpected error taking screenshot:", error);
+        sendResponse({ screenshot: null });
       });
-    })
-    .catch((error) => {
-      console.error("Unexpected error taking screenshot:", error);
-      sendResponse({ screenshot: null });
-    });
+  }, 300);
 
   return true;
 }
@@ -78,9 +87,8 @@ const detectUsabilityIssues = async (request, sendResponse) => {
       text: request_for_evaluation
     });
 
+    console.log(content);
 
-    console.log(content);    
-    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -114,7 +122,7 @@ const detectUsabilityIssues = async (request, sendResponse) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   switch (request.type) {
-    
+
     case 'TAKE_SCREENSHOT':
       return takeScreenshot(sendResponse);
 
