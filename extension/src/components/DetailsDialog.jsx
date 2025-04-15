@@ -87,7 +87,7 @@ const DarkDialog = styled(Dialog)(({ theme }) => ({
       boxShadow: 'none',
       outline: 'none'
     },
-});
+  });
 
 const TextFieldTask = styled(TextField)({
     width: '100%',

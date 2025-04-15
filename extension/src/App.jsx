@@ -8,7 +8,8 @@ import {
   IconButton,
   Snackbar,
   Alert,
-  ClickAwayListener
+  ClickAwayListener,
+  Stack 
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import './App.css';
@@ -28,6 +29,7 @@ function App() {
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
   const [selectedTaskIndex, setSelectedTaskIndex] = useState(null);
   const [taskInput, setTaskInput] = useState('');
+  const [evaluationType, setEvaluationType] = useState('heuristic');
 
   const handleCaptureScreenshot = () => {
     setCapturing(true);
@@ -130,6 +132,34 @@ function App() {
 
   return (
     <>
+      <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: '5px'}}>
+        <CustomToggleButton
+          variant="contained"
+          fullWidth
+          onClick={() => setEvaluationType('heuristic')}
+          sx={{
+            backgroundColor: evaluationType === 'heuristic' ? 'rgb(34 112 175)' : 'rgba(87,65,69,255)',
+            '&:hover': {
+              backgroundColor: evaluationType === 'heuristic' ? 'rgb(56 140 209)' : 'rgba(150, 120, 125, 0.7)',
+            },
+          }}
+        >
+        Heuristic Evaluation
+        </CustomToggleButton>
+        <CustomToggleButton
+          variant="contained"
+          fullWidth
+          onClick={() => setEvaluationType('walkthrough')}
+          sx={{
+            backgroundColor: evaluationType === 'walkthrough' ? 'rgb(34 112 175)' : 'rgba(87,65,69,255)',
+            '&:hover': {
+              backgroundColor: evaluationType === 'walkthrough' ? 'rgb(56 140 209)' : 'rgba(150, 120, 125, 0.7)',
+            },
+          }}
+        >
+          Cognitive Walkthrough
+        </CustomToggleButton>
+      </div>
       <div className="card">
         <div style={{ padding: '0px 8px 0px 8px' }}>
           <p className='text-field-label'>App overview</p>
@@ -368,6 +398,27 @@ const TextFieldTitle = styled(TextField)({
   },
   '& .MuiInputLabel-root.Mui-focused': {
     color: 'white',
+  },
+});
+
+/* Toggle buttons */
+const CustomToggleButton = styled(Button)({
+  borderRadius: '8px',
+  color: '#fff',
+  textTransform: 'none',
+  fontSize: '12px',
+  fontWeight: '500',
+  boxShadow: 'none',
+  '&:hover': {
+    boxShadow: 'none',
+  },
+  '&:focus': {
+    boxShadow: 'none',
+    outline: 'none'
+  },
+  '&:active': {
+    boxShadow: 'none',
+    outline: 'none'
   },
 });
 
