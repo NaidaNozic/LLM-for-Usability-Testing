@@ -8,7 +8,11 @@ import {
   IconButton,
   Snackbar,
   Alert,
-  ClickAwayListener
+  ClickAwayListener,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import './App.css';
@@ -20,11 +24,13 @@ function App() {
   const [screenshots, setScreenshots] = useState([]);
   const [loading, setLoading] = useState(false);
   const [overview, setOverview] = useState('');
-  const [task, setTask] = useState('');
   const [capturing, setCapturing] = useState(false);
   const [anchorEls, setAnchorEls] = useState({});
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
+  const [selectedTaskIndex, setSelectedTaskIndex] = useState(null);
+  const [taskInput, setTaskInput] = useState('');
 
   const handleCaptureScreenshot = () => {
     setCapturing(true);
@@ -38,6 +44,7 @@ function App() {
             src: response.screenshot,
             title: `Screen ${newIndex}`,
             editing: false,
+            task: '',
           },
         ]);
       } else {
@@ -58,7 +65,7 @@ function App() {
         type: 'DETECT_USABILITY',
         base64Images: [base64Image],
         overview,
-        task,
+        task: selectedScreenshot.task,
       },
       (responseFromSW) => {
         setLoading(false);
@@ -113,6 +120,16 @@ function App() {
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
   };
+
+  const handleTaskDialogSave = () => {
+    const updated = screenshots.map((s, i) =>
+      i === selectedTaskIndex ? { ...s, task: taskInput } : s
+    );
+    setScreenshots(updated);
+    setTaskDialogOpen(false);
+    setSelectedTaskIndex(null);
+    setTaskInput('');
+  };  
 
   return (
     <>
@@ -188,6 +205,11 @@ function App() {
                   >
                     <MenuItem onClick={() => handleRenameClick(idx)}>Rename</MenuItem>
                     <MenuItem onClick={() => handleDeleteClick(idx)}>Delete</MenuItem>
+                    <MenuItem onClick={() => {
+                      setSelectedTaskIndex(idx);
+                      setTaskInput(screenshots[idx]?.task || '');
+                      setTaskDialogOpen(true);
+                    }}>Add user task</MenuItem>
                   </Menu>
                 </div>
               </div>
@@ -218,6 +240,28 @@ function App() {
           {snackbarMessage}
         </Alert>
       </Snackbar>
+
+      <DarkDialog open={taskDialogOpen} onClose={() => setTaskDialogOpen(false)}>
+        <DarkDialogTitle>
+          Add user task
+          <span className='dialog-hint'>Provide a short description of the user's activity on the captured screen.</span>
+          </DarkDialogTitle>
+        <DarkDialogContent>
+          <TextFieldOverview
+            fullWidth
+            placeholder='The user task is...'
+            multiline
+            rows={2}
+            value={taskInput}
+            onChange={(e) => setTaskInput(e.target.value)}
+          />
+        </DarkDialogContent>
+        <DarkDialogActions>
+          <CustomDialogButton onClick={() => setTaskDialogOpen(false)} style={{ color: 'white' }}>Cancel</CustomDialogButton>
+          <CustomDialogButton variant="contained" onClick={handleTaskDialogSave}>Save</CustomDialogButton>
+        </DarkDialogActions>
+      </DarkDialog>
+
     </>
   );
 }
@@ -281,6 +325,20 @@ const TextFieldOverview = styled(TextField)({
       fontSize: '12px',
       color: 'rgba(255, 255, 255, 0.6)',
     },
+    '&::-webkit-scrollbar': {
+      width: '8px',
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'rgba(255, 255, 255, 0.1)',
+      borderRadius: '4px',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      background: 'rgba(255, 255, 255, 0.4)',
+      borderRadius: '4px',
+    },
+    '&::-webkit-scrollbar-thumb:hover': {
+      background: 'rgba(255, 255, 255, 0.6)',
+    },
   },
   '& textarea::placeholder': {
     fontSize: '12px',
@@ -329,5 +387,55 @@ const TextFieldTitle = styled(TextField)({
     color: 'white',
   },
 });
+
+/* Dialog styles */
+const DarkDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiPaper-root': {
+    backgroundColor: 'rgb(68, 68, 68)',
+    color: '#ffffff',
+    width: '90vw',
+  },
+}));
+
+const DarkDialogTitle = styled(DialogTitle)({
+  color: '#ffffff',
+  fontSize: '14px',
+  fontWeight: '500',
+  padding: '10px 15px',
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+const DarkDialogContent = styled(DialogContent)({
+  color: '#ffffff',
+  padding: '10px 15px',
+});
+
+const DarkDialogActions = styled(DialogActions)({
+  borderTop: '1px solid #444',
+  padding: '10px 15px',
+});
+
+const CustomDialogButton = styled(Button)({
+  borderRadius: '8px',
+  color: '#fff',
+  textTransform: 'none',
+  fontSize: '12px',
+  fontWeight: '500',
+  boxShadow: 'none',
+  backgroundColor: '#2270af',
+  '&:hover': {
+    boxShadow: 'none',
+  },
+  '&:focus': {
+    boxShadow: 'none',
+    outline: 'none'
+  },
+  '&:active': {
+    boxShadow: 'none',
+    outline: 'none'
+  },
+});
+
 
 export default App;
