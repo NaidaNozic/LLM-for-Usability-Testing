@@ -8,16 +8,13 @@ import {
   IconButton,
   Snackbar,
   Alert,
-  ClickAwayListener,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions
+  ClickAwayListener
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import './App.css';
 import NoContent from './components/NoContent';
 import LoadingOverlay from './components/LoadingOverlay';
+import DetailsDialog from './components/DetailsDialog';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 function App() {
@@ -241,27 +238,13 @@ function App() {
         </Alert>
       </Snackbar>
 
-      <DarkDialog open={taskDialogOpen} onClose={() => setTaskDialogOpen(false)}>
-        <DarkDialogTitle>
-          Add user task
-          <span className='dialog-hint'>Provide a short description of the user's activity on the captured screen.</span>
-          </DarkDialogTitle>
-        <DarkDialogContent>
-          <TextFieldOverview
-            fullWidth
-            placeholder='The user task is...'
-            multiline
-            rows={2}
-            value={taskInput}
-            onChange={(e) => setTaskInput(e.target.value)}
-          />
-        </DarkDialogContent>
-        <DarkDialogActions>
-          <CustomDialogButton onClick={() => setTaskDialogOpen(false)} style={{ color: 'white' }}>Cancel</CustomDialogButton>
-          <CustomDialogButton variant="contained" onClick={handleTaskDialogSave}>Save</CustomDialogButton>
-        </DarkDialogActions>
-      </DarkDialog>
-
+      <DetailsDialog
+        open={taskDialogOpen}
+        onClose={() => setTaskDialogOpen(false)}
+        taskInput={taskInput}
+        onTaskInputChange={(e) => setTaskInput(e.target.value)}
+        onSave={handleTaskDialogSave}
+      />
     </>
   );
 }
@@ -387,55 +370,5 @@ const TextFieldTitle = styled(TextField)({
     color: 'white',
   },
 });
-
-/* Dialog styles */
-const DarkDialog = styled(Dialog)(({ theme }) => ({
-  '& .MuiPaper-root': {
-    backgroundColor: 'rgb(68, 68, 68)',
-    color: '#ffffff',
-    width: '90vw',
-  },
-}));
-
-const DarkDialogTitle = styled(DialogTitle)({
-  color: '#ffffff',
-  fontSize: '14px',
-  fontWeight: '500',
-  padding: '10px 15px',
-  display: 'flex',
-  flexDirection: 'column',
-});
-
-const DarkDialogContent = styled(DialogContent)({
-  color: '#ffffff',
-  padding: '10px 15px',
-});
-
-const DarkDialogActions = styled(DialogActions)({
-  borderTop: '1px solid #444',
-  padding: '10px 15px',
-});
-
-const CustomDialogButton = styled(Button)({
-  borderRadius: '8px',
-  color: '#fff',
-  textTransform: 'none',
-  fontSize: '12px',
-  fontWeight: '500',
-  boxShadow: 'none',
-  backgroundColor: '#2270af',
-  '&:hover': {
-    boxShadow: 'none',
-  },
-  '&:focus': {
-    boxShadow: 'none',
-    outline: 'none'
-  },
-  '&:active': {
-    boxShadow: 'none',
-    outline: 'none'
-  },
-});
-
 
 export default App;
