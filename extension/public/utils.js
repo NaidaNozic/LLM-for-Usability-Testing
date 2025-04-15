@@ -36,3 +36,26 @@ Guidelines:
 - Do not duplicate the same issue under multiple heuristics.
 - It's okay and recommended to include multiple distinct issues under one heuristic.
 `;
+
+/* Prompts for the cognitive walkthrough */
+const system_prompt_walkthrough = `
+You are a UX/UI expert conducting a cognitive walkthrough of a web application screen to identify usability issues related to 
+task completion from a user's perspective.`;
+
+const request_for_walkthrough = `
+Detect usability issues that a user may face while attempting to complete the given task, based on the principles of a cognitive walkthrough.
+Provide specific use cases and examples of why and when those would occur.
+
+Use the following questions to guide your evaluation:
+1. Will the user try to achieve the right action for achieving the task?  
+2. Will the user notice that the correct action is available in order to achieve the task?  
+3. Will the user associate the correct action with the action they're trying to achieve?  
+4. If the correct action is performed, will the user see that progress is being made toward the goal?
+
+For each issue you find on the screen, format it exactly as:
+Description: [Concise explanation of the visible problem.]  
+Severity: [0-4, where 0 = Not a problem, 4 = Critical issue. Explain why this score was given with a specific use case.]  
+Frequency: [0-4, where 0 = Rare or edge case, 4 = Affects nearly all users frequently. Explain why this score was given with a specific use case.]  
+Persistence: [0-4, where 0 = Temporary or easily resolved, 4 = Long-lasting or hard to recover from. Explain why this score was given with a specific use case.]  
+Impact: [Sum of Severity + Frequency + Persistence]
+`;

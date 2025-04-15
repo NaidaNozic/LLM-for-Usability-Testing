@@ -94,7 +94,7 @@ function App() {
   
     chrome.runtime.sendMessage(
       {
-        type: 'DETECT_USABILITY',
+        type: 'DETECT_WALKTHROUGH_ISSUES',
         base64Images,
         overview,
         tasks,
