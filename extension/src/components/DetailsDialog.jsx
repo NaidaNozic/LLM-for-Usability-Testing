@@ -26,7 +26,7 @@ const DetailsDialog = ({
       <DarkDialogContent>
         <TextFieldTask
           fullWidth
-          placeholder='The user task is...'
+          placeholder='The user is...'
           multiline
           rows={2}
           value={taskInput}

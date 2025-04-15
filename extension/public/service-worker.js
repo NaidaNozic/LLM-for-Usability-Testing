@@ -48,7 +48,8 @@ function takeScreenshot(sendResponse) {
 
 const detectUsabilityIssues = async (request, sendResponse) => {
   const base64Images = request.base64Images;
-  console.log(`Number of images: ${base64Images.length}`);
+  const tasks = request.tasks || [];
+
   for (let i = 0; i < base64Images.length; i++) {
     const base64Image = base64Images[i];
     const imageSizeInBytes = Math.ceil((base64Image.length * 3) / 4);
@@ -63,28 +64,34 @@ const detectUsabilityIssues = async (request, sendResponse) => {
   }
 
   try {
-    const content = [
-      { type: 'text', text: system_prompt },
-    ];
+    const content = [{ type: 'text', text: system_prompt }];
+
+    if (request.overview && request.overview.trim() !== '') {
+      content.push({
+        type: 'text',
+        text: `You are given a web application about: ${request.overview.trim()}`,
+      });
+    }
 
     base64Images.forEach((base64Image, index) => {
       content.push({
         type: 'image_url',
         image_url: { url: `data:image/png;base64,${base64Image}` },
       });
+
+
+      const task = tasks[index];
+      if (task && task.trim() !== '') {
+        content.push({
+          type: 'text',
+          text: `In the above app view, the user's task is: ${task.trim()}`,
+        });
+      }
     });
-
-    if (request.overview && request.overview.trim() !== '') {
-      content.push({ type: 'text', text: `You are given a web application about: ${request.overview.trim()}` });
-    }
-
-    if (request.task && request.task.trim() !== '') {
-      content.push({ type: 'text', text: `The user's task in the given app view is: ${request.task.trim()}` });
-    }
 
     content.push({
       type: 'text',
-      text: request_for_evaluation
+      text: request_for_evaluation,
     });
 
     console.log(content);

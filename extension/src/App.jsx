@@ -64,7 +64,7 @@ function App() {
         type: 'DETECT_USABILITY',
         base64Images: [base64Image],
         overview,
-        task: selectedScreenshot.task,
+        tasks: [selectedScreenshot.task],
       },
       (responseFromSW) => {
         setLoading(false);
@@ -79,6 +79,39 @@ function App() {
       }
     );
   };
+
+  const handleWalkthroughEvaluation = () => {
+    if (screenshots.length === 0) {
+      setSnackbarMessage('Please capture at least one screenshot first.');
+      setSnackbarOpen(true);
+      return;
+    }
+  
+    setLoading(true);
+  
+    const base64Images = screenshots.map((img) => img.src.split(',')[1]);
+    const tasks = screenshots.map((img) => img.task || '');
+  
+    chrome.runtime.sendMessage(
+      {
+        type: 'DETECT_USABILITY',
+        base64Images,
+        overview,
+        tasks,
+      },
+      (responseFromSW) => {
+        setLoading(false);
+        if (responseFromSW?.result) {
+          chrome.storage.local.set({ usabilityOutput: responseFromSW.result }, () => {
+            window.open(chrome.runtime.getURL('result.html'), '_blank');
+          });
+        } else {
+          setSnackbarMessage('Sorry, I could not detect any usability issues.');
+          setSnackbarOpen(true);
+        }
+      }
+    );
+  };  
 
   const handleDeleteClick = (index) => {
     const updated = screenshots.filter((_, i) => i !== index);
@@ -263,6 +296,7 @@ function App() {
           <CustomButton
             sx={{width: '170px'}}
             variant="contained"
+            onClick={handleWalkthroughEvaluation}
           >
             Start walkthrough
           </CustomButton>
