@@ -185,7 +185,9 @@ function App() {
         ) : (
           <div className='image-container'>
             {screenshots.map((screenshot, idx) => (
-              <div className='image-item' key={idx} onClick={() => handleImageClick(idx)}>
+              <div className={`image-item ${evaluationType == 'heuristic' ? 'image-item-hover' : ''}`} 
+                   key={idx} 
+                   onClick={evaluationType === 'heuristic' ? () => handleImageClick(idx) : undefined}>
                 <img
                   src={screenshot.src}
                   alt={`Screenshot ${idx + 1}`}

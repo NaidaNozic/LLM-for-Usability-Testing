@@ -117,7 +117,7 @@
   gap: 5px;
 }
 
-.image-item:hover {
+.image-item.image-item-hover:hover {
   background-color: rgba(150, 120, 125, 0.7);
 }
 
