@@ -132,7 +132,7 @@ function App() {
 
   return (
     <>
-      <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: '5px'}}>
+      <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: '4px'}}>
         <CustomToggleButton
           variant="contained"
           fullWidth
@@ -144,7 +144,7 @@ function App() {
             },
           }}
         >
-        Heuristic Evaluation
+        Heuristic evaluation
         </CustomToggleButton>
         <CustomToggleButton
           variant="contained"
@@ -157,9 +157,10 @@ function App() {
             },
           }}
         >
-          Cognitive Walkthrough
+          Cognitive walkthrough
         </CustomToggleButton>
       </div>
+
       <div className="card">
         <div style={{ padding: '0px 8px 0px 8px' }}>
           <p className='text-field-label'>App overview</p>
@@ -251,9 +252,19 @@ function App() {
           startIcon={<AddCircleOutlineIcon />}
           onClick={handleCaptureScreenshot}
           disabled={capturing}
+          sx={{width: '170px'}}
         >
           {capturing ? 'Adding...' : 'Add current screen'}
         </CustomButton>
+
+        {evaluationType === 'walkthrough' && (
+          <CustomButton
+            sx={{width: '170px'}}
+            variant="contained"
+          >
+            Start walkthrough
+          </CustomButton>
+        )}
       </div>
 
       {loading && <LoadingOverlay message="Detecting usability issues..." />}
@@ -299,7 +310,6 @@ const CustomButton = styled(Button)({
   fontSize: '12px',
   fontWeight: '500',
   padding: '10px 0px 10px 0px',
-  width: '180px',
   height: '41px',
   boxShadow: 'none',
   '&:hover': {
