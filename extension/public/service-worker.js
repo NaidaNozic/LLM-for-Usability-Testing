@@ -102,8 +102,7 @@ const detectUsabilityIssues = async (request, sendResponse) => {
             role: 'user',
             content: content,
           },
-        ],
-        max_tokens: 4000,
+        ]
       }),
     });
 
