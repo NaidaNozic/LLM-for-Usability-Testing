@@ -116,5 +116,5 @@ istration, if the password format does not meet the required criteria, the syste
  of information on the page, which keeps users focused on essential elements that are key to usability, like buttons and links.
  
  NS10—Help and Documentation: The Help and Documentation principle referes to the fact that ideally, systems should be designed 
- to be as self-explanatory as possible. However, it’s often necessary to provide additional documentation to help users who require guidance or 
+ to be as self-explanatory as possible. However, it's often necessary to provide additional documentation to help users who require guidance or 
  run into problems, especially with more complex software programs."""
