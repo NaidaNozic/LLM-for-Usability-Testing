@@ -29,6 +29,7 @@ function App() {
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
   const [selectedTaskIndex, setSelectedTaskIndex] = useState(null);
   const [taskInput, setTaskInput] = useState('');
+  const [correctActionInput, setCorrectActionInput] = useState('');
   const [evaluationType, setEvaluationType] = useState('heuristic');
 
   const handleCaptureScreenshot = () => {
@@ -80,39 +81,6 @@ function App() {
     );
   };
 
-  const handleWalkthroughEvaluation = () => {
-    if (screenshots.length === 0) {
-      setSnackbarMessage('Please capture at least one screenshot first.');
-      setSnackbarOpen(true);
-      return;
-    }
-  
-    setLoading(true);
-  
-    const base64Images = screenshots.map((img) => img.src.split(',')[1]);
-    const tasks = screenshots.map((img) => img.task || '');
-  
-    chrome.runtime.sendMessage(
-      {
-        type: 'DETECT_WALKTHROUGH_ISSUES',
-        base64Images,
-        overview,
-        tasks,
-      },
-      (responseFromSW) => {
-        setLoading(false);
-        if (responseFromSW?.result) {
-          chrome.storage.local.set({ usabilityOutput: responseFromSW.result }, () => {
-            window.open(chrome.runtime.getURL('result.html'), '_blank');
-          });
-        } else {
-          setSnackbarMessage('Sorry, I could not detect any usability issues.');
-          setSnackbarOpen(true);
-        }
-      }
-    );
-  };  
-
   const handleDeleteClick = (index) => {
     const updated = screenshots.filter((_, i) => i !== index);
     setScreenshots(updated);
@@ -155,12 +123,17 @@ function App() {
 
   const handleTaskDialogSave = () => {
     const updated = screenshots.map((s, i) =>
-      i === selectedTaskIndex ? { ...s, task: taskInput } : s
+      i === selectedTaskIndex ? {
+        ...s,
+        task: taskInput,
+        correctAction: correctActionInput
+      } : s
     );
     setScreenshots(updated);
     setTaskDialogOpen(false);
     setSelectedTaskIndex(null);
     setTaskInput('');
+    setCorrectActionInput('');
   };  
 
   return (
@@ -218,9 +191,9 @@ function App() {
         ) : (
           <div className='image-container'>
             {screenshots.map((screenshot, idx) => (
-              <div className={`image-item ${evaluationType == 'heuristic' ? 'image-item-hover' : ''}`} 
+              <div className="image-item image-item-hover"
                    key={idx} 
-                   onClick={evaluationType === 'heuristic' ? () => handleImageClick(idx) : undefined}>
+                   onClick={evaluationType === 'heuristic' ? () => handleImageClick(idx) : undefined} >
                 <img
                   src={screenshot.src}
                   alt={`Screenshot ${idx + 1}`}
@@ -271,8 +244,9 @@ function App() {
                     <MenuItem onClick={() => {
                       setSelectedTaskIndex(idx);
                       setTaskInput(screenshots[idx]?.task || '');
+                      setCorrectActionInput(screenshots[idx]?.correctAction || '');
                       setTaskDialogOpen(true);
-                    }}>Add user task</MenuItem>
+                    }}>Edit</MenuItem>
                   </Menu>
                 </div>
               </div>
@@ -291,16 +265,6 @@ function App() {
         >
           {capturing ? 'Adding...' : 'Add current screen'}
         </CustomButton>
-
-        {evaluationType === 'walkthrough' && (
-          <CustomButton
-            sx={{width: '170px'}}
-            variant="contained"
-            onClick={handleWalkthroughEvaluation}
-          >
-            Start walkthrough
-          </CustomButton>
-        )}
       </div>
 
       {loading && <LoadingOverlay message="Detecting usability issues..." />}
@@ -321,6 +285,9 @@ function App() {
         taskInput={taskInput}
         onTaskInputChange={(e) => setTaskInput(e.target.value)}
         onSave={handleTaskDialogSave}
+        correctActionInput={correctActionInput}
+        onCorrectActionInputChange={(e) => setCorrectActionInput(e.target.value)}
+        evaluationType={evaluationType}
       />
     </>
   );

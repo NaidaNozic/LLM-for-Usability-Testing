@@ -15,23 +15,44 @@ const DetailsDialog = ({
   onClose,
   taskInput,
   onTaskInputChange,
-  onSave
+  onSave,
+  correctActionInput,
+  onCorrectActionInputChange,
+  evaluationType
 }) => {
   return (
     <DarkDialog open={open} onClose={onClose}>
       <DarkDialogTitle>
-        Add user task
-        <span className='dialog-hint'>Provide a short description of the user's activity on the captured screen.</span>
+        Details
       </DarkDialogTitle>
       <DarkDialogContent>
-        <TextFieldTask
-          fullWidth
-          placeholder='The user is...'
-          multiline
-          rows={2}
-          value={taskInput}
-          onChange={onTaskInputChange}
-        />
+        <div>
+          <p className="dialog-label">Add user task</p>
+          <span className='dialog-hint'>Provide a short description of the user's activity on the captured screen.</span>
+          <TextFieldTask
+            fullWidth
+            placeholder='The user is...'
+            multiline
+            rows={2}
+            value={taskInput}
+            onChange={onTaskInputChange}
+          />
+        </div>
+
+        {evaluationType === 'walkthrough' && (
+          <div>
+            <p className="dialog-label">Specify correct action</p>
+            <span className='dialog-hint'>Add the correct action for achieving the user task.</span>
+            <TextFieldTask
+              fullWidth
+              placeholder='The correct action is...'
+              multiline
+              rows={2}
+              value={correctActionInput}
+              onChange={onCorrectActionInputChange}
+            />
+          </div>)}
+
       </DarkDialogContent>
       <DarkDialogActions>
         <CustomDialogButton onClick={onClose} style={{ color: 'white' }}>Cancel</CustomDialogButton>
@@ -61,6 +82,9 @@ const DarkDialog = styled(Dialog)(({ theme }) => ({
   const DarkDialogContent = styled(DialogContent)({
     color: '#ffffff',
     padding: '10px 15px',
+    gap: '10px',
+    display: 'flex',
+    flexDirection: 'column',
   });
   
   const DarkDialogActions = styled(DialogActions)({
@@ -91,6 +115,7 @@ const DarkDialog = styled(Dialog)(({ theme }) => ({
 
 const TextFieldTask = styled(TextField)({
     width: '100%',
+    marginTop: '4px',
     '& .MuiOutlinedInput-root': {
       borderRadius: '5px',
       padding: '8px',
