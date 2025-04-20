@@ -30,7 +30,6 @@ function App() {
   const [taskInput, setTaskInput] = useState('');
   const [correctActionInput, setCorrectActionInput] = useState('');
   const [evaluationType, setEvaluationType] = useState('heuristic');
-  const [afterScreenshotSelection, setAfterScreenshotSelection] = useState('');
 
   const handleCaptureScreenshot = () => {
     setCapturing(true);
@@ -45,8 +44,7 @@ function App() {
             title: `Screen ${newIndex}`,
             editing: false,
             task: '',
-            correctAction: '',
-            afterScreenshot: '',
+            correctAction: ''
           },
         ]);
       } else {
@@ -88,7 +86,6 @@ function App() {
   
     setLoading(true);
     const base64Image = selectedScreenshot.src.split(',')[1];
-    const base64AfterImage = selectedScreenshot.afterScreenshot.split(',')[1];
 
     chrome.runtime.sendMessage(
       {
@@ -96,8 +93,7 @@ function App() {
         base64Images: [base64Image],
         overview,
         tasks: [selectedScreenshot.task],
-        correctActions: [selectedScreenshot.correctAction],
-        afterScreenshot: base64AfterImage,
+        correctActions: [selectedScreenshot.correctAction]
       },
       (responseFromSW) => {
         setLoading(false);
@@ -158,8 +154,7 @@ function App() {
       i === selectedTaskIndex ? {
         ...s,
         task: taskInput,
-        correctAction: correctActionInput,
-        afterScreenshot: afterScreenshotSelection || null,
+        correctAction: correctActionInput
       } : s
     );
     setScreenshots(updated);
@@ -167,7 +162,6 @@ function App() {
     setSelectedTaskIndex(null);
     setTaskInput('');
     setCorrectActionInput('');
-    setAfterScreenshotSelection('');
   };  
 
   return (
@@ -297,7 +291,6 @@ function App() {
                       setSelectedTaskIndex(idx);
                       setTaskInput(screenshots[idx]?.task || '');
                       setCorrectActionInput(screenshots[idx]?.correctAction || '');
-                      setAfterScreenshotSelection(screenshots[idx]?.afterScreenshot || '');
                       setTaskDialogOpen(true);
                     }}>Edit</MenuItem>
                   </Menu>
@@ -341,9 +334,6 @@ function App() {
         correctActionInput={correctActionInput}
         onCorrectActionInputChange={(e) => setCorrectActionInput(e.target.value)}
         evaluationType={evaluationType}
-        screenshots={screenshots}
-        afterScreenshotSelection={afterScreenshotSelection}
-        setAfterScreenshotSelection={setAfterScreenshotSelection}
       />
     </>
   );

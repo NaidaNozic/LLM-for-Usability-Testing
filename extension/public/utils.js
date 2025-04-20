@@ -1,3 +1,4 @@
+/* Prompts for the heuristic evaluation */
 const nielsen_heuristics = `
 N1 Visibility of System Status - Does the user always know what's happening?
 N2 User Control and Freedom - Can the user easily undo or exit actions?
@@ -57,24 +58,7 @@ Each issue should be written in **1-2 short sentences** and must reflect how a u
 
 ### Example Output:
 
-Issues (Before Action):
+Issues:
 1. There are two identical buttons, which could confuse users about their functions and the differences between them.  
 2. Nothing is labeled and it might be unclear to the user what button might lead to where. Adding tooltips or labels might help.  
 3. The upload icon is placed next to the profile picture, which could lead users to think both do the same thing.`;
-
-const request_walkthrough_feedback = `
-You are shown another screenshot of a web interface, **after** the user has taken the correct action to complete the user task.
-
-Also identify usability issues related to how well the interface communicates feedback *after* the correct action.
-
-### Use the following guiding question with the same output format already mentioned:
-- After the user does the correct action, will they know that they did the right action and are making progress toward their goal?
-- Is complex problem solving needed to interpret the feedback?
-
-### An example output for the after image usability issues is:
-
-Issues (After Action):
-1. After clicking the icon, nothing visually changes on the screen, leaving the user uncertain if the action worked.  
-2. There is no loading indicator or transition effect, so the user might think the interface is unresponsive.  
-3. The screen changes but doesn't clearly show that the user is now on the uploader's profile, which might confuse them.
-`
