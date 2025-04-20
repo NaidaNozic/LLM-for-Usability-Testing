@@ -50,6 +50,7 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
   const base64Images = request.base64Images;
   const tasks = request.tasks || [];
   const correctActions = request.correctActions || [];
+  const afterScreenshot = request.afterScreenshot;
 
   for (let i = 0; i < base64Images.length; i++) {
     const base64Image = base64Images[i];
@@ -62,6 +63,17 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
       });
       return true;
     }
+  }
+
+  const base64AfterImage = afterScreenshot;
+  const afterImageSizeInBytes = Math.ceil((base64AfterImage.length * 3) / 4);
+  const afterImageSizeInMB = afterImageSizeInBytes / (1024 * 1024);
+
+  if (afterImageSizeInMB > 20) {
+    sendResponse({
+      result: `Image ${i + 1} is too large (${afterImageSizeInMB.toFixed(2)} MB). OpenAI only accepts images under 20MB.`,
+    });
+    return true;
   }
 
   try {
@@ -107,6 +119,16 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
     content.push({
       type: 'text',
       text: request_walkthrough,
+    });
+
+    content.push({
+      type: 'text',
+      text: request_walkthrough_feedback,
+    });
+
+    content.push({
+      type: 'image_url',
+      image_url: { url: `data:image/png;base64,${base64AfterImage}` },
     });
 
     messages.push({

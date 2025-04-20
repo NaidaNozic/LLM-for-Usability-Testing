@@ -88,6 +88,7 @@ function App() {
   
     setLoading(true);
     const base64Image = selectedScreenshot.src.split(',')[1];
+    const base64AfterImage = selectedScreenshot.afterScreenshot.split(',')[1];
 
     chrome.runtime.sendMessage(
       {
@@ -96,7 +97,7 @@ function App() {
         overview,
         tasks: [selectedScreenshot.task],
         correctActions: [selectedScreenshot.correctAction],
-        afterScreenshot: selectedScreenshot.afterScreenshot,
+        afterScreenshot: base64AfterImage,
       },
       (responseFromSW) => {
         setLoading(false);
