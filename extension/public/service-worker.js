@@ -144,7 +144,6 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
 
 const detectUsabilityIssues = async (request, sendResponse) => {
   const base64Images = request.base64Images;
-  const tasks = request.tasks || [];
 
   for (let i = 0; i < base64Images.length; i++) {
     const base64Image = base64Images[i];
@@ -174,15 +173,6 @@ const detectUsabilityIssues = async (request, sendResponse) => {
         type: 'image_url',
         image_url: { url: `data:image/png;base64,${base64Image}` },
       });
-
-
-      const task = tasks[index];
-      if (task && task.trim() !== '') {
-        content.push({
-          type: 'text',
-          text: `In the above app view, the user's task is: ${task.trim()}`,
-        });
-      }
     });
 
     content.push({

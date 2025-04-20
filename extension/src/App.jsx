@@ -65,7 +65,6 @@ function App() {
         type: 'DETECT_USABILITY',
         base64Images: [base64Image],
         overview,
-        tasks: [selectedScreenshot.task],
       },
       (responseFromSW) => {
         setLoading(false);
@@ -286,13 +285,17 @@ function App() {
                   >
                     <MenuItem onClick={() => {handleMenuClose(idx); handleRenameClick(idx);}}>Rename</MenuItem>
                     <MenuItem onClick={() => {handleMenuClose(idx); handleDeleteClick(idx);}}>Delete</MenuItem>
-                    <MenuItem onClick={() => {
-                      handleMenuClose(idx);
-                      setSelectedTaskIndex(idx);
-                      setTaskInput(screenshots[idx]?.task || '');
-                      setCorrectActionInput(screenshots[idx]?.correctAction || '');
-                      setTaskDialogOpen(true);
-                    }}>Edit</MenuItem>
+                    {evaluationType === 'walkthrough' && (
+                      <MenuItem onClick={() => {
+                        handleMenuClose(idx);
+                        setSelectedTaskIndex(idx);
+                        setTaskInput(screenshots[idx]?.task || '');
+                        setCorrectActionInput(screenshots[idx]?.correctAction || '');
+                        setTaskDialogOpen(true);
+                      }}>
+                        Edit
+                      </MenuItem>
+                    )}
                   </Menu>
                 </div>
               </div>

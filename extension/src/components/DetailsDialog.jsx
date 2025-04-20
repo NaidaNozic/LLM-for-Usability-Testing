@@ -26,34 +26,36 @@ const DetailsDialog = ({
         Details
       </DarkDialogTitle>
       <DarkDialogContent>
-        <div>
-          <p className="dialog-label">Add user task</p>
-          <span className='dialog-hint'>Provide a short description of the user's activity on the captured screen.</span>
-          <TextFieldTask
-            fullWidth
-            placeholder='The user is...'
-            multiline
-            rows={2}
-            value={taskInput}
-            onChange={onTaskInputChange}
-          />
-        </div>
-
         {evaluationType === 'walkthrough' && (
+        <>
+          <div>
+            <p className="dialog-label">Add user task</p>
+            <span className='dialog-hint'>Provide a short description of the user's activity on the captured screen.</span>
+            <TextFieldTask
+              fullWidth
+              placeholder='The user is...'
+              multiline
+              rows={2}
+              value={taskInput}
+              onChange={onTaskInputChange}
+            />
+          </div>
           <div className='walkthrough-container'>
-            <div>
-              <p className="dialog-label">Specify correct action</p>
-              <span className='dialog-hint'>Add the correct action for achieving the user task.</span>
-              <TextFieldTask
-                fullWidth
-                placeholder='The correct action is...'
-                multiline
-                rows={2}
-                value={correctActionInput}
-                onChange={onCorrectActionInputChange}
-              />
+              <div>
+                <p className="dialog-label">Specify correct action</p>
+                <span className='dialog-hint'>Add the correct action for achieving the user task.</span>
+                <TextFieldTask
+                  fullWidth
+                  placeholder='The correct action is...'
+                  multiline
+                  rows={2}
+                  value={correctActionInput}
+                  onChange={onCorrectActionInputChange}
+                />
+              </div>
             </div>
-          </div>)
+        </>
+          )
           }
 
       </DarkDialogContent>

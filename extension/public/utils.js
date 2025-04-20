@@ -1,41 +1,51 @@
 /* Prompts for the heuristic evaluation */
-const nielsen_heuristics = `
-N1 Visibility of System Status - Does the user always know what's happening?
-N2 User Control and Freedom - Can the user easily undo or exit actions?
-N3 Error Prevention - Are there clear safeguards to prevent mistakes?
-N4 Recognition Rather Than Recall - Is important information visible, or must the user remember steps?
-N5 Consistency and Standards - Are design patterns and terminology consistent?
-N6 Match Between System and the Real World - Does the design use familiar language and visuals?
-N7 Helps Users Recognize, Diagnose, and Recover from Errors - Are error messages clear and helpful?
-N8 Flexibility and Efficiency - Are there shortcuts or advanced features for experienced users?
-N9 Aesthetic and Minimalist Design - Is the interface free from unnecessary clutter?
-N10 Help and Documentation - Is help clearly available where needed?
-`;
+const system_prompt = `You are a UX/UI expert evaluating a screen of a web application based on all 10 Nielsen's heuristics.`;
 
-const system_prompt = `
-You are a UX/UI expert evaluating a static screen of a web application based on all 10 Nielsen's heuristics.
+const nielsen_heuristics = `
+- Is there anything missing or unclear on the screen that might make the user unsure about the current status or progress of the system?
+- Is anything preventing the user from going back, canceling, or undoing an action if they make a mistake?
+- Which safeguards for preventing user mistakes are missing or are unclear?
+- Are there places where the user is forced to remember information rather than seeing it clearly on the screen?
+- Are there places where design patterns and terminology are not consistent?
+- Are there elements of the screen that might feel unfamiliar or confusing to the user based on real-world expectations?
+- If there are existing error indicators, in what why do any of them fail to explain what went wrong or how the user can fix it?
+- What parts of the screen lack in shortcuts or advanced features for experienced users?
+- Are there elements on the screen that feel unnecessary, distracting, or add visual noise?
+- Are there situations where users may struggle to find help or guidance when they need it? 
 `;
 
 const request_for_evaluation = `
-Detect usability issues on the screen by using all 10 heuristics below as the evaluation criteria.
-Sort the detected issues by **Impact** (highest to lowest, with highest being at the top of the list):
+Identify usability issues on the screen using Nielsen's heuristics as evaluation criteria, 
+focusing only on elements visible before any user interaction.
+Use the following questions as guidance to help you explore the interface from multiple angles. 
+You are NOT limited to one issue per question — you may identify multiple issues inspired by a single question, 
+and some issues may relate to more than one question:
 ${nielsen_heuristics}
 
-Format each issue exactly as:
-Description: [Concise explanation of the visible problem.]  
-Severity: [0-4, where 0 = Not a problem, 4 = Critical issue. Explain why this score was given with a specific usa case.]  
-Frequency: [0-4, where 0 = Rare or edge case, 4 = Affects nearly all users frequently. Explain why this score was given with a specific usa case.]  
-Persistence: [0-4, where 0 = Temporary or easily resolved, 4 = Long-lasting or hard to recover from. Explain why this score was given with a specific usa case.]  
-Impact: [Sum of Severity + Frequency + Persistence]
+### Output Format:
+For each issue, include the following:
 
-After listing all issues, provide a separate list of **Suggestions**:
-- Each suggestion should relate to a listed issue or propose an improvement based on what's missing from the visible screen.
-- Suggestions may include reminders for elements that are not shown but are typically important to include (e.g., help, error handling), without assuming they are missing globally.
+- **Title of the issue**
+- **Short description of the issue** (1-2 sentences)
+- **Severity Rating** (0-4, where 0 = Not a problem, 4 = Critical issue)
+- **Recommendation for Fixes**
 
-Guidelines:
-- Only include the issue list and the suggestion list. No extra summaries or text.
-- Do not duplicate the same issue under multiple heuristics.
-- It's okay and recommended to include multiple distinct issues under one heuristic.
+### Example Output:
+
+Issues:
+
+1. **Error Prevention**: No "Cancel" button during checkout, preventing users from exiting without completing the purchase.  
+   Severity: 2  
+   Recommendation: Add a prominent "Cancel" button during the checkout process to allow users to safely exit without making a purchase.
+
+2. **Unclear error message**: Unsupported file type error doesn't specify which formats are allowed.  
+   Severity: 2  
+   Recommendation: Modify the error message to specify the supported file types, e.g., "Please upload a .jpg, .png, or .gif file."
+
+3. **No undo option**: Users cannot undo an action after submitting the visible form on screen form, 
+   leading to frustration if they make a mistake.  
+   Severity: 3  
+   Recommendation: Implement an "Undo" button or confirmation dialog before submitting the form to prevent accidental submissions.
 `;
 
 /* Prompts for the cognitive walkthrough */
