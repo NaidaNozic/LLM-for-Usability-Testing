@@ -72,14 +72,22 @@ const DetailsDialog = ({
                     const selectedScreenshot = screenshots.find(s => s.src === selected);
                     return selectedScreenshot?.title || 'None';
                   }}
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: 170,
+                        overflowY: 'scroll',
+                      },
+                    },
+                  }}
                 >
-                  <MenuItem value="">
+                  <CustomMenuItem value="">
                     <em style={{ fontSize: '12px'}}>None</em>
-                  </MenuItem>
+                  </CustomMenuItem>
                   {screenshots.map((s, idx) => (
-                    <MenuItem key={idx} value={s.src} style={{ fontSize: '12px' }}>
+                    <CustomMenuItem key={idx} value={s.src} style={{ fontSize: '12px' }}>
                       {s.title}
-                    </MenuItem>
+                    </CustomMenuItem>
                   ))}
                 </CustomSelect>
               </FormControl>
@@ -215,6 +223,18 @@ const CustomSelect = styled(Select)({
   },
   '& .MuiSvgIcon-root': {
     color: 'white',
+  },
+});
+
+const CustomMenuItem = styled(MenuItem)({
+  padding: '4px 8px',
+  fontSize: '12px',
+  minHeight: '38px',
+  '&.Mui-selected': {
+    backgroundColor: 'rgb(7 66 114 / 30%)',
+  },
+  '&.Mui-selected:hover': {
+    backgroundColor: 'rgba(7, 66, 114, 0.6)'
   },
 });
 
