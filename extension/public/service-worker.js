@@ -49,6 +49,7 @@ function takeScreenshot(sendResponse) {
 const detectWalkthroughIssues = async (request, sendResponse) => {
   const base64Images = request.base64Images;
   const tasks = request.tasks || [];
+  const correctActions = request.correctActions || [];
 
   for (let i = 0; i < base64Images.length; i++) {
     const base64Image = base64Images[i];
@@ -64,7 +65,8 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
   }
 
   try {
-    const content = [{ type: 'text', text: system_prompt_walkthrough }];
+    const messages = [{"role": "system", "content": system_walkthrough_prompt}];
+    const content = [];
 
     if (request.overview && request.overview.trim() !== '') {
       content.push({
@@ -72,6 +74,11 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
         text: `You are given a web application about: ${request.overview.trim()}`,
       });
     }
+
+    content.push({
+      type: 'text',
+      text: "You are shown one screenshot of a web interface, before the user takes an action to achieve his task.",
+    });
 
     base64Images.forEach((base64Image, index) => {
       content.push({
@@ -84,17 +91,30 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
       if (task && task.trim() !== '') {
         content.push({
           type: 'text',
-          text: `In the above app view, the users task is: ${task.trim()}`,
+          text: `In the above app view, the user task is: ${task.trim()}`,
+        });
+      }
+
+      const correctAction = correctActions[index];
+      if (correctAction && correctAction.trim() !== '') {
+        content.push({
+          type: 'text',
+          text: `The expected action to accomplish the given task above is:: ${correctAction.trim()}`,
         });
       }
     });
 
     content.push({
       type: 'text',
-      text: request_for_walkthrough,
+      text: request_walkthrough,
     });
 
-    console.log(content);
+    messages.push({
+      role: "user",
+      content: content
+    });
+
+    console.log(messages);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -103,13 +123,8 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'user',
-            content: content,
-          },
-        ]
+        model: 'gpt-4o',
+        messages: messages
       }),
     });
 
@@ -122,6 +137,7 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
     const data = await response.json();
     sendResponse({ result: data.choices[0].message.content });
   } catch (error) {
+    console.log(error);
     sendResponse({ result: 'Sorry, there was an error analyzing the usability.' });
   }
 }

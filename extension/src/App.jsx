@@ -8,8 +8,7 @@ import {
   IconButton,
   Snackbar,
   Alert,
-  ClickAwayListener,
-  Stack 
+  ClickAwayListener
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import './App.css';
@@ -45,6 +44,7 @@ function App() {
             title: `Screen ${newIndex}`,
             editing: false,
             task: '',
+            correctAction: '',
           },
         ]);
       } else {
@@ -54,7 +54,7 @@ function App() {
     });
   };
 
-  const handleImageClick = (index) => {
+  const handleHeuristicEvaluation = (index) => {
     const selectedScreenshot = screenshots[index];
   
     setLoading(true);
@@ -66,6 +66,34 @@ function App() {
         base64Images: [base64Image],
         overview,
         tasks: [selectedScreenshot.task],
+      },
+      (responseFromSW) => {
+        setLoading(false);
+        if (responseFromSW?.result) {
+          chrome.storage.local.set({ usabilityOutput: responseFromSW.result }, () => {
+            window.open(chrome.runtime.getURL('result.html'), '_blank');
+          });
+        } else {
+          setSnackbarMessage('Sorry, I could not detect any usability issues.');
+          setSnackbarOpen(true);
+        }
+      }
+    );
+  };
+
+  const handleWalkthrough = (index) => {
+    const selectedScreenshot = screenshots[index];
+  
+    setLoading(true);
+    const base64Image = selectedScreenshot.src.split(',')[1];
+
+    chrome.runtime.sendMessage(
+      {
+        type: 'DETECT_WALKTHROUGH_ISSUES',
+        base64Images: [base64Image],
+        overview,
+        tasks: [selectedScreenshot.task],
+        correctActions : [selectedScreenshot.correctAction],
       },
       (responseFromSW) => {
         setLoading(false);
@@ -193,7 +221,13 @@ function App() {
             {screenshots.map((screenshot, idx) => (
               <div className="image-item image-item-hover"
                    key={idx} 
-                   onClick={evaluationType === 'heuristic' ? () => handleImageClick(idx) : undefined} >
+                   onClick={
+                    evaluationType === 'heuristic'
+                      ? () => handleHeuristicEvaluation(idx)
+                      : evaluationType === 'walkthrough'
+                      ? () => handleWalkthrough(idx)
+                      : undefined
+                  } >
                 <img
                   src={screenshot.src}
                   alt={`Screenshot ${idx + 1}`}
@@ -227,6 +261,7 @@ function App() {
 
                   <CustomIconButton
                     size="small"
+                    id={`menu-button-${idx}`}
                     onClick={(e) => {handleMenuOpen(idx, e); e.stopPropagation();}}
                     style={{ marginLeft: '4px' }}
                   >
@@ -238,10 +273,21 @@ function App() {
                     open={Boolean(anchorEls[idx])}
                     onClick={(e) => {e.stopPropagation();}}
                     onClose={() => handleMenuClose(idx)}
+                    slotProps={{
+                      list: {
+                        'aria-labelledby': `menu-button-${idx}`,
+                        onKeyDown: (e) => {
+                          if (e.key === 'Tab') {
+                            handleMenuClose(idx);
+                          }
+                        }
+                      }
+                    }}
                   >
-                    <MenuItem onClick={() => handleRenameClick(idx)}>Rename</MenuItem>
-                    <MenuItem onClick={() => handleDeleteClick(idx)}>Delete</MenuItem>
+                    <MenuItem onClick={() => {handleMenuClose(idx); handleRenameClick(idx);}}>Rename</MenuItem>
+                    <MenuItem onClick={() => {handleMenuClose(idx); handleDeleteClick(idx);}}>Delete</MenuItem>
                     <MenuItem onClick={() => {
+                      handleMenuClose(idx);
                       setSelectedTaskIndex(idx);
                       setTaskInput(screenshots[idx]?.task || '');
                       setCorrectActionInput(screenshots[idx]?.correctAction || '');

@@ -38,24 +38,26 @@ Guidelines:
 `;
 
 /* Prompts for the cognitive walkthrough */
-const system_prompt_walkthrough = `
-You are a UX/UI expert conducting a cognitive walkthrough of a web application screen to identify usability issues related to 
-task completion from a user's perspective.`;
+const system_walkthrough_prompt =`You are a UX/UI expert conducting a cognitive walkthrough of a web application to identify usability 
+issues related to task completion from a user's perspective.`;
 
-const request_for_walkthrough = `
-Detect usability issues that a user may face while attempting to complete the given task, based on the principles of a cognitive walkthrough.
-Provide specific use cases and examples of why and when those would occur.
+const request_walkthrough = `Identify usability issues a user may face when attempting the task.
 
-Use the following questions to guide your evaluation:
-1. Will the user try to achieve the right action for achieving the task?  
-2. Will the user notice that the correct action is available in order to achieve the task?  
-3. Will the user associate the correct action with the action they're trying to achieve?  
-4. If the correct action is performed, will the user see that progress is being made toward the goal?
+Use the following question as guidance to help you explore the interface from multiple angles. 
+You are NOT limited to one issue per question — you may identify multiple issues inspired by a single question, 
+and some issues may relate to more than one question:
 
-For each issue you find on the screen, format it exactly as:
-Description: [Concise explanation of the visible problem.]  
-Severity: [0-4, where 0 = Not a problem, 4 = Critical issue. Explain why this score was given with a specific use case.]  
-Frequency: [0-4, where 0 = Rare or edge case, 4 = Affects nearly all users frequently. Explain why this score was given with a specific use case.]  
-Persistence: [0-4, where 0 = Temporary or easily resolved, 4 = Long-lasting or hard to recover from. Explain why this score was given with a specific use case.]  
-Impact: [Sum of Severity + Frequency + Persistence]
-`;
+- What aspects of the interface might confuse the user when trying to complete the task and figure out the what's the correct action?  
+- What is missing or unclear before the user interacts with anything?
+- What might the user try instead of the correct action, and why?  
+
+### Output Format:
+Provide only a **plain enumerated list of distinct issues** (5 or more issues), without headings, categories, or extra recommendations.  
+Each issue should be written in **1-2 short sentences** and must reflect how a user might **perceive, interpret, or react** to the screen.
+
+### Example Output:
+
+Issues:
+1. There are two identical buttons, which could confuse users about their functions and the differences between them.  
+2. Nothing is labeled and it might be unclear to the user what button might lead to where. Adding tooltips or labels might help.  
+3. The upload icon is placed next to the profile picture, which could lead users to think both do the same thing.`;
