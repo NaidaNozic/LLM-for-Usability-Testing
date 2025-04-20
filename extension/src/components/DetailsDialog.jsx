@@ -7,7 +7,10 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  TextField
+  TextField,
+  MenuItem,
+  Select,
+  FormControl
 } from '@mui/material';
 
 const DetailsDialog = ({
@@ -18,10 +21,13 @@ const DetailsDialog = ({
   onSave,
   correctActionInput,
   onCorrectActionInputChange,
-  evaluationType
+  evaluationType,
+  screenshots,
+  afterScreenshotSelection,
+  setAfterScreenshotSelection
 }) => {
   return (
-    <DarkDialog open={open} onClose={onClose}>
+    <DarkDialog open={open} onClose={onClose} aria-hidden={open ? "false" : "true"} >
       <DarkDialogTitle>
         Details
       </DarkDialogTitle>
@@ -40,18 +46,46 @@ const DetailsDialog = ({
         </div>
 
         {evaluationType === 'walkthrough' && (
-          <div>
-            <p className="dialog-label">Specify correct action</p>
-            <span className='dialog-hint'>Add the correct action for achieving the user task.</span>
-            <TextFieldTask
-              fullWidth
-              placeholder='The correct action is...'
-              multiline
-              rows={2}
-              value={correctActionInput}
-              onChange={onCorrectActionInputChange}
-            />
-          </div>)}
+          <div className='walkthrough-container'>
+            <div>
+              <p className="dialog-label">Specify correct action</p>
+              <span className='dialog-hint'>Add the correct action for achieving the user task.</span>
+              <TextFieldTask
+                fullWidth
+                placeholder='The correct action is...'
+                multiline
+                rows={2}
+                value={correctActionInput}
+                onChange={onCorrectActionInputChange}
+              />
+            </div>
+            <div>
+              <p className="dialog-label">After-action screenshot</p>
+              <span className='dialog-hint'>Select a screenshot that shows the result of the correct action.</span>
+              <FormControl fullWidth>
+                <CustomSelect
+                  value={afterScreenshotSelection}
+                  onChange={(e) => setAfterScreenshotSelection(e.target.value)}
+                  displayEmpty
+                  renderValue={(selected) => {
+                    if (!selected) return <em>None</em>;
+                    const selectedScreenshot = screenshots.find(s => s.src === selected);
+                    return selectedScreenshot?.title || 'None';
+                  }}
+                >
+                  <MenuItem value="">
+                    <em style={{ fontSize: '12px'}}>None</em>
+                  </MenuItem>
+                  {screenshots.map((s, idx) => (
+                    <MenuItem key={idx} value={s.src} style={{ fontSize: '12px' }}>
+                      {s.title}
+                    </MenuItem>
+                  ))}
+                </CustomSelect>
+              </FormControl>
+            </div>
+          </div>)
+          }
 
       </DarkDialogContent>
       <DarkDialogActions>
@@ -161,6 +195,27 @@ const TextFieldTask = styled(TextField)({
     '& .MuiInputLabel-root.Mui-focused': {
       color: 'white',
     },
+});
+
+const CustomSelect = styled(Select)({
+  fontSize: '12px',
+  color: 'white',
+  '& .MuiSelect-select': {
+    padding: '8px',
+    fontSize: '12px',
+  },
+  '& .MuiOutlinedInput-notchedOutline': {
+    borderColor: 'white',
+  },
+  '&:hover .MuiOutlinedInput-notchedOutline': {
+    borderColor: 'white',
+  },
+  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+    borderColor: 'white',
+  },
+  '& .MuiSvgIcon-root': {
+    color: 'white',
+  },
 });
 
 export default DetailsDialog;

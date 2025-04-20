@@ -7,4 +7,10 @@
     text-align: left;
     font-size: 12px;
 }
+
+.walkthrough-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
   
