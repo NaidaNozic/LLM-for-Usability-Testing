@@ -56,9 +56,18 @@ and some issues may relate to more than one question:
 Provide only a **plain enumerated list of distinct issues** (5 or more issues), without headings, categories, or extra recommendations.  
 Each issue should be written in **1-2 short sentences** and must reflect how a user might **perceive, interpret, or react** to the screen.
 
+For each issue, assign a **Severity Rating** using the following scale:
+
+Severity: [0-4, where 0 = Not a problem, 4 = Critical issue]  
+
 ### Example Output:
 
 Issues:
 1. There are two identical buttons, which could confuse users about their functions and the differences between them.  
-2. Nothing is labeled and it might be unclear to the user what button might lead to where. Adding tooltips or labels might help.  
-3. The upload icon is placed next to the profile picture, which could lead users to think both do the same thing.`;
+   Severity: 4
+
+2. Nothing is labeled and it might be unclear to the user what button might lead to where.  
+   Severity: 3
+
+3. The upload icon is placed next to the profile picture, which could lead users to think both do the same thing.  
+   Severity: 3`;
