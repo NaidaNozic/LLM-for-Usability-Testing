@@ -3,21 +3,43 @@
 <head>
   <title>Usability Report</title>
   <style>
+
     body {
       background-color: #121212;
       color: white;
       font-family: sans-serif;
       padding: 20px;
     }
+
     pre {
       white-space: pre-wrap;
       word-wrap: break-word;
     }
+
+    .title-results {
+      margin: 20px auto 20px auto;
+      width: 80%;
+      text-align: center;
+    }
+
+    .image-results {
+      max-width: 80%;
+      border: 1px solid rgb(68, 68, 68);
+      display: block;
+      margin: 0px auto 0px auto;
+    }
+
+    .issues-results {
+      margin: 20px auto 0px auto;
+      font-size: medium;
+    }
+
   </style>
 </head>
 <body>
-  <h1>Usability Issues</h1>
-  <pre id="usability-output">Loading...</pre>
+  <h1 class="title-results">Usability Issues</h1>
+  <img id="usability-image" alt="Screenshot" class="image-results" />
+  <pre id="usability-output" class="issues-results">Loading...</pre>
 
   <script src="result.js"></script>
 </body>

@@ -75,9 +75,15 @@ function App() {
       (responseFromSW) => {
         setLoading(false);
         if (responseFromSW?.result) {
-          chrome.storage.local.set({ usabilityOutput: responseFromSW.result }, () => {
-            window.open(chrome.runtime.getURL('result.html'), '_blank');
-          });
+          chrome.storage.local.set(
+            {
+              usabilityOutput: responseFromSW.result,
+              usabilityImage: selectedScreenshot.src
+            },
+            () => {
+              window.open(chrome.runtime.getURL('result.html'), '_blank');
+            }
+          );
         } else {
           setSnackbarMessage('Sorry, I could not detect any usability issues.');
           setSnackbarOpen(true);
@@ -109,9 +115,15 @@ function App() {
       (responseFromSW) => {
         setLoading(false);
         if (responseFromSW?.result) {
-          chrome.storage.local.set({ usabilityOutput: responseFromSW.result }, () => {
-            window.open(chrome.runtime.getURL('result.html'), '_blank');
-          });
+          chrome.storage.local.set(
+            {
+              usabilityOutput: responseFromSW.result,
+              usabilityImage: selectedScreenshot.src
+            },
+            () => {
+              window.open(chrome.runtime.getURL('result.html'), '_blank');
+            }
+          );
         } else {
           setSnackbarMessage('Sorry, I could not detect any usability issues.');
           setSnackbarOpen(true);
