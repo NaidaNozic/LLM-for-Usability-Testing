@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import './DetailsDialog.css';
 import {
@@ -20,21 +19,6 @@ const DetailsDialog = ({
   onCorrectActionInputChange,
   evaluationType
 }) => {
-  const [showValidation, setShowValidation] = useState(false);
-
-  const handleSaveClick = () => {
-    setShowValidation(true);
-    if (taskInput.trim() && correctActionInput.trim()) {
-      setShowValidation(false);
-      onSave();
-    }
-  };
-
-  const handleClose = () => {
-    setShowValidation(false);
-    onClose();
-  };  
-
   return (
     <DarkDialog open={open} onClose={onClose} aria-hidden={open ? "false" : "true"} >
       <DarkDialogTitle>
@@ -54,9 +38,6 @@ const DetailsDialog = ({
               value={taskInput}
               onChange={onTaskInputChange}
             />
-            {showValidation && !taskInput.trim() && (
-              <p className="validation-message">Please enter the user task.</p>
-            )}
           </div>
           <div className='walkthrough-container'>
               <div>
@@ -70,9 +51,6 @@ const DetailsDialog = ({
                   value={correctActionInput}
                   onChange={onCorrectActionInputChange}
                 />
-                {showValidation && !correctActionInput.trim() && (
-                  <p className="validation-message">Please specify the correct action.</p>
-                )}
               </div>
             </div>
         </>
@@ -81,8 +59,8 @@ const DetailsDialog = ({
 
       </DarkDialogContent>
       <DarkDialogActions>
-        <CustomDialogButton onClick={handleClose} style={{ color: 'white', backgroundColor: '#5f5f5f' }}>Cancel</CustomDialogButton>
-        <CustomDialogButton variant="contained" onClick={handleSaveClick} sx={{backgroundColor: '#2270af'}}>Save</CustomDialogButton>
+        <CustomDialogButton onClick={onClose} style={{ color: 'white', backgroundColor: '#5f5f5f' }}>Cancel</CustomDialogButton>
+        <CustomDialogButton variant="contained" onClick={onSave} sx={{backgroundColor: '#2270af'}}>Save</CustomDialogButton>
       </DarkDialogActions>
     </DarkDialog>
   );

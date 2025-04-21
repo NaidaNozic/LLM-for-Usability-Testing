@@ -34,7 +34,7 @@ function App() {
   const [taskInput, setTaskInput] = useState('');
   const [correctActionInput, setCorrectActionInput] = useState('');
   const [evaluationType, setEvaluationType] = useState('heuristic');
-  const [heuristicDialogOpen, setHeuristicDialogOpen] = useState(false);
+  const [evaluationDialogOpen, setEvaluationDialogOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
 
   const handleCaptureScreenshot = () => {
@@ -88,6 +88,12 @@ function App() {
 
   const handleWalkthrough = (index) => {
     const selectedScreenshot = screenshots[index];
+
+    if (!selectedScreenshot.task || !selectedScreenshot.correctAction) {
+      setSnackbarMessage('Please fill in the "Edit" details for this screen before starting the walkthrough.');
+      setSnackbarOpen(true);
+      return;
+    }
   
     setLoading(true);
     const base64Image = selectedScreenshot.src.split(',')[1];
@@ -230,10 +236,13 @@ function App() {
                     evaluationType === 'heuristic'
                       ? () => {
                           setSelectedImageIndex(idx);
-                          setHeuristicDialogOpen(true);
+                          setEvaluationDialogOpen(true);
                         }
                       : evaluationType === 'walkthrough'
-                      ? () => handleWalkthrough(idx)
+                      ? () => {
+                        setSelectedImageIndex(idx);
+                        setEvaluationDialogOpen(true);                        
+                      }
                       : undefined
                   } >
                 <img
@@ -349,10 +358,11 @@ function App() {
       />
 
       <EvaluationDialog
-        open={heuristicDialogOpen}
-        onClose={() => setHeuristicDialogOpen(false)}
-        onEvaluate={handleHeuristicEvaluation}
+        open={evaluationDialogOpen}
+        onClose={() => setEvaluationDialogOpen(false)}
+        onEvaluate={evaluationType == 'heuristic' ? handleHeuristicEvaluation : handleWalkthrough}
         selectedIndex={selectedImageIndex}
+        evaluationType={evaluationType}
       />
 
     </>
