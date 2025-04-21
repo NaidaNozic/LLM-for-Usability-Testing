@@ -8,11 +8,7 @@ import {
   IconButton,
   Snackbar,
   Alert,
-  ClickAwayListener,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  ClickAwayListener
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import './App.css';
@@ -187,6 +183,45 @@ function App() {
     setCorrectActionInput('');
   };  
 
+  const handleViewClick = (index) => {
+    const imageData = screenshots[index].src;
+  
+    const htmlContent = `
+      <html>
+        <head>
+          <title>View Screenshot</title>
+          <style>
+            body {
+              margin: 0;
+              background-color: #111;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+            }
+            img {
+              max-width: 100%;
+              max-height: 100%;
+              border-radius: 8px;
+            }
+          </style>
+        </head>
+        <body>
+          <img src="${imageData}" alt="Screenshot" />
+        </body>
+      </html>
+    `;
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+  
+    chrome.windows.create({
+      url,
+      type: 'popup',
+      width: 800,
+      height: 600
+    });
+  };  
+
   return (
     <>
       <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: '4px'}}>
@@ -326,6 +361,7 @@ function App() {
                         Edit
                       </MenuItem>
                     )}
+                    <MenuItem onClick={() => {handleMenuClose(idx); handleViewClick(idx);}}>View</MenuItem>
                   </Menu>
                 </div>
               </div>
