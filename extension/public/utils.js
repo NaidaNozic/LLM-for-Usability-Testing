@@ -23,7 +23,7 @@ and some issues may relate to more than one question:
 ${nielsen_heuristics}
 
 ### Output Format:
-For each issue, include the following:
+For each issue, include the following, without headings, categories, or extra recommendations:
 
 - **Title of the issue**
 - **Short description of the issue** (1-2 sentences)
@@ -63,21 +63,25 @@ and some issues may relate to more than one question:
 - What might the user try instead of the correct action, and why?  
 
 ### Output Format:
-Provide only a **plain enumerated list of distinct issues** (5 or more issues), without headings, categories, or extra recommendations.  
-Each issue should be written in **1-2 short sentences** and must reflect how a user might **perceive, interpret, or react** to the screen.
+For each issue, include the following, without headings, categories, or extra recommendations:
 
-For each issue, assign a **Severity Rating** using the following scale:
-
-Severity: [0-4, where 0 = Not a problem, 4 = Critical issue]  
+- **Title of the issue**
+- **Short description of the issue** (1-2 sentences)
+- **Severity Rating** (0-4, where 0 = Not a problem, 4 = Critical issue)
+- **Recommendation for Fixes**
 
 ### Example Output:
 
 Issues:
-1. There are two identical buttons, which could confuse users about their functions and the differences between them.  
-   Severity: 4
 
-2. Nothing is labeled and it might be unclear to the user what button might lead to where.  
-   Severity: 3
+1. **Confusing Button Labels**: There are two identical buttons, which could confuse users about their functions and the differences between them.  
+   Severity: 4  
+   Recommendation: Change the button labels to clearly describe their specific functions (e.g., “Save Draft” vs. “Submit”).
 
-3. The upload icon is placed next to the profile picture, which could lead users to think both do the same thing.  
-   Severity: 3`;
+2. **Unlabeled Navigation**: Nothing is labeled and it might be unclear to the user what button might lead to where.  
+   Severity: 3  
+   Recommendation: Add text labels or tooltips to each button to indicate their destination or action.
+
+3. **Ambiguous Icon Placement**: The upload icon is placed next to the profile picture, which could lead users to think both do the same thing.  
+   Severity: 3  
+   Recommendation: Separate the two icons visually and provide hover text to clarify their purposes.`;
