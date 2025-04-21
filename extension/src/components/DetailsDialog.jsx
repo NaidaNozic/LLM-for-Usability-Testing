@@ -81,8 +81,8 @@ const DetailsDialog = ({
 
       </DarkDialogContent>
       <DarkDialogActions>
-        <CustomDialogButton onClick={handleClose} style={{ color: 'white' }}>Cancel</CustomDialogButton>
-        <CustomDialogButton variant="contained" onClick={handleSaveClick}>Save</CustomDialogButton>
+        <CustomDialogButton onClick={handleClose} style={{ color: 'white', backgroundColor: '#5f5f5f' }}>Cancel</CustomDialogButton>
+        <CustomDialogButton variant="contained" onClick={handleSaveClick} sx={{backgroundColor: '#2270af'}}>Save</CustomDialogButton>
       </DarkDialogActions>
     </DarkDialog>
   );
@@ -125,7 +125,6 @@ const DarkDialog = styled(Dialog)(({ theme }) => ({
     fontSize: '12px',
     fontWeight: '500',
     boxShadow: 'none',
-    backgroundColor: '#2270af',
     '&:hover': {
       boxShadow: 'none',
     },

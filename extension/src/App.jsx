@@ -8,13 +8,18 @@ import {
   IconButton,
   Snackbar,
   Alert,
-  ClickAwayListener
+  ClickAwayListener,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import './App.css';
 import NoContent from './components/NoContent';
 import LoadingOverlay from './components/LoadingOverlay';
 import DetailsDialog from './components/DetailsDialog';
+import EvaluationDialog from './components/EvaluationDialog';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 function App() {
@@ -26,10 +31,11 @@ function App() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
-  const [selectedTaskIndex, setSelectedTaskIndex] = useState(null);
   const [taskInput, setTaskInput] = useState('');
   const [correctActionInput, setCorrectActionInput] = useState('');
   const [evaluationType, setEvaluationType] = useState('heuristic');
+  const [heuristicDialogOpen, setHeuristicDialogOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
 
   const handleCaptureScreenshot = () => {
     setCapturing(true);
@@ -150,7 +156,7 @@ function App() {
 
   const handleTaskDialogSave = () => {
     const updated = screenshots.map((s, i) =>
-      i === selectedTaskIndex ? {
+      i === selectedImageIndex ? {
         ...s,
         task: taskInput,
         correctAction: correctActionInput
@@ -158,7 +164,7 @@ function App() {
     );
     setScreenshots(updated);
     setTaskDialogOpen(false);
-    setSelectedTaskIndex(null);
+    setSelectedImageIndex(null);
     setTaskInput('');
     setCorrectActionInput('');
   };  
@@ -222,7 +228,10 @@ function App() {
                    key={idx} 
                    onClick={
                     evaluationType === 'heuristic'
-                      ? () => handleHeuristicEvaluation(idx)
+                      ? () => {
+                          setSelectedImageIndex(idx);
+                          setHeuristicDialogOpen(true);
+                        }
                       : evaluationType === 'walkthrough'
                       ? () => handleWalkthrough(idx)
                       : undefined
@@ -288,7 +297,7 @@ function App() {
                     {evaluationType === 'walkthrough' && (
                       <MenuItem onClick={() => {
                         handleMenuClose(idx);
-                        setSelectedTaskIndex(idx);
+                        setSelectedImageIndex(idx);
                         setTaskInput(screenshots[idx]?.task || '');
                         setCorrectActionInput(screenshots[idx]?.correctAction || '');
                         setTaskDialogOpen(true);
@@ -338,6 +347,14 @@ function App() {
         onCorrectActionInputChange={(e) => setCorrectActionInput(e.target.value)}
         evaluationType={evaluationType}
       />
+
+      <EvaluationDialog
+        open={heuristicDialogOpen}
+        onClose={() => setHeuristicDialogOpen(false)}
+        onEvaluate={handleHeuristicEvaluation}
+        selectedIndex={selectedImageIndex}
+      />
+
     </>
   );
 }
