@@ -16,10 +16,13 @@ import NoContent from './components/NoContent';
 import LoadingOverlay from './components/LoadingOverlay';
 import DetailsDialog from './components/DetailsDialog';
 import EvaluationDialog from './components/EvaluationDialog';
+import Folder from './components/Folder'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 function App() {
+  const [folders, setFolders] = useState([]);
   const [screenshots, setScreenshots] = useState([]);
+  const [walkthroughScreenshots, setWalkthroughScreenshots] = useState([]);
   const [loading, setLoading] = useState(false);
   const [overview, setOverview] = useState('');
   const [capturing, setCapturing] = useState(false);
@@ -384,7 +387,13 @@ function App() {
         </CustomButton>
         </div>
       </div>
-      ) : null}
+      ) : 
+      <div className="card">
+        <p className='title'>All walkthroughs</p>
+        <span className='text-hint all-pages'>Walkthrough folders capturing user tasks with their expected actions. These will be analyzed to identify usability issues.</span>
+        <Folder folders={folders} setFolders={setFolders} />
+      </div>
+      }
 
       {loading && <LoadingOverlay message="Detecting usability issues..." />}
 
