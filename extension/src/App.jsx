@@ -103,13 +103,17 @@ function App() {
   const handleWalkthrough = (index) => {
     const selectedScreenshot = walkthroughScreenshots[index];
 
-    if (!taskInput || !selectedScreenshot.correctAction) {
-      setSnackbarMessage('Please fill in the "Edit" details for this screen before starting the walkthrough.');
+    if (!taskInput || !selectedScreenshot.correctAction || walkthroughScreenshots.some(s => !s.correctAction)) {
+      setSnackbarMessage('Please fill in the "Edit" details for all the screens before starting the walkthrough.');
       setSnackbarOpen(true);
       return;
     }
   
     setLoading(true);
+
+    const allCorrectActionsString = walkthroughScreenshots
+    .map((s, idx) => `Step ${idx + 1}: ${s.correctAction}`)
+    .join('\n');
     const base64Image = selectedScreenshot.src.split(',')[1];
 
     chrome.runtime.sendMessage(
@@ -118,7 +122,8 @@ function App() {
         base64Images: [base64Image],
         overview,
         tasks: [taskInput],
-        correctActions: [selectedScreenshot.correctAction]
+        correctActions: [selectedScreenshot.correctAction],
+        entireWalkthrough: allCorrectActionsString, 
       },
       (responseFromSW) => {
         setLoading(false);

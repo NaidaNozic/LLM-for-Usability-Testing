@@ -28,7 +28,7 @@ const DetailsDialog = ({
           <div className='walkthrough-container'>
               <div>
                 <p className="dialog-label">Specify correct action</p>
-                <span className='dialog-hint'>Add the correct action for achieving the user task.</span>
+                <span className='dialog-hint'>Add the correct action on this screen for achieving the user task.</span>
                 <TextFieldTask
                   fullWidth
                   placeholder='The correct action is...'

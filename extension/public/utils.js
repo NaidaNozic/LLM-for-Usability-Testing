@@ -15,7 +15,7 @@ const nielsen_heuristics = `
 `;
 
 const request_for_evaluation = `
-Identify usability issues on the screen using Nielsen's heuristics as evaluation criteria, 
+Identify usability issues (5 or more) on the screen using Nielsen's heuristics as evaluation criteria, 
 focusing only on elements visible before any user interaction.
 Use the following questions as guidance to help you explore the interface from multiple angles. 
 You are NOT limited to one issue per question — you may identify multiple issues inspired by a single question, 
@@ -52,7 +52,7 @@ Issues:
 const system_walkthrough_prompt =`You are a UX/UI expert conducting a cognitive walkthrough of a web application to identify usability 
 issues related to task completion from a user's perspective.`;
 
-const request_walkthrough = `Identify usability issues a user may face when attempting the task.
+const request_walkthrough = `Identify usability issues (5 or more) a user may face when attempting the task.
 
 Use the following questions as guidance to help you explore the interface from multiple angles. 
 You are NOT limited to one issue per question — you may identify multiple issues inspired by a single question, 
@@ -61,6 +61,7 @@ and some issues may relate to more than one question:
 - What aspects of the interface might confuse the user when trying to complete the task and figure out the what's the correct action?  
 - What is missing or unclear before the user interacts with anything?
 - What might the user try instead of the correct action, and why?  
+- What aspect of the entire workflow or the current screen makes the user question whether he is making progress towards the solution of the task?
 
 ### Output Format:
 For each issue, include the following, without headings, categories, or extra recommendations:

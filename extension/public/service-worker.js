@@ -50,6 +50,7 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
   const base64Images = request.base64Images;
   const tasks = request.tasks || [];
   const correctActions = request.correctActions || [];
+  const entireWalkthrough = request.entireWalkthrough || '';
 
   for (let i = 0; i < base64Images.length; i++) {
     const base64Image = base64Images[i];
@@ -95,11 +96,18 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
         });
       }
 
+      if (entireWalkthrough && entireWalkthrough.trim() !== '') {
+        content.push({
+          type: 'text',
+          text: `The entire workflow for accomplishing the task is given as : ${entireWalkthrough.trim()}`,
+        });
+      }
+
       const correctAction = correctActions[index];
       if (correctAction && correctAction.trim() !== '') {
         content.push({
           type: 'text',
-          text: `The expected action to accomplish the given task above is:: ${correctAction.trim()}`,
+          text: `The given screen corresponds to the action: ${correctAction.trim()}`,
         });
       }
     });
