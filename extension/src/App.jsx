@@ -269,108 +269,110 @@ function App() {
         </div>
       </div>
 
-      <div className="card">
-        <p className='title'>All pages</p>
-        <span className='text-hint all-pages'>Captured screens from the web app. These will be analyzed to identify usability issues.</span>
-        {screenshots.length === 0 ? (
-          <NoContent />
-        ) : (
-          <div className='image-container'>
-            {screenshots.map((screenshot, idx) => (
-              <div className="image-item image-item-hover"
-                   key={idx} 
-                   onClick={
-                    evaluationType === 'heuristic'
-                      ? () => {
+      {evaluationType === "heuristic" ? (
+        <div>
+          <div className="card">
+          <p className='title'>All pages</p>
+          <span className='text-hint all-pages'>Captured screens from the web app. These will be analyzed to identify usability issues.</span>
+          {screenshots.length === 0 ? (
+            <NoContent />
+          ) : (
+            <div className='image-container'>
+              {screenshots.map((screenshot, idx) => (
+                <div className="image-item image-item-hover"
+                    key={idx} 
+                    onClick={
+                      evaluationType === 'heuristic'
+                        ? () => {
+                            setSelectedImageIndex(idx);
+                            setEvaluationDialogOpen(true);
+                          }
+                        : evaluationType === 'walkthrough'
+                        ? () => {
                           setSelectedImageIndex(idx);
-                          setEvaluationDialogOpen(true);
+                          setEvaluationDialogOpen(true);                        
                         }
-                      : evaluationType === 'walkthrough'
-                      ? () => {
-                        setSelectedImageIndex(idx);
-                        setEvaluationDialogOpen(true);                        
-                      }
-                      : undefined
-                  } >
-                <img
-                  src={screenshot.src}
-                  alt={`Screenshot ${idx + 1}`}
-                  style={{
-                    width: '100px',
-                    borderRadius: '8px',
-                    display: 'block',
-                    marginLeft: '8px'
-                  }}
-                />
-                <div className='image-item-content'>
-                  {screenshot.editing ? (
-                    <ClickAwayListener onClickAway={() => handleFinishEditing(idx)}>
-                      <TextFieldTitle
-                        variant="outlined"
-                        size="small"
-                        value={screenshot.title}
-                        onClick={(e) => {e.stopPropagation();}}
-                        onChange={(e) => handleTitleChange(idx, e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            handleFinishEditing(idx);
-                          }
-                        }}
-                        autoFocus
-                      />
-                    </ClickAwayListener>
-                  ) : (
-                    <span className='image-title'>{screenshot.title}</span>
-                  )}
-
-                  <CustomIconButton
-                    size="small"
-                    id={`menu-button-${idx}`}
-                    onClick={(e) => {handleMenuOpen(idx, e); e.stopPropagation();}}
-                    style={{ marginLeft: '4px' }}
-                  >
-                    <MoreVertIcon fontSize="small" />
-                  </CustomIconButton>
-
-                  <Menu
-                    anchorEl={anchorEls[idx]}
-                    open={Boolean(anchorEls[idx])}
-                    onClick={(e) => {e.stopPropagation();}}
-                    onClose={() => handleMenuClose(idx)}
-                    slotProps={{
-                      list: {
-                        'aria-labelledby': `menu-button-${idx}`,
-                        onKeyDown: (e) => {
-                          if (e.key === 'Tab') {
-                            handleMenuClose(idx);
-                          }
-                        }
-                      }
+                        : undefined
+                    } >
+                  <img
+                    src={screenshot.src}
+                    alt={`Screenshot ${idx + 1}`}
+                    style={{
+                      width: '100px',
+                      borderRadius: '8px',
+                      display: 'block',
+                      marginLeft: '8px'
                     }}
-                  >
-                    <MenuItem onClick={() => {handleMenuClose(idx); handleRenameClick(idx);}}>Rename</MenuItem>
-                    <MenuItem onClick={() => {handleMenuClose(idx); handleDeleteClick(idx);}}>Delete</MenuItem>
-                    {evaluationType === 'walkthrough' && (
-                      <MenuItem onClick={() => {
-                        handleMenuClose(idx);
-                        setSelectedImageIndex(idx);
-                        setTaskInput(screenshots[idx]?.task || '');
-                        setCorrectActionInput(screenshots[idx]?.correctAction || '');
-                        setTaskDialogOpen(true);
-                      }}>
-                        Edit
-                      </MenuItem>
+                  />
+                  <div className='image-item-content'>
+                    {screenshot.editing ? (
+                      <ClickAwayListener onClickAway={() => handleFinishEditing(idx)}>
+                        <TextFieldTitle
+                          variant="outlined"
+                          size="small"
+                          value={screenshot.title}
+                          onClick={(e) => {e.stopPropagation();}}
+                          onChange={(e) => handleTitleChange(idx, e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              handleFinishEditing(idx);
+                            }
+                          }}
+                          autoFocus
+                        />
+                      </ClickAwayListener>
+                    ) : (
+                      <span className='image-title'>{screenshot.title}</span>
                     )}
-                    <MenuItem onClick={() => {handleMenuClose(idx); handleViewClick(idx);}}>View</MenuItem>
-                  </Menu>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
 
-      <div className='footer-button'>
+                    <CustomIconButton
+                      size="small"
+                      id={`menu-button-${idx}`}
+                      onClick={(e) => {handleMenuOpen(idx, e); e.stopPropagation();}}
+                      style={{ marginLeft: '4px' }}
+                    >
+                      <MoreVertIcon fontSize="small" />
+                    </CustomIconButton>
+
+                    <Menu
+                      anchorEl={anchorEls[idx]}
+                      open={Boolean(anchorEls[idx])}
+                      onClick={(e) => {e.stopPropagation();}}
+                      onClose={() => handleMenuClose(idx)}
+                      slotProps={{
+                        list: {
+                          'aria-labelledby': `menu-button-${idx}`,
+                          onKeyDown: (e) => {
+                            if (e.key === 'Tab') {
+                              handleMenuClose(idx);
+                            }
+                          }
+                        }
+                      }}
+                    >
+                      <MenuItem onClick={() => {handleMenuClose(idx); handleRenameClick(idx);}}>Rename</MenuItem>
+                      <MenuItem onClick={() => {handleMenuClose(idx); handleDeleteClick(idx);}}>Delete</MenuItem>
+                      {evaluationType === 'walkthrough' && (
+                        <MenuItem onClick={() => {
+                          handleMenuClose(idx);
+                          setSelectedImageIndex(idx);
+                          setTaskInput(screenshots[idx]?.task || '');
+                          setCorrectActionInput(screenshots[idx]?.correctAction || '');
+                          setTaskDialogOpen(true);
+                        }}>
+                          Edit
+                        </MenuItem>
+                      )}
+                      <MenuItem onClick={() => {handleMenuClose(idx); handleViewClick(idx);}}>View</MenuItem>
+                    </Menu>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className='footer-button'>
         <CustomButton
           variant="contained"
           startIcon={<AddCircleOutlineIcon />}
@@ -380,7 +382,9 @@ function App() {
         >
           {capturing ? 'Adding...' : 'Add current screen'}
         </CustomButton>
+        </div>
       </div>
+      ) : null}
 
       {loading && <LoadingOverlay message="Detecting usability issues..." />}
 
