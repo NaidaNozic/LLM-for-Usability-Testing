@@ -237,6 +237,15 @@ function App() {
     });
   };  
 
+  const clearData = () => {
+    if(evaluationType == "walkthrough") {
+      setWalkthroughScreenshots([]);
+      setTaskInput('');
+    } else {
+      setScreenshots([]);
+    }
+  };
+
   return (
     <>
       <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: '4px'}}>
@@ -335,7 +344,7 @@ function App() {
         ) : (
           <div>
             <p className='title'>All pages</p>
-            <span className='text-hint all-pages'>Captured screens represent steps a user takes to complete a task in a walkthrough. 
+            <span className='text-hint all-pages'>Captured screens represent steps a user takes to complete the user task.
                                                   These steps will be analyzed to identify usability issues.</span>
             {walkthroughScreenshots.length === 0 ? (
               <NoContent />
@@ -372,9 +381,15 @@ function App() {
           startIcon={<AddCircleOutlineIcon />}
           onClick={handleCaptureScreenshot}
           disabled={capturing}
-          sx={{width: '170px'}}
-        >
+          sx={{width: '170px'}} >
           {capturing ? 'Adding...' : 'Add current screen'}
+        </CustomButton>
+
+        <CustomButton
+          variant="contained"
+          sx={{width: '170px'}} 
+          onClick={clearData} >
+          Clear all
         </CustomButton>
       </div>
 

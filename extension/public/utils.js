@@ -15,7 +15,7 @@ const nielsen_heuristics = `
 `;
 
 const request_for_evaluation = `
-Identify usability issues (5 or more) on the screen using Nielsen's heuristics as evaluation criteria, 
+Identify usability issues on the screen using Nielsen's heuristics as evaluation criteria, 
 focusing only on elements visible before any user interaction.
 Use the following questions as guidance to help you explore the interface from multiple angles. 
 You are NOT limited to one issue per question — you may identify multiple issues inspired by a single question, 
@@ -28,7 +28,7 @@ For each issue, include the following, without headings, categories, or extra re
 - **Title of the issue**
 - **Short description of the issue** (1-2 sentences)
 - **Severity Rating** (0-4, where 0 = Not a problem, 4 = Critical issue)
-- **Recommendation for Fixes**
+- **Recommendation for Fixes** (**mandatory**: provide a **specific, actionable fix** — not a generic suggestion. Example: Instead of saying "improve navigation", say "Add a 'Home' button in the top navigation bar".)
 
 ### Example Output:
 
@@ -37,15 +37,6 @@ Issues:
 1. **Error Prevention**: No "Cancel" button during checkout, preventing users from exiting without completing the purchase.  
    Severity: 2  
    Recommendation: Add a prominent "Cancel" button during the checkout process to allow users to safely exit without making a purchase.
-
-2. **Unclear error message**: Unsupported file type error doesn't specify which formats are allowed.  
-   Severity: 2  
-   Recommendation: Modify the error message to specify the supported file types, e.g., "Please upload a .jpg, .png, or .gif file."
-
-3. **No undo option**: Users cannot undo an action after submitting the visible form on screen form, 
-   leading to frustration if they make a mistake.  
-   Severity: 3  
-   Recommendation: Implement an "Undo" button or confirmation dialog before submitting the form to prevent accidental submissions.
 `;
 
 /* Prompts for the cognitive walkthrough */
@@ -69,7 +60,7 @@ For each issue, include the following, without headings, categories, or extra re
 - **Title of the issue**
 - **Short description of the issue** (1-2 sentences)
 - **Severity Rating** (0-4, where 0 = Not a problem, 4 = Critical issue)
-- **Recommendation for Fixes**
+- **Recommendation for Fixes** (**mandatory**: provide a **specific, actionable fix** — not a generic suggestion. Example: Instead of saying "improve navigation", say "Add a 'Home' button in the top navigation bar".)
 
 ### Example Output:
 
@@ -77,12 +68,4 @@ Issues:
 
 1. **Confusing Button Labels**: There are two identical buttons, which could confuse users about their functions and the differences between them.  
    Severity: 4  
-   Recommendation: Change the button labels to clearly describe their specific functions (e.g., “Save Draft” vs. “Submit”).
-
-2. **Unlabeled Navigation**: Nothing is labeled and it might be unclear to the user what button might lead to where.  
-   Severity: 3  
-   Recommendation: Add text labels or tooltips to each button to indicate their destination or action.
-
-3. **Ambiguous Icon Placement**: The upload icon is placed next to the profile picture, which could lead users to think both do the same thing.  
-   Severity: 3  
-   Recommendation: Separate the two icons visually and provide hover text to clarify their purposes.`;
+   Recommendation: Change the button labels to clearly describe their specific functions (e.g., “Save Draft” vs. “Submit”).`;
