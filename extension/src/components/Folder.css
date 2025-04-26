@@ -37,3 +37,18 @@
     margin-left: auto;
     margin-right: 0px;
 }
+
+.folder-title {
+    font-weight: 600;
+    text-align: left;
+    width: fit-content;
+    font-size: 14px;
+    margin: 0px;
+}
+
+.folder-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
