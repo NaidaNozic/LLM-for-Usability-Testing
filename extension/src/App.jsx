@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { styled } from '@mui/material/styles';
 import {
   Snackbar,
   Alert
@@ -11,45 +10,63 @@ import DetailsDialog from './components/DetailsDialog';
 import EvaluationDialog from './components/EvaluationDialog';
 import ScreenshotList from './components/ScreenshotList';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { CustomButton, TextFieldContent, CustomToggleButton } from './components/CustomComponents';
+import { CustomButton, TextFieldContent, CustomToggleButton } from './components/SharedCustomControls';
 
 function App() {
   const [screenshots, setScreenshots] = useState([]);
+  const [walkthroughScreenshots, setWalkthroughScreenshots] = useState([]);
   const [loading, setLoading] = useState(false);
   const [overview, setOverview] = useState('');
+  const [taskInput, setTaskInput] = useState('');
   const [capturing, setCapturing] = useState(false);
   const [anchorEls, setAnchorEls] = useState({});
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
-  const [taskInput, setTaskInput] = useState('');
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [correctActionInput, setCorrectActionInput] = useState('');
   const [evaluationType, setEvaluationType] = useState('heuristic');
   const [evaluationDialogOpen, setEvaluationDialogOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+
+  const getCurrentScreenshots = () => {
+    return evaluationType === 'heuristic' ? screenshots : walkthroughScreenshots;
+  };
+  
+  const setCurrentScreenshots = (updated) => {
+    if (evaluationType === 'heuristic') {
+      setScreenshots(updated);
+    } else {
+      setWalkthroughScreenshots(updated);
+    }
+  };  
 
   const handleCaptureScreenshot = () => {
     setCapturing(true);
     chrome.runtime.sendMessage({ type: 'TAKE_SCREENSHOT' }, (response) => {
       setCapturing(false);
       if (response?.screenshot) {
-        const newIndex = screenshots.length + 1;
-        setScreenshots((prev) => [
-          ...prev,
-          {
-            src: response.screenshot,
-            title: `Screen ${newIndex}`,
-            editing: false,
-            task: '',
-            correctAction: ''
-          },
-        ]);
+        const newIndex = evaluationType === 'heuristic' 
+          ? screenshots.length + 1 
+          : walkthroughScreenshots.length + 1;
+  
+        const newScreenshot = {
+          src: response.screenshot,
+          title: `Screen ${newIndex}`,
+          editing: false,
+          correctAction: ''
+        };
+  
+        if (evaluationType === 'heuristic') {
+          setScreenshots((prev) => [...prev, newScreenshot]);
+        } else if (evaluationType === 'walkthrough') {
+          setWalkthroughScreenshots((prev) => [...prev, newScreenshot]);
+        }
       } else {
         setSnackbarMessage('Failed to capture screenshot.');
         setSnackbarOpen(true);
       }
     });
-  };
+  };  
 
   const handleHeuristicEvaluation = (index) => {
     const selectedScreenshot = screenshots[index];
@@ -84,9 +101,9 @@ function App() {
   };
 
   const handleWalkthrough = (index) => {
-    const selectedScreenshot = screenshots[index];
+    const selectedScreenshot = walkthroughScreenshots[index];
 
-    if (!selectedScreenshot.task || !selectedScreenshot.correctAction) {
+    if (!taskInput || !selectedScreenshot.correctAction) {
       setSnackbarMessage('Please fill in the "Edit" details for this screen before starting the walkthrough.');
       setSnackbarOpen(true);
       return;
@@ -100,7 +117,7 @@ function App() {
         type: 'DETECT_WALKTHROUGH_ISSUES',
         base64Images: [base64Image],
         overview,
-        tasks: [selectedScreenshot.task],
+        tasks: [taskInput],
         correctActions: [selectedScreenshot.correctAction]
       },
       (responseFromSW) => {
@@ -124,31 +141,31 @@ function App() {
   };
 
   const handleDeleteClick = (index) => {
-    const updated = screenshots.filter((_, i) => i !== index);
-    setScreenshots(updated);
+    const updated = getCurrentScreenshots().filter((_, i) => i !== index);
+    setCurrentScreenshots(updated);
     setAnchorEls({});
   };
 
   const handleRenameClick = (index) => {
-    const updated = screenshots.map((s, i) =>
+    const updated = getCurrentScreenshots().map((s, i) =>
       i === index ? { ...s, editing: true } : s
     );
-    setScreenshots(updated);
+    setCurrentScreenshots(updated);
     setAnchorEls({});
   };
 
   const handleTitleChange = (index, newTitle) => {
-    const updated = screenshots.map((s, i) =>
+    const updated = getCurrentScreenshots().map((s, i) =>
       i === index ? { ...s, title: newTitle } : s
     );
-    setScreenshots(updated);
+    setCurrentScreenshots(updated);
   };
 
   const handleFinishEditing = (index) => {
-    const updated = screenshots.map((s, i) =>
+    const updated = getCurrentScreenshots().map((s, i) =>
       i === index ? { ...s, editing: false } : s
     );
-    setScreenshots(updated);
+    setCurrentScreenshots(updated);
   };
 
   const handleMenuOpen = (index, event) => {
@@ -164,22 +181,20 @@ function App() {
   };
 
   const handleTaskDialogSave = () => {
-    const updated = screenshots.map((s, i) =>
+    const updated = getCurrentScreenshots().map((s, i) =>
       i === selectedImageIndex ? {
         ...s,
-        task: taskInput,
         correctAction: correctActionInput
       } : s
     );
-    setScreenshots(updated);
-    setTaskDialogOpen(false);
+    setCurrentScreenshots(updated);
+    setDetailsDialogOpen(false);
     setSelectedImageIndex(null);
-    setTaskInput('');
     setCorrectActionInput('');
-  };  
+  };
 
   const handleViewClick = (index) => {
-    const imageData = screenshots[index].src;
+    const imageData = getCurrentScreenshots()[index].src;
   
     const htmlContent = `
       <html>
@@ -264,34 +279,86 @@ function App() {
         </div>
       </div>
 
+      {evaluationType == 'walkthrough' ? (
+        <div className="card">
+        <div style={{ padding: '0px 8px 0px 8px' }}>
+          <p className='text-field-label'>User task</p>
+          <div style={{ textAlign: 'left', marginBottom: '5px' }}>
+            <span className='text-hint'>Provide a short description of the user's activity or goal.</span>
+          </div>
+          <TextFieldContent
+            multiline
+            rows={2}
+            placeholder='The user task is...'
+            value={taskInput}
+            onChange={(e) => setTaskInput(e.target.value)}
+          />
+        </div>
+      </div>
+      ) : null}
+
       <div className="card">
-        <p className='title'>All pages</p>
-        <span className='text-hint all-pages'>Captured screens from the web app. These will be analyzed to identify usability issues.</span>
-        {screenshots.length === 0 ? (
-          <NoContent />
+        {evaluationType == 'heuristic' ? (
+          <div>
+            <p className='title'>All pages</p>
+            <span className='text-hint all-pages'>Captured screens from the web app. These will be analyzed to identify usability issues.</span>
+            {screenshots.length === 0 ? (
+              <NoContent />
+            ) : (
+              <ScreenshotList
+                  screenshots={screenshots}
+                  anchorEls={anchorEls}
+                  evaluationType={evaluationType}
+                  onImageClick={(idx) => {
+                    setSelectedImageIndex(idx);
+                    setEvaluationDialogOpen(true);
+                  }}
+                  onMenuOpen={handleMenuOpen}
+                  onMenuClose={handleMenuClose}
+                  onRenameClick={handleRenameClick}
+                  onDeleteClick={handleDeleteClick}
+                  onTitleChange={handleTitleChange}
+                  onFinishEditing={handleFinishEditing}
+                  onEditDetailsClick={(idx) => {
+                    setSelectedImageIndex(idx);
+                    setCorrectActionInput(screenshots[idx]?.correctAction || '');
+                    setDetailsDialogOpen(true);
+                  }}
+                  onViewClick={handleViewClick} />
+            )}
+          </div>
         ) : (
-          <ScreenshotList
-              screenshots={screenshots}
-              anchorEls={anchorEls}
-              evaluationType={evaluationType}
-              onImageClick={(idx) => {
-                setSelectedImageIndex(idx);
-                setEvaluationDialogOpen(true);
-              }}
-              onMenuOpen={handleMenuOpen}
-              onMenuClose={handleMenuClose}
-              onRenameClick={handleRenameClick}
-              onDeleteClick={handleDeleteClick}
-              onTitleChange={handleTitleChange}
-              onFinishEditing={handleFinishEditing}
-              onEditTaskClick={(idx) => {
-                setSelectedImageIndex(idx);
-                setTaskInput(screenshots[idx]?.task || '');
-                setCorrectActionInput(screenshots[idx]?.correctAction || '');
-                setTaskDialogOpen(true);
-              }}
-              onViewClick={handleViewClick} />
+          <div>
+            <p className='title'>All pages</p>
+            <span className='text-hint all-pages'>Captured screens represent steps a user takes to complete a task in a walkthrough. 
+                                                  These steps will be analyzed to identify usability issues.</span>
+            {walkthroughScreenshots.length === 0 ? (
+              <NoContent />
+            ) : (
+              <ScreenshotList
+                  screenshots={walkthroughScreenshots}
+                  anchorEls={anchorEls}
+                  evaluationType={evaluationType}
+                  onImageClick={(idx) => {
+                    setSelectedImageIndex(idx);
+                    setEvaluationDialogOpen(true);
+                  }}
+                  onMenuOpen={handleMenuOpen}
+                  onMenuClose={handleMenuClose}
+                  onRenameClick={handleRenameClick}
+                  onDeleteClick={handleDeleteClick}
+                  onTitleChange={handleTitleChange}
+                  onFinishEditing={handleFinishEditing}
+                  onEditDetailsClick={(idx) => {
+                    setSelectedImageIndex(idx);
+                    setCorrectActionInput(walkthroughScreenshots[idx]?.correctAction || '');
+                    setDetailsDialogOpen(true);
+                  }}
+                  onViewClick={handleViewClick} />
+            )}
+          </div>
         )}
+        
       </div>
 
       <div className='footer-button'>
@@ -319,10 +386,8 @@ function App() {
       </Snackbar>
 
       <DetailsDialog
-        open={taskDialogOpen}
-        onClose={() => setTaskDialogOpen(false)}
-        taskInput={taskInput}
-        onTaskInputChange={(e) => setTaskInput(e.target.value)}
+        open={detailsDialogOpen}
+        onClose={() => setDetailsDialogOpen(false)}
         onSave={handleTaskDialogSave}
         correctActionInput={correctActionInput}
         onCorrectActionInputChange={(e) => setCorrectActionInput(e.target.value)}

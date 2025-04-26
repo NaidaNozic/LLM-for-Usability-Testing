@@ -5,7 +5,7 @@ import {
     ClickAwayListener
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { CustomIconButton, TextFieldTitle } from './CustomComponents';
+import { CustomIconButton, TextFieldTitle } from './SharedCustomControls';
 
 function ScreenshotList({
   screenshots,
@@ -18,7 +18,7 @@ function ScreenshotList({
   onDeleteClick,
   onTitleChange,
   onFinishEditing,
-  onEditTaskClick,
+  onEditDetailsClick,
   onViewClick,
 }) {
   return (
@@ -90,7 +90,7 @@ function ScreenshotList({
               <MenuItem onClick={() => { onMenuClose(idx); onRenameClick(idx); }}>Rename</MenuItem>
               <MenuItem onClick={() => { onMenuClose(idx); onDeleteClick(idx); }}>Delete</MenuItem>
               {evaluationType === 'walkthrough' && (
-                <MenuItem onClick={() => { onMenuClose(idx); onEditTaskClick(idx); }}>
+                <MenuItem onClick={() => { onMenuClose(idx); onEditDetailsClick(idx); }}>
                   Edit
                 </MenuItem>
               )}

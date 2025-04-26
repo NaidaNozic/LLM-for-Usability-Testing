@@ -12,8 +12,6 @@ import {
 const DetailsDialog = ({
   open,
   onClose,
-  taskInput,
-  onTaskInputChange,
   onSave,
   correctActionInput,
   onCorrectActionInputChange,
@@ -27,18 +25,6 @@ const DetailsDialog = ({
       <DarkDialogContent>
         {evaluationType === 'walkthrough' && (
         <>
-          <div>
-            <p className="dialog-label">Add user task</p>
-            <span className='dialog-hint'>Provide a short description of the user's activity on the captured screen.</span>
-            <TextFieldTask
-              fullWidth
-              placeholder='The user is...'
-              multiline
-              rows={2}
-              value={taskInput}
-              onChange={onTaskInputChange}
-            />
-          </div>
           <div className='walkthrough-container'>
               <div>
                 <p className="dialog-label">Specify correct action</p>
