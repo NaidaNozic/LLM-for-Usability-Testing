@@ -30,7 +30,7 @@ function takeScreenshot(sendResponse) {
           debounceTimeout = null;
 
           if (chrome.runtime.lastError || !dataUrl) {
-            console.error('Screenshot error:', JSON.stringify(chrome.runtime.lastError));
+            console.log('Screenshot error:', JSON.stringify(chrome.runtime.lastError));
             sendResponse({ screenshot: null });
           } else {
             sendResponse({ screenshot: dataUrl });
@@ -38,7 +38,7 @@ function takeScreenshot(sendResponse) {
         });
       })
       .catch((error) => {
-        console.error("Unexpected error taking screenshot:", error);
+        console.log("Unexpected error taking screenshot:", error);
         sendResponse({ screenshot: null });
       });
   }, 300);
