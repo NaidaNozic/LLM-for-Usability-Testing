@@ -20,15 +20,16 @@ focusing only on elements visible before any user interaction.
 Use the following questions as guidance to help you explore the interface from multiple angles. 
 You are NOT limited to one issue per question — you may identify multiple issues inspired by a single question, 
 and some issues may relate to more than one question:
-${nielsen_heuristics}
+${nielsen_heuristics}`;
 
-### Output Format:
+const output_format = `### Output Format:
 For each issue, include the following, without headings, categories, or extra recommendations:
 
 - **Title of the issue**
 - **Short description of the issue** (1-2 sentences)
 - **Severity Rating** (0-4, where 0 = Not a problem, 4 = Critical issue)
-- **Recommendation for Fixes** (**mandatory**: provide a **specific, actionable fix** — not a generic suggestion. Example: Instead of saying "improve navigation", say "Add a 'Home' button in the top navigation bar".)
+- **Recommendation for Fixes** (**mandatory**: provide a **specific, actionable fix** — not a generic suggestion. 
+    Example: Instead of saying "improve navigation", say "Add a 'Home' button in the top navigation bar".)
 
 ### Example Output:
 
@@ -36,8 +37,7 @@ Issues:
 
 1. **Error Prevention**: No "Cancel" button during checkout, preventing users from exiting without completing the purchase.  
    Severity: 2  
-   Recommendation: Add a prominent "Cancel" button during the checkout process to allow users to safely exit without making a purchase.
-`;
+   Recommendation: Add a prominent "Cancel" button during the checkout process to allow users to safely exit without making a purchase.`;
 
 /* Prompts for the cognitive walkthrough */
 const system_walkthrough_prompt =`You are a UX/UI expert conducting a cognitive walkthrough of a web application to identify usability 
@@ -53,7 +53,9 @@ and some issues may relate to more than one question:
 - What is missing or unclear before the user interacts with anything?
 - What might the user try instead of the correct action, and why?  
 - What aspect of the entire workflow or the current screen makes the user question whether he is making progress towards the solution of the task?
+`;
 
+const output_format_walkthrough = `
 ### Output Format:
 For each issue, include the following, without headings, categories, or extra recommendations:
 

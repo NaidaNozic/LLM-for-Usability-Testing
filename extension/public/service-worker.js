@@ -117,6 +117,11 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
       text: request_walkthrough,
     });
 
+    content.push({
+      type: 'text',
+      text: output_format_walkthrough,
+    });
+
     messages.push({
       role: "user",
       content: content
@@ -186,6 +191,11 @@ const detectUsabilityIssues = async (request, sendResponse) => {
     content.push({
       type: 'text',
       text: request_for_evaluation,
+    });
+
+    content.push({
+      type: 'text',
+      text: output_format,
     });
 
     console.log(content);

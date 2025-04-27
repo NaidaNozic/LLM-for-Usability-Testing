@@ -35,8 +35,7 @@ const DetailsDialog = ({
                   multiline
                   rows={2}
                   value={correctActionInput}
-                  onChange={onCorrectActionInputChange}
-                />
+                  onChange={onCorrectActionInputChange} />
               </div>
             </div>
         </>
