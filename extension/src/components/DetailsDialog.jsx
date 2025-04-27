@@ -15,7 +15,9 @@ const DetailsDialog = ({
   onSave,
   correctActionInput,
   onCorrectActionInputChange,
-  evaluationType
+  evaluationType,
+  questionsInput,
+  questionsInputChange
 }) => {
   return (
     <DarkDialog open={open} onClose={onClose} aria-hidden={open ? "false" : "true"} >
@@ -27,7 +29,7 @@ const DetailsDialog = ({
         <>
           <div className='walkthrough-container'>
               <div>
-                <p className="dialog-label">Specify correct action</p>
+                <p className="dialog-label">Specify correct action*</p>
                 <span className='dialog-hint'>Add the correct action on this screen for achieving the user task.</span>
                 <TextFieldTask
                   fullWidth
@@ -37,10 +39,21 @@ const DetailsDialog = ({
                   value={correctActionInput}
                   onChange={onCorrectActionInputChange} />
               </div>
-            </div>
+          </div>
         </>
-          )
-          }
+        )}
+
+        <div>
+          <p className="dialog-label">Add questions (optional)</p>
+          <span className='dialog-hint'>Add specific questions about the user experience that you want the usability analysis to address.</span>
+          <TextFieldTask
+            fullWidth
+            placeholder='e.g., What is the most confusing part about the website?'
+            multiline
+            rows={2} 
+            value={questionsInput}
+            onChange={questionsInputChange}/>
+        </div>
 
       </DarkDialogContent>
       <DarkDialogActions>

@@ -89,11 +89,7 @@ function ScreenshotList({
             >
               <MenuItem onClick={() => { onMenuClose(idx); onRenameClick(idx); }}>Rename</MenuItem>
               <MenuItem onClick={() => { onMenuClose(idx); onDeleteClick(idx); }}>Delete</MenuItem>
-              {evaluationType === 'walkthrough' && (
-                <MenuItem onClick={() => { onMenuClose(idx); onEditDetailsClick(idx); }}>
-                  Edit
-                </MenuItem>
-              )}
+              <MenuItem onClick={() => { onMenuClose(idx); onEditDetailsClick(idx); }}>Edit</MenuItem>
               <MenuItem onClick={() => { onMenuClose(idx); onViewClick(idx); }}>View</MenuItem>
             </Menu>
           </div>

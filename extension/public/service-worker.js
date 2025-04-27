@@ -50,7 +50,6 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
   const base64Images = request.base64Images;
   const tasks = request.tasks || [];
   const correctActions = request.correctActions || [];
-  const entireWalkthrough = request.entireWalkthrough || '';
 
   for (let i = 0; i < base64Images.length; i++) {
     const base64Image = base64Images[i];
@@ -96,10 +95,10 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
         });
       }
 
-      if (entireWalkthrough && entireWalkthrough.trim() !== '') {
+      if (request.entireWalkthrough && request.entireWalkthrough.trim() !== '') {
         content.push({
           type: 'text',
-          text: `The entire workflow for accomplishing the task is given as : ${entireWalkthrough.trim()}`,
+          text: `The entire workflow for accomplishing the task is given as : ${request.entireWalkthrough.trim()}`,
         });
       }
 
@@ -116,6 +115,18 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
       type: 'text',
       text: request_walkthrough,
     });
+
+    if (request.questions && request.questions.trim() !== '') {
+      content.push({
+        type: 'text',
+        text: request.questions.trim(),
+      });
+    } else {
+      content.push({
+        type: 'text',
+        text: walkthrough_questions,
+      });
+    }
 
     content.push({
       type: 'text',
@@ -192,6 +203,18 @@ const detectUsabilityIssues = async (request, sendResponse) => {
       type: 'text',
       text: request_for_evaluation,
     });
+
+    if (request.questions && request.questions.trim() !== '') {
+      content.push({
+        type: 'text',
+        text: request.questions.trim(),
+      });
+    } else {
+      content.push({
+        type: 'text',
+        text: nielsen_heuristics,
+      });
+    }
 
     content.push({
       type: 'text',

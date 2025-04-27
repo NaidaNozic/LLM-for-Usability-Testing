@@ -24,6 +24,7 @@ function App() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [correctActionInput, setCorrectActionInput] = useState('');
+  const [questionsInput, setQuestionsInput] = useState('');
   const [evaluationType, setEvaluationType] = useState('heuristic');
   const [evaluationDialogOpen, setEvaluationDialogOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
@@ -53,7 +54,8 @@ function App() {
           src: response.screenshot,
           title: `Screen ${newIndex}`,
           editing: false,
-          correctAction: ''
+          correctAction: '',
+          questions: ''
         };
   
         if (evaluationType === 'heuristic') {
@@ -79,6 +81,7 @@ function App() {
         type: 'DETECT_USABILITY',
         base64Images: [base64Image],
         overview,
+        questions: selectedScreenshot.questions
       },
       (responseFromSW) => {
         setLoading(false);
@@ -124,6 +127,7 @@ function App() {
         tasks: [taskInput],
         correctActions: [selectedScreenshot.correctAction],
         entireWalkthrough: allCorrectActionsString, 
+        questions: selectedScreenshot.questions
       },
       (responseFromSW) => {
         setLoading(false);
@@ -189,13 +193,15 @@ function App() {
     const updated = getCurrentScreenshots().map((s, i) =>
       i === selectedImageIndex ? {
         ...s,
-        correctAction: correctActionInput
+        correctAction: correctActionInput,
+        questions: questionsInput
       } : s
     );
     setCurrentScreenshots(updated);
     setDetailsDialogOpen(false);
     setSelectedImageIndex(null);
     setCorrectActionInput('');
+    setQuestionsInput('');
   };
 
   const handleViewClick = (index) => {
@@ -279,7 +285,7 @@ function App() {
 
       <div className="card">
         <div style={{ padding: '0px 8px 0px 8px' }}>
-          <p className='text-field-label'>App overview</p>
+          <p className='text-field-label'>App overview (optional)</p>
           <div style={{ textAlign: 'left', marginBottom: '5px' }}>
             <span className='text-hint'>Briefly explain what the web app does, who it's for and/or its goals.</span>
           </div>
@@ -296,7 +302,7 @@ function App() {
       {evaluationType == 'walkthrough' ? (
         <div className="card">
         <div style={{ padding: '0px 8px 0px 8px' }}>
-          <p className='text-field-label'>User task</p>
+          <p className='text-field-label'>User task*</p>
           <div style={{ textAlign: 'left', marginBottom: '5px' }}>
             <span className='text-hint'>Provide a short description of the user's activity or goal.</span>
           </div>
@@ -336,6 +342,7 @@ function App() {
                   onEditDetailsClick={(idx) => {
                     setSelectedImageIndex(idx);
                     setCorrectActionInput(screenshots[idx]?.correctAction || '');
+                    setQuestionsInput(screenshots[idx]?.questions || '');
                     setDetailsDialogOpen(true);
                   }}
                   onViewClick={handleViewClick} />
@@ -366,6 +373,7 @@ function App() {
                   onEditDetailsClick={(idx) => {
                     setSelectedImageIndex(idx);
                     setCorrectActionInput(walkthroughScreenshots[idx]?.correctAction || '');
+                    setQuestionsInput(walkthroughScreenshots[idx]?.questions || '');
                     setDetailsDialogOpen(true);
                   }}
                   onViewClick={handleViewClick} />
@@ -412,6 +420,8 @@ function App() {
         correctActionInput={correctActionInput}
         onCorrectActionInputChange={(e) => setCorrectActionInput(e.target.value)}
         evaluationType={evaluationType}
+        questionsInput={questionsInput}
+        questionsInputChange={(e) => setQuestionsInput(e.target.value)}
       />
 
       <EvaluationDialog

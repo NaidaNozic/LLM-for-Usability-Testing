@@ -3,7 +3,7 @@ const system_prompt = `You are a UX/UI expert evaluating a screen of a web appli
 
 const nielsen_heuristics = `
 - Is there anything missing or unclear on the screen that might make the user unsure about the current status or progress of the system?
-- Is anything preventing the user from going back, canceling, or undoing an action if they make a mistake?
+- Is anything preventing the user from going back, cancelling, or undoing an action if they make a mistake?
 - Which safeguards for preventing user mistakes are missing or are unclear?
 - Are there places where the user is forced to remember information rather than seeing it clearly on the screen?
 - Are there places where design patterns and terminology are not consistent?
@@ -19,10 +19,10 @@ Identify usability issues on the screen using Nielsen's heuristics as evaluation
 focusing only on elements visible before any user interaction.
 Use the following questions as guidance to help you explore the interface from multiple angles. 
 You are NOT limited to one issue per question — you may identify multiple issues inspired by a single question, 
-and some issues may relate to more than one question:
-${nielsen_heuristics}`;
+and some issues may relate to more than one question: `;
 
-const output_format = `### Output Format:
+const output_format = `
+### Output Format:
 For each issue, include the following, without headings, categories, or extra recommendations:
 
 - **Title of the issue**
@@ -43,17 +43,17 @@ Issues:
 const system_walkthrough_prompt =`You are a UX/UI expert conducting a cognitive walkthrough of a web application to identify usability 
 issues related to task completion from a user's perspective.`;
 
+const walkthrough_questions = `
+- What aspects of the interface might confuse the user when trying to complete the task and figure out the what's the correct action?  
+- What is missing or unclear before the user interacts with anything?
+- What might the user try instead of the correct action, and why?  
+- Which part of the workflow or screen makes the user unsure if they are making progress on the task?`;
+
 const request_walkthrough = `Identify usability issues (5 or more) a user may face when attempting the task.
 
 Use the following questions as guidance to help you explore the interface from multiple angles. 
 You are NOT limited to one issue per question — you may identify multiple issues inspired by a single question, 
-and some issues may relate to more than one question:
-
-- What aspects of the interface might confuse the user when trying to complete the task and figure out the what's the correct action?  
-- What is missing or unclear before the user interacts with anything?
-- What might the user try instead of the correct action, and why?  
-- What aspect of the entire workflow or the current screen makes the user question whether he is making progress towards the solution of the task?
-`;
+and some issues may relate to more than one question:`;
 
 const output_format_walkthrough = `
 ### Output Format:
