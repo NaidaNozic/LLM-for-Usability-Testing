@@ -1,0 +1,12 @@
+.api-key-prompt {
+    text-align: center;
+    display: flex;
+    height: 100vh;
+    padding: 0px 8px 0px 8px;
+}
+
+.api-key-prompt-header {
+    text-align: center;
+    margin-bottom: 40px;
+    margin-top: 40px;
+}
