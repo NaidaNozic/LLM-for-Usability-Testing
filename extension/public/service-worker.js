@@ -105,7 +105,7 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
       if (correctAction && correctAction.trim() !== '') {
         content.push({
           type: 'text',
-          text: `The given screen corresponds to the action: ${correctAction.trim()}`,
+          text: `The given screen corresponds to the state before the user does the action: ${correctAction.trim()}`,
         });
       }
     });
@@ -139,26 +139,52 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
 
     console.log(messages);
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${request.apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: messages
-      }),
-    });
+    if (request.apiType === 'gemini') {
+      // Gemini API call
+      const geminiResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${request.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'gemini-2.0-flash',
+          messages: messages,
+        }),
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      sendResponse({ result: `OpenAI API Error (${response.status}): ${errorText}` });
-      return;
+      if (!geminiResponse.ok) {
+        const errorText = await geminiResponse.text();
+        sendResponse({ result: `Gemini API Error (${geminiResponse.status}): ${errorText}` });
+        return;
+      }
+
+      const geminiData = await geminiResponse.json();
+      sendResponse({ result: geminiData.choices[0].message.content });
+
+    } else {
+      // OpenAI API call
+      const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${request.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: messages,
+        }),
+      });
+
+      if (!openaiResponse.ok) {
+        const errorText = await openaiResponse.text();
+        sendResponse({ result: `OpenAI API Error (${openaiResponse.status}): ${errorText}` });
+        return;
+      }
+
+      const openaiData = await openaiResponse.json();
+      sendResponse({ result: openaiData.choices[0].message.content });
     }
-
-    const data = await response.json();
-    sendResponse({ result: data.choices[0].message.content });
   } catch (error) {
     console.log(error);
     sendResponse({ result: 'Sorry, there was an error analyzing the usability.' });
@@ -222,31 +248,62 @@ const detectUsabilityIssues = async (request, sendResponse) => {
 
     console.log(content);
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${request.apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'user',
-            content: content,
-          },
-        ]
-      }),
-    });
+    if (request.apiType === 'gemini') {
+      // Gemini API call
+      const geminiResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${request.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'gemini-2.0-flash',
+          messages: [
+            {
+              role: 'user',
+              content: content,
+            },
+          ]
+        }),
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      sendResponse({ result: `OpenAI API Error (${response.status}): ${errorText}` });
-      return;
+      if (!geminiResponse.ok) {
+        const errorText = await geminiResponse.text();
+        sendResponse({ result: `Gemini API Error (${geminiResponse.status}): ${errorText}` });
+        return;
+      }
+
+      const geminiData = await geminiResponse.json();
+      sendResponse({ result: geminiData.choices[0].message.content });
+
+    } else {
+      // OpenAI API call
+      const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${request.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: [
+            {
+              role: 'user',
+              content: content,
+            },
+          ]
+        }),
+      });
+
+      if (!openaiResponse.ok) {
+        const errorText = await openaiResponse.text();
+        sendResponse({ result: `OpenAI API Error (${openaiResponse.status}): ${errorText}` });
+        return;
+      }
+
+      const openaiData = await openaiResponse.json();
+      sendResponse({ result: openaiData.choices[0].message.content });
     }
-
-    const data = await response.json();
-    sendResponse({ result: data.choices[0].message.content });
   } catch (error) {
     sendResponse({ result: 'Sorry, there was an error analyzing the usability.' });
   }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Snackbar, Alert, IconButton, InputAdornment, TextField } from '@mui/material';
+import { Snackbar, Alert, IconButton, InputAdornment, TextField, FormControl, Select, MenuItem, InputLabel } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { CustomButton } from './SharedCustomControls';
@@ -7,19 +7,21 @@ import './ApiKeyPrompt.css';
 
 export default function ApiKeyPrompt({ onSave }) {
   const [apiKeyInput, setApiKeyInput] = useState('');
+  const [apiType, setApiType] = useState('openai');
   const [showApiKey, setShowApiKey] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const handleSave = () => {
-    if (apiKeyInput.startsWith('sk-')) {
-      chrome.storage.local.set({ apiKey: apiKeyInput }, () => {
-        onSave(apiKeyInput);
-      });
-    } else {
-      setSnackbarMessage('Please enter a valid OpenAI API key.');
+    if (apiKeyInput.trim() === '') {
+      setSnackbarMessage('API Key is required.');
       setSnackbarOpen(true);
+      return;
     }
+
+    chrome.storage.local.set({ apiKey: apiKeyInput, provider: apiType }, () => {
+        onSave(apiKeyInput, apiType);
+      });
   };
 
   const handleCloseSnackbar = () => {
@@ -37,7 +39,20 @@ export default function ApiKeyPrompt({ onSave }) {
         <p>Evaluate UI designs via LLMs using heuristics or task-based walkthroughs.</p>
       </div>
 
-      <h3 style={{textAlign: 'left'}}>Enter your OpenAI API Key</h3>
+      <h3 style={{textAlign: 'left'}}>Enter your API Key</h3>
+      <FormControl fullWidth margin="normal">
+        <WhiteBorderInputLabel id="api-type-select-label">Select API</WhiteBorderInputLabel>
+        <WhiteBorderSelect
+          labelId="api-type-select-label"
+          value={apiType}
+          onChange={(e) => setApiType(e.target.value)}
+          label="Select API"
+        >
+          <MenuItem value="openai">OpenAI</MenuItem>
+          <MenuItem value="gemini">Gemini</MenuItem>
+        </WhiteBorderSelect>
+      </FormControl>
+
       <TextFieldPrompt
         type={showApiKey ? 'text' : 'password'}
         value={apiKeyInput}
@@ -143,3 +158,26 @@ const IconButtonPrompt = styled(IconButton)({
       backgroundColor: 'transparent',
     },
 });
+
+const WhiteBorderSelect = styled(Select)({
+    '& .MuiOutlinedInput-notchedOutline': {
+      borderColor: 'white',
+    },
+    '&:hover .MuiOutlinedInput-notchedOutline': {
+      borderColor: 'white',
+    },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+      borderColor: 'white',
+    },
+    '& .MuiSelect-select': {
+      color: 'white',
+      fontSize: '12px',
+    },
+  });
+  
+  const WhiteBorderInputLabel = styled(InputLabel)({
+    color: 'white',
+    '&.Mui-focused': {
+      color: 'white',
+    },
+  });

@@ -31,15 +31,25 @@ function App() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [apiKey, setApiKey] = useState('');
   const [hasApiKey, setHasApiKey] = useState(false);
+  const [provider, setProvider] = useState('openai');
 
   useEffect(() => {
-    chrome.storage.local.get(['apiKey'], (result) => {
-      if (result.apiKey) {
+    chrome.storage.local.get(['apiKey', 'provider'], (result) => {
+      if (result.apiKey && result.provider) {
         setApiKey(result.apiKey);
+        setProvider(result.provider);
         setHasApiKey(true);
       }
     });
-  }, []);  
+  }, []);
+
+  const handleSave = (key, provider) => {
+    setApiKey(key);
+    setProvider(provider);
+    chrome.storage.local.set({ apiKey: key, provider }, () => {
+      setHasApiKey(true);
+    });
+  };  
 
   const getCurrentScreenshots = () => {
     return evaluationType === 'heuristic' ? screenshots : walkthroughScreenshots;
@@ -94,7 +104,8 @@ function App() {
         base64Images: [base64Image],
         overview,
         questions: selectedScreenshot.questions,
-        apiKey: apiKey
+        apiKey: apiKey,
+        apiType: provider,
       },
       (responseFromSW) => {
         setLoading(false);
@@ -141,7 +152,8 @@ function App() {
         correctActions: [selectedScreenshot.correctAction],
         entireWalkthrough: allCorrectActionsString, 
         questions: selectedScreenshot.questions,
-        apiKey: apiKey
+        apiKey: apiKey,
+        apiType: provider,
       },
       (responseFromSW) => {
         setLoading(false);
@@ -267,9 +279,7 @@ function App() {
   };
 
   if (!hasApiKey) {
-    return (
-      <ApiKeyPrompt onSave={(key) => { setApiKey(key); setHasApiKey(true); }} />
-    );
+    return ( <ApiKeyPrompt onSave={handleSave}/> )
   } else {
     return (
       <>
