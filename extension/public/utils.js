@@ -23,7 +23,7 @@ and some issues may relate to more than one question: `;
 
 const output_format = `
 ### Output Format:
-For each issue, include the following, without headings, categories, or extra recommendations:
+For each issue, include the following, without headings, categories, or extra recommendations and rank issues from most to least severe.:
 
 - **Title of the issue**
 - **Short description of the issue** (1-2 sentences)
@@ -49,7 +49,7 @@ const walkthrough_questions = `
 - What might the user try instead of the correct action, and why?  
 - Which part of the workflow or screen makes the user unsure if they are making progress on the task?`;
 
-const request_walkthrough = `Identify usability issues (5 or more) a user may face when attempting the task.
+const request_walkthrough = `Identify usability issues (5 or more) a user may face when attempting the task and rank the issues by severity, from most to least severe.
 
 Use the following questions as guidance to help you explore the interface from multiple angles. 
 You are NOT limited to one issue per question — you may identify multiple issues inspired by a single question, 

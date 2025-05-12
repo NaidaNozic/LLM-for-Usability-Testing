@@ -1,8 +1,9 @@
 .api-key-prompt {
     text-align: center;
     display: flex;
-    height: 100vh;
-    padding: 0px 8px 0px 8px;
+    padding: 8px;
+    height: calc(100vh - 33px);
+    min-height: fit-content;
 }
 
 .api-key-prompt-header {
