@@ -15,15 +15,14 @@ const nielsen_heuristics = `
 `;
 
 const request_for_evaluation = `
-Identify usability issues on the screen using Nielsen's heuristics as evaluation criteria, 
-focusing only on elements visible before any user interaction.
+Identify usability issues on the screen using Nielsen's heuristics as evaluation criteria and rank issues from most to least severe.
 Use the following questions as guidance to help you explore the interface from multiple angles. 
 You are NOT limited to one issue per question — you may identify multiple issues inspired by a single question, 
 and some issues may relate to more than one question: `;
 
 const output_format = `
 ### Output Format:
-For each issue, include the following, without headings, categories, or extra recommendations and rank issues from most to least severe.:
+For each issue, include the following, without headings, categories, or extra recommendations:
 
 - **Title of the issue**
 - **Short description of the issue** (1-2 sentences)
