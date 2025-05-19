@@ -154,3 +154,20 @@
   flex-direction: row;
   gap: 4px;
 }
+
+.recsys-switch {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.recsys-switch >* {
+  margin: auto 8px;
+}
+
+.hr-line {
+  margin: 10px 8px 15px 8px;
+  border-color: lightgray;
+  height: 0.01rem;
+  opacity: 0.4;
+}

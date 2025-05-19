@@ -64,7 +64,7 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
   }
 
   try {
-    const messages = [{"role": "system", "content": system_walkthrough_prompt}];
+    const messages = [{"role": "system", "content": getWalkthroughSystemPrompt(request.recommenderSys)}];
     const content = [];
 
     if (request.overview && request.overview.trim() !== '') {
@@ -76,7 +76,7 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
 
     content.push({
       type: 'text',
-      text: "You are shown one screenshot of a web interface, before the user takes an action to achieve his task.",
+      text: "You are shown one screenshot of a web interface, before the user takes a correct action to achieve his task.",
     });
 
     base64Images.forEach((base64Image, index) => {
@@ -105,31 +105,24 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
       if (correctAction && correctAction.trim() !== '') {
         content.push({
           type: 'text',
-          text: `The given screen corresponds to the state before the user does the action: ${correctAction.trim()}`,
+          text: `The given screen corresponds to the state before the user does the correct action: ${correctAction.trim()}.`,
         });
       }
     });
 
     content.push({
       type: 'text',
-      text: request_walkthrough,
+      text: getWalkthroughMetrics(request.recommenderSys),
     });
-
-    if (request.questions && request.questions.trim() !== '') {
-      content.push({
-        type: 'text',
-        text: request.questions.trim(),
-      });
-    } else {
-      content.push({
-        type: 'text',
-        text: walkthrough_questions,
-      });
-    }
 
     content.push({
       type: 'text',
-      text: output_format_walkthrough,
+      text: getWalkthroughRequest(request.recommenderSys),
+    });
+    
+    content.push({
+      type: 'text',
+      text: getWalkthroughOutputFormat(request.recommenderSys),
     });
 
     messages.push({
@@ -208,14 +201,7 @@ const detectUsabilityIssues = async (request, sendResponse) => {
   }
 
   try {
-    const content = [{ type: 'text', text: system_prompt }];
-
-    if (request.overview && request.overview.trim() !== '') {
-      content.push({
-        type: 'text',
-        text: `You are given a web application about: ${request.overview.trim()}`,
-      });
-    }
+    const content = [{ type: 'text', text: getSystemPrompt(request.recommenderSys) }];
 
     base64Images.forEach((base64Image, index) => {
       content.push({
@@ -224,26 +210,38 @@ const detectUsabilityIssues = async (request, sendResponse) => {
       });
     });
 
-    content.push({
-      type: 'text',
-      text: request_for_evaluation,
-    });
-
-    if (request.questions && request.questions.trim() !== '') {
+    if (request.overview && request.overview.trim() !== '') {
       content.push({
         type: 'text',
-        text: request.questions.trim(),
+        text: `You are given a web application about: ${request.overview.trim()}`,
       });
-    } else {
+    }
+    if (request.userGroup && request.userGroup.trim() !== '') {
       content.push({
         type: 'text',
-        text: nielsen_heuristics,
+        text: `The target user group of this application is: ${request.userGroup.trim()}`,
+      });
+    }
+    if (request.userTask && request.userTask.trim() !== '') {
+      content.push({
+        type: 'text',
+        text: `The task the user is conducting is: ${request.userTask.trim()}`,
       });
     }
 
     content.push({
+        type: 'text',
+        text: getMetrics(request.recommenderSys),
+      });
+
+    content.push({
       type: 'text',
-      text: output_format,
+      text: getRequest(request.recommenderSys),
+    });
+
+    content.push({
+      type: 'text',
+      text: getOutputFormat(request.recommenderSys),
     });
 
     console.log(content);
@@ -328,3 +326,35 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       break;
   }
 });
+
+function getSystemPrompt(isRecSys) {
+  return isRecSys ? recsys_prompt : system_prompt;
+}
+
+function getRequest(isRecSys) {
+  return isRecSys ? recsys_request : request_for_evaluation;
+}
+
+function getMetrics(isRecSys) {
+  return isRecSys ? recsys_metrics : nielsen_heuristics;
+}
+
+function getOutputFormat(isRecSys) {
+  return isRecSys ? recsys_output_format : output_format;
+}
+
+function getWalkthroughSystemPrompt(isRecSys) {
+  return isRecSys ? rec_system_walkthrough_prompt : system_walkthrough_prompt;
+}
+
+function getWalkthroughRequest(isRecSys) {
+  return isRecSys ? rec_request_walkthrough : request_walkthrough;
+}
+
+function getWalkthroughMetrics(isRecSys) {
+  return isRecSys ? rec_walkthrough_metrics : walkthrough_metrics;
+}
+
+function getWalkthroughOutputFormat(isRecSys) {
+  return isRecSys ? rec_output_format_walkthrough : output_format_walkthrough;
+}

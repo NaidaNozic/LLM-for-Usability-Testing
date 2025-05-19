@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
   Snackbar,
-  Alert
+  Alert,
+  Switch
 } from '@mui/material';
 import './App.css';
 import NoContent from './components/NoContent';
@@ -25,13 +26,15 @@ function App() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [correctActionInput, setCorrectActionInput] = useState('');
-  const [questionsInput, setQuestionsInput] = useState('');
   const [evaluationType, setEvaluationType] = useState('heuristic');
   const [evaluationDialogOpen, setEvaluationDialogOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [apiKey, setApiKey] = useState('');
   const [hasApiKey, setHasApiKey] = useState(false);
   const [provider, setProvider] = useState('openai');
+  const [userTask, setUserTask] = useState('');
+  const [userGroup, setUserGroup] = useState('');
+  const [recommenderSys, setRecommenderSys] = useState(true);
 
   useEffect(() => {
     chrome.storage.local.get(['apiKey', 'provider'], (result) => {
@@ -77,7 +80,8 @@ function App() {
           title: `Screen ${newIndex}`,
           editing: false,
           correctAction: '',
-          questions: ''
+          userGroup: '',
+          userTask: '',
         };
   
         if (evaluationType === 'heuristic') {
@@ -94,6 +98,12 @@ function App() {
 
   const handleHeuristicEvaluation = (index) => {
     const selectedScreenshot = screenshots[index];
+
+    if (!selectedScreenshot.userGroup || !selectedScreenshot.userTask || !overview) {
+      setSnackbarMessage('Please fill in the "Edit" details for all the screens before starting the evaluation.');
+      setSnackbarOpen(true);
+      return;
+    }
   
     setLoading(true);
     const base64Image = selectedScreenshot.src.split(',')[1];
@@ -103,9 +113,11 @@ function App() {
         type: 'DETECT_USABILITY',
         base64Images: [base64Image],
         overview,
-        questions: selectedScreenshot.questions,
+        userGroup: selectedScreenshot.userGroup,
+        userTask: selectedScreenshot.userTask,
         apiKey: apiKey,
         apiType: provider,
+        recommenderSys: recommenderSys,
       },
       (responseFromSW) => {
         setLoading(false);
@@ -130,7 +142,7 @@ function App() {
   const handleWalkthrough = (index) => {
     const selectedScreenshot = walkthroughScreenshots[index];
 
-    if (!taskInput || !selectedScreenshot.correctAction || walkthroughScreenshots.some(s => !s.correctAction)) {
+    if (!taskInput || !selectedScreenshot.correctAction || walkthroughScreenshots.some(s => !s.correctAction) || !overview) {
       setSnackbarMessage('Please fill in the "Edit" details for all the screens before starting the walkthrough.');
       setSnackbarOpen(true);
       return;
@@ -151,9 +163,9 @@ function App() {
         tasks: [taskInput],
         correctActions: [selectedScreenshot.correctAction],
         entireWalkthrough: allCorrectActionsString, 
-        questions: selectedScreenshot.questions,
         apiKey: apiKey,
         apiType: provider,
+        recommenderSys: recommenderSys,
       },
       (responseFromSW) => {
         setLoading(false);
@@ -220,14 +232,16 @@ function App() {
       i === selectedImageIndex ? {
         ...s,
         correctAction: correctActionInput,
-        questions: questionsInput
+        userGroup: userGroup,
+        userTask: userTask,
       } : s
     );
     setCurrentScreenshots(updated);
     setDetailsDialogOpen(false);
     setSelectedImageIndex(null);
     setCorrectActionInput('');
-    setQuestionsInput('');
+    setUserGroup('');
+    setUserTask('');
   };
 
   const handleViewClick = (index) => {
@@ -313,8 +327,13 @@ function App() {
         </div>
   
         <div className="card">
+          <div className='recsys-switch'>
+            <p className='text-field-label'>Recommender system</p>
+            <Switch checked={recommenderSys} onChange={(event) => setRecommenderSys(event.target.checked)} color="primary" />
+          </div>
+          <hr className='hr-line'></hr>
           <div style={{ padding: '0px 8px 0px 8px' }}>
-            <p className='text-field-label'>App overview (optional)</p>
+            <p className='text-field-label'>App overview</p>
             <div style={{ textAlign: 'left', marginBottom: '5px' }}>
               <span className='text-hint'>Briefly explain what the web app does, who it's for and/or its goals.</span>
             </div>
@@ -371,7 +390,8 @@ function App() {
                     onEditDetailsClick={(idx) => {
                       setSelectedImageIndex(idx);
                       setCorrectActionInput(screenshots[idx]?.correctAction || '');
-                      setQuestionsInput(screenshots[idx]?.questions || '');
+                      setUserGroup(screenshots[idx]?.userGroup || '');
+                      setUserTask(screenshots[idx]?.userTask || '');
                       setDetailsDialogOpen(true);
                     }}
                     onViewClick={handleViewClick} />
@@ -402,7 +422,6 @@ function App() {
                     onEditDetailsClick={(idx) => {
                       setSelectedImageIndex(idx);
                       setCorrectActionInput(walkthroughScreenshots[idx]?.correctAction || '');
-                      setQuestionsInput(walkthroughScreenshots[idx]?.questions || '');
                       setDetailsDialogOpen(true);
                     }}
                     onViewClick={handleViewClick} />
@@ -449,8 +468,10 @@ function App() {
           correctActionInput={correctActionInput}
           onCorrectActionInputChange={(e) => setCorrectActionInput(e.target.value)}
           evaluationType={evaluationType}
-          questionsInput={questionsInput}
-          questionsInputChange={(e) => setQuestionsInput(e.target.value)}
+          userGroup={userGroup}
+          userGroupChange={(e) => setUserGroup(e.target.value)}
+          userTaskInput={userTask}
+          userTaskInputChange={(e) => setUserTask(e.target.value)}
         />
   
         <EvaluationDialog
