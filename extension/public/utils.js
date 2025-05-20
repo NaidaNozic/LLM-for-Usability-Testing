@@ -5,7 +5,7 @@ task. Pay close attention to elements that could confuse the user, be misunderst
 
 const recsys_metrics = `
 ===========
-EVALUATION METRICS:
+RECOMMENDER EVALUATION METRICS:
 - **Trust** - What undermines the design's credibility or consistency?
 - **Satisfaction** - What contributes to a negative overall experience?
 - **Ease of Use** - What makes the interface unintuitive or complicated?
@@ -34,6 +34,7 @@ STEP-BY-STEP INSTRUCTIONS:
 =============
 GUARDRAILS:
 - Only describe issues directly visible or inferable from the screen.
+- In the results do not add any additional headers or sections, only provide a list of issues in the given format.
 - Do not invent features, behaviors, or problems that are not evident.
 - Do not include generic issues that could apply to any app without direct relevance to this screen and context.
 - You are NOT limited to one issue per metric — you may identify multiple issues inspired by a single metric, 
@@ -43,11 +44,20 @@ and some issues may relate to more than one metric.
 const recsys_output_format = `
 =============
 Output Format:
-Format output exactly like this for each issue:
+At the top, write: "Issues"  
+Then list each issue using the following format, numbered sequentially. Do not include headings, categories, or extra recommendations.
+
+Issues:
 
 1. **[Title of Violated Metric]**  
-Short description of the issue (1-3 sentences).  
-**[Recommendation]**A clear, specific suggestion for how to fix it.
+[Short description of the issue (1-3 sentences)].  
+**[Recommendation]** A clear, specific suggestion for how to fix it.
+
+2. **[Title of Violated Metric]**  
+[Short description of the issue (1-3 sentences)].  
+**[Recommendation]** A clear, specific suggestion for how to fix it.
+
+(Continue this format for additional issues.)
 `;
 
 /* Prompts for the heuristic evaluation */
@@ -92,18 +102,20 @@ and some issues may relate to more than one metric.
 const output_format = `
 =============
 Output Format:
-Format output exactly like this for each issue:
-
-1. **[Title of Violated Metric]**  
-Short description of the issue (1-3 sentences).  
-**[Recommendation]**A clear, specific suggestion for how to fix it.
-
-=============
-Example Output:
+At the top, write: "Issues"  
+Then list each issue using the following format, numbered sequentially. Do not include headings, categories, or extra recommendations.
 
 Issues:
-1. **Error Prevention**: No "Cancel" button during checkout, preventing users from exiting without completing the purchase.  
-   Recommendation: Add a prominent "Cancel" button during the checkout process to allow users to safely exit without making a purchase.
+
+1. **[Title of Violated Metric]**  
+[Short description of the issue (1-3 sentences)].  
+**[Recommendation]** A clear, specific suggestion for how to fix it.
+
+2. **[Title of Violated Metric]**  
+[Short description of the issue (1-3 sentences)].  
+**[Recommendation]** A clear, specific suggestion for how to fix it.
+
+(Continue this format for additional issues.)
 `;
 
 /* Prompts for the cognitive walkthrough for recommendation systems*/
@@ -155,11 +167,20 @@ and some issues may relate to more than one metric.
 const rec_output_format_walkthrough = `
 =============
 Output Format:
-Format output exactly like this for each issue:
+At the top, write: "Issues"  
+Then list each issue using the following format, numbered sequentially. Do not include headings, categories, or extra recommendations.
+
+Issues:
 
 1. **[Title of Violated Metric]**  
-Short description of the issue (1-3 sentences).  
-**[Recommendation]**A clear, specific suggestion for how to fix it.
+[Short description of the issue (1-3 sentences)].  
+**[Recommendation]** A clear, specific suggestion for how to fix it.
+
+2. **[Title of Violated Metric]**  
+[Short description of the issue (1-3 sentences)].  
+**[Recommendation]** A clear, specific suggestion for how to fix it.
+
+(Continue this format for additional issues.)
 `;
 
 
@@ -180,18 +201,19 @@ You are NOT limited to one issue per question — you may identify multiple issu
 and some issues may relate to more than one question:`;
 
 const output_format_walkthrough = `
-### Output Format:
-For each issue, include the following, without headings, categories, or extra recommendations:
-
-- **Title of the issue**
-- **Short description of the issue** (1-2 sentences)
-- **Severity Rating** (0-4, where 0 = Not a problem, 4 = Critical issue)
-- **Recommendation for Fixes** (**mandatory**: provide a **specific, actionable fix** — not a generic suggestion. Example: Instead of saying "improve navigation", say "Add a 'Home' button in the top navigation bar".)
-
-### Example Output:
+=============
+Output Format:
+At the top, write: "Issues"  
+Then list each issue using the following format, numbered sequentially. Do not include headings, categories, or extra recommendations.
 
 Issues:
 
-1. **Confusing Button Labels**: There are two identical buttons, which could confuse users about their functions and the differences between them.  
-   Severity: 4  
-   Recommendation: Change the button labels to clearly describe their specific functions (e.g., “Save Draft” vs. “Submit”).`;
+1. **[Title of Violated Metric]**  
+[Short description of the issue (1-3 sentences)].  
+**[Recommendation]** A clear, specific suggestion for how to fix it.
+
+2. **[Title of Violated Metric]**  
+[Short description of the issue (1-3 sentences)].  
+**[Recommendation]** A clear, specific suggestion for how to fix it.
+
+(Continue this format for additional issues.)`;
