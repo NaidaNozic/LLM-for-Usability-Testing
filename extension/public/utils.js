@@ -22,7 +22,7 @@ RECOMMENDER EVALUATION METRICS:
 const recsys_request = `
 =============
 STEP-BY-STEP INSTRUCTIONS:
-1. Carefully analyze the screen for UI issues that would affect the target user in completing their task.
+1. Carefully analyze the screen(s) for UI issues that would affect the target user in completing their task.
 2. In a detail-oriented manner, identify issues that violate one or more of the listed evaluation metrics.
 3. For each issue:
    - Reference the violated metric(s).
@@ -33,10 +33,10 @@ STEP-BY-STEP INSTRUCTIONS:
 
 =============
 GUARDRAILS:
-- Only describe issues directly visible or inferable from the screen.
+- Only describe issues directly visible or inferable from the screen(s).
 - In the results do not add any additional headers or sections, only provide a list of issues in the given format.
 - Do not invent features, behaviors, or problems that are not evident.
-- Do not include generic issues that could apply to any app without direct relevance to this screen and context.
+- Do not include generic issues that could apply to any app without direct relevance to the screen and context.
 - You are NOT limited to one issue per metric — you may identify multiple issues inspired by a single metric, 
 and some issues may relate to more than one metric.
 `;
@@ -81,7 +81,7 @@ NIELSENS'S HEURISTICS:
 const request_for_evaluation = `
 =============
 STEP-BY-STEP INSTRUCTIONS:
-1. Carefully analyze the screen for UI issues that would affect the target user in completing their task.
+1. Carefully analyze the screen(s) for UI issues that would affect the target user in completing their task.
 2. In a detail-oriented manner, identify issues that violate one or more of the listed Nilesen's heuristics.
 3. For each issue:
    - Reference the violated heuristi(s).
@@ -92,9 +92,9 @@ STEP-BY-STEP INSTRUCTIONS:
 
  =============
 GUARDRAILS:
-- Only describe issues directly visible or inferable from the screen.
+- Only describe issues directly visible or inferable from the screen(s).
 - Do not invent features, behaviors, or problems that are not evident.
-- Do not include generic issues that could apply to any app without direct relevance to this screen and context.
+- Do not include generic issues that could apply to any app without direct relevance to the screen and context.
 - You are NOT limited to one issue per metric — you may identify multiple issues inspired by a single metric, 
 and some issues may relate to more than one metric.
 `;
@@ -120,8 +120,8 @@ Issues:
 
 /* Prompts for the cognitive walkthrough for recommendation systems*/
 const rec_system_walkthrough_prompt =`
-You are a UX/UI expert performing a **cognitive walkthrough** of a web application screen that features a recommender system.
-Your goal is to identify usability issues that a new or infrequent user might face while completing a specific task on this screen.
+You are a UX/UI expert performing a **cognitive walkthrough** of a web application that features a recommender system.
+Your goal is to identify usability issues that a user might face while completing a specific task on the screen(s).
 `;
 
 const rec_walkthrough_metrics = `
@@ -185,8 +185,9 @@ Issues:
 
 
 /*Prompts for a standard cognitive walkthrough*/
-const system_walkthrough_prompt =`You are a UX/UI expert conducting a cognitive walkthrough of a web application to identify usability 
-issues related to task completion from a user's perspective.`;
+const system_walkthrough_prompt =`
+You are a UX/UI expert performing a **cognitive walkthrough** of a web application.
+Your goal is to identify usability issues that a user might face while completing a specific task on this screen(s).`;
 
 const walkthrough_metrics = `
 - What aspects of the interface might confuse the user when trying to complete the task and figure out the what's the correct action?  
@@ -194,11 +195,28 @@ const walkthrough_metrics = `
 - What might the user try instead of the correct action, and why?  
 - Which part of the workflow or screen makes the user unsure if they are making progress on the task?`;
 
-const request_walkthrough = `Identify usability issues (5 or more) a user may face when attempting the task and rank the issues by severity, from most to least severe.
+const request_walkthrough = `
+=============
+STEP-BY-STEP INSTRUCTIONS:
+1. Carefully analyze the screen for UI issues by answering the following **four cognitive walkthrough questions**:
+  1.2. Will the user try to achieve the right goal?
+  1.2. Will the user know what to do at this step?
+  1.3. Will the user notice that the correct action is available?
+  1.4. Will the user understand the feedback/result of their action?
+2. Based on the questions detect usability issues.
+3. For each usability issues found:
+   - Provide a title
+   - Describe the problem in 1-3 sentences by referencing the walkthrough question, relevant screen elements.
+   - Provide a specific, actionable recommendation to fix the issue.
 
-Use the following questions as guidance to help you explore the interface from multiple angles. 
-You are NOT limited to one issue per question — you may identify multiple issues inspired by a single question, 
-and some issues may relate to more than one question:`;
+=============
+GUARDRAILS:
+- Only describe issues directly visible or inferable from the screen while the user is conducting the correct action, or issues
+related to the workflow logic.
+- Do not invent features, behaviors, or problems that are not evident.
+- Do not include generic issues that could apply to any app without direct relevance to this screen and context.
+- You are NOT limited to one issue per question — you may identify multiple issues inspired by a single question, 
+and some issues may relate to more than one question.`;
 
 const output_format_walkthrough = `
 =============
@@ -208,11 +226,11 @@ Then list each issue using the following format, numbered sequentially. Do not i
 
 Issues:
 
-1. **[Title of Violated Metric]**  
+1. **[Title of Issue]**  
 [Short description of the issue (1-3 sentences)].  
 **[Recommendation]** A clear, specific suggestion for how to fix it.
 
-2. **[Title of Violated Metric]**  
+2. **[Title of Issue]**  
 [Short description of the issue (1-3 sentences)].  
 **[Recommendation]** A clear, specific suggestion for how to fix it.
 

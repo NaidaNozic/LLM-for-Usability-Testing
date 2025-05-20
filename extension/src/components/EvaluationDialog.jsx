@@ -22,18 +22,13 @@ const EvaluationDialog = ({
         {evaluationType === 'heuristic' ? 'Heuristic evaluation' : 'Cognitive walkthrough'}
       </DarkDialogTitle>
       <DarkDialogContent>
-      {evaluationType === 'heuristic' ? (
-        <p>This will analyze the selected screen for usability issues based on Nielsen's heuristics.</p>
-      ) : (
-        <span>
-          <p>This will evaluate the screen using the provided task and correct action to 
-            identify usability issues during a user walkthrough.</p>
+      <span>
+          <p>This will evaluate the screen using the provided user group, task and app overview to 
+            identify usability issues</p>
           <span style={{marginTop: '4px', fontWeight: '100', opacity: '0.7'}}>
-            To begin the walkthrough, 
-            first <em>"Edit"</em> the screen.
+            To begin the evaluation, first <em>"Edit"</em> the screen.
           </span>
-        </span>
-      )}
+      </span>
       </DarkDialogContent>
       <DarkDialogActions>
         <CustomDialogButton onClick={onClose} sx={{backgroundColor: '#5f5f5f'}}>Cancel</CustomDialogButton>

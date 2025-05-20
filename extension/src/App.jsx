@@ -67,6 +67,12 @@ function App() {
   };  
 
   const handleCaptureScreenshot = () => {
+    if (evaluationType !== 'heuristic' && walkthroughScreenshots.length >= 7) {
+      setSnackbarMessage('Maximum of 7 screenshots allowed for walkthrough.');
+      setSnackbarOpen(true);
+      return;
+    }
+
     setCapturing(true);
     chrome.runtime.sendMessage({ type: 'TAKE_SCREENSHOT' }, (response) => {
       setCapturing(false);
@@ -139,29 +145,32 @@ function App() {
     );
   };
 
-  const handleWalkthrough = (index) => {
-    const selectedScreenshot = walkthroughScreenshots[index];
+  const handleEvaluationMultipleImages = () => {
+    if (walkthroughScreenshots.length === 0) {
+      setSnackbarMessage('Please capture at least one screenshot first.');
+      setSnackbarOpen(true);
+      return;
+    }
 
-    if (!taskInput || !selectedScreenshot.correctAction || walkthroughScreenshots.some(s => !s.correctAction) || !overview) {
-      setSnackbarMessage('Please fill in the "Edit" details for all the screens before starting the walkthrough.');
+    if (!taskInput || walkthroughScreenshots.some(s => !s.correctAction?.trim()) || !overview) {
+      setSnackbarMessage('Please fill in the "Overview", "Task" and "Edit" details of all screens.');
       setSnackbarOpen(true);
       return;
     }
   
     setLoading(true);
-
+  
+    const base64Images = walkthroughScreenshots.map((img) => img.src.split(',')[1]);
     const allCorrectActionsString = walkthroughScreenshots
     .map((s, idx) => `Step ${idx + 1}: ${s.correctAction}`)
     .join('\n');
-    const base64Image = selectedScreenshot.src.split(',')[1];
-
+  
     chrome.runtime.sendMessage(
       {
-        type: 'DETECT_WALKTHROUGH_ISSUES',
-        base64Images: [base64Image],
+        type: 'DETECT_USABILITY_MULTIPLE_IMAGES',
+        base64Images,
         overview,
-        tasks: [taskInput],
-        correctActions: [selectedScreenshot.correctAction],
+        userTask: taskInput,
         entireWalkthrough: allCorrectActionsString, 
         apiKey: apiKey,
         apiType: provider,
@@ -170,22 +179,16 @@ function App() {
       (responseFromSW) => {
         setLoading(false);
         if (responseFromSW?.result) {
-          chrome.storage.local.set(
-            {
-              usabilityOutput: responseFromSW.result,
-              usabilityImage: selectedScreenshot.src
-            },
-            () => {
-              window.open(chrome.runtime.getURL('result.html'), '_blank');
-            }
-          );
+          chrome.storage.local.set({ usabilityOutput: responseFromSW.result }, () => {
+            window.open(chrome.runtime.getURL('result-walkthrough.html'), '_blank');
+          });
         } else {
           setSnackbarMessage('Sorry, I could not detect any usability issues.');
           setSnackbarOpen(true);
         }
       }
     );
-  };
+  };  
 
   const handleDeleteClick = (index) => {
     const updated = getCurrentScreenshots().filter((_, i) => i !== index);
@@ -411,7 +414,8 @@ function App() {
                     evaluationType={evaluationType}
                     onImageClick={(idx) => {
                       setSelectedImageIndex(idx);
-                      setEvaluationDialogOpen(true);
+                      setCorrectActionInput(walkthroughScreenshots[idx]?.correctAction || '');
+                      setDetailsDialogOpen(true);                     
                     }}
                     onMenuOpen={handleMenuOpen}
                     onMenuClose={handleMenuClose}
@@ -443,10 +447,20 @@ function App() {
   
           <CustomButton
             variant="contained"
-            sx={{width: '170px'}} 
+            sx={{width: 'auto'}} 
             onClick={clearData} >
             Clear all
           </CustomButton>
+
+          {evaluationType === 'walkthrough' && (
+            <CustomButton
+              sx={{width: 'auto'}}
+              variant="contained"
+              onClick={handleEvaluationMultipleImages}
+            >
+              Start
+            </CustomButton>
+          )}
         </div>
   
         {loading && <LoadingOverlay message="Detecting usability issues..." />}
@@ -477,7 +491,7 @@ function App() {
         <EvaluationDialog
           open={evaluationDialogOpen}
           onClose={() => setEvaluationDialogOpen(false)}
-          onEvaluate={evaluationType == 'heuristic' ? handleHeuristicEvaluation : handleWalkthrough}
+          onEvaluate={handleHeuristicEvaluation}
           selectedIndex={selectedImageIndex}
           evaluationType={evaluationType}
         />

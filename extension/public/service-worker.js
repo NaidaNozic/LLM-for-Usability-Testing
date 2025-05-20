@@ -45,10 +45,8 @@ function takeScreenshot(sendResponse) {
   return true;
 }
 
-const detectWalkthroughIssues = async (request, sendResponse) => {
+const detectUsabilityIssuesMultipleScreens = async (request, sendResponse) => {
   const base64Images = request.base64Images;
-  const tasks = request.tasks || [];
-  const correctActions = request.correctActions || [];
 
   for (let i = 0; i < base64Images.length; i++) {
     const base64Image = base64Images[i];
@@ -64,8 +62,14 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
   }
 
   try {
-    const messages = [{"role": "system", "content": getWalkthroughSystemPrompt(request.recommenderSys)}];
-    const content = [];
+    const content = [{ type: 'text', text: getWalkthroughSystemPrompt(request.recommenderSys) }];
+
+    base64Images.forEach((base64Image, index) => {
+      content.push({
+        type: 'image_url',
+        image_url: { url: `data:image/png;base64,${base64Image}` },
+      });
+    });
 
     if (request.overview && request.overview.trim() !== '') {
       content.push({
@@ -73,64 +77,42 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
         text: `You are given a web application about: ${request.overview.trim()}`,
       });
     }
-
-    content.push({
-      type: 'text',
-      text: "You are shown one screenshot of a web interface, before the user takes a correct action to achieve his task.",
-    });
-
-    base64Images.forEach((base64Image, index) => {
+    if (request.userGroup && request.userGroup.trim() !== '') {
       content.push({
-        type: 'image_url',
-        image_url: { url: `data:image/png;base64,${base64Image}` },
+        type: 'text',
+        text: `The target user group of this application is: ${request.userGroup.trim()}`,
       });
+    }
+    if (request.userTask && request.userTask.trim() !== '') {
+      content.push({
+        type: 'text',
+        text: `The task the user is conducting is: ${request.userTask.trim()}`,
+      });
+    }
 
-
-      const task = tasks[index];
-      if (task && task.trim() !== '') {
-        content.push({
-          type: 'text',
-          text: `In the above app view, the user task is: ${task.trim()}`,
-        });
-      }
-
-      if (request.entireWalkthrough && request.entireWalkthrough.trim() !== '') {
-        content.push({
-          type: 'text',
-          text: `The entire workflow for accomplishing the task is given as : ${request.entireWalkthrough.trim()}`,
-        });
-      }
-
-      const correctAction = correctActions[index];
-      if (correctAction && correctAction.trim() !== '') {
-        content.push({
-          type: 'text',
-          text: `The given screen corresponds to the state before the user does the correct action: ${correctAction.trim()}.`,
-        });
-      }
-    });
+    if (request.entireWalkthrough && request.entireWalkthrough.trim() !== '') {
+      content.push({
+        type: 'text',
+        text: `The entire workflow for accomplishing the task is given as : ${request.entireWalkthrough.trim()}`,
+      });
+    }
 
     content.push({
-      type: 'text',
-      text: getWalkthroughMetrics(request.recommenderSys),
-    });
+        type: 'text',
+        text: getWalkthroughMetrics(request.recommenderSys),
+      });
 
     content.push({
       type: 'text',
       text: getWalkthroughRequest(request.recommenderSys),
     });
-    
+
     content.push({
       type: 'text',
       text: getWalkthroughOutputFormat(request.recommenderSys),
     });
 
-    messages.push({
-      role: "user",
-      content: content
-    });
-
-    console.log(messages);
+    console.log(content);
 
     if (request.apiType === 'gemini') {
       // Gemini API call
@@ -142,7 +124,12 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
         },
         body: JSON.stringify({
           model: 'gemini-2.0-flash',
-          messages: messages,
+          messages: [
+            {
+              role: 'user',
+              content: content,
+            },
+          ]
         }),
       });
 
@@ -165,7 +152,12 @@ const detectWalkthroughIssues = async (request, sendResponse) => {
         },
         body: JSON.stringify({
           model: 'gpt-4o',
-          messages: messages,
+          messages: [
+            {
+              role: 'user',
+              content: content,
+            },
+          ]
         }),
       });
 
@@ -303,6 +295,7 @@ const detectUsabilityIssues = async (request, sendResponse) => {
       sendResponse({ result: openaiData.choices[0].message.content });
     }
   } catch (error) {
+    console.log(error);
     sendResponse({ result: 'Sorry, there was an error analyzing the usability.' });
   }
 };
@@ -317,8 +310,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       detectUsabilityIssues(request, sendResponse);
       return true;
 
-    case 'DETECT_WALKTHROUGH_ISSUES':
-      detectWalkthroughIssues(request, sendResponse);
+    case 'DETECT_USABILITY_MULTIPLE_IMAGES':
+      detectUsabilityIssuesMultipleScreens(request, sendResponse);
       return true;
 
     default:
