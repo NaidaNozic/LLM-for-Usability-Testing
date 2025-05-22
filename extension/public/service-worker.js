@@ -55,7 +55,7 @@ const detectUsabilityIssuesMultipleScreens = async (request, sendResponse) => {
 
     if (imageSizeInMB > 20) {
       sendResponse({
-        result: `Image ${i + 1} is too large (${imageSizeInMB.toFixed(2)} MB). OpenAI only accepts images under 20MB.`,
+        result: `Image ${i + 1} is too large (${imageSizeInMB.toFixed(2)} MB). LLM only accepts images under 20MB.`,
       });
       return true;
     }
@@ -86,21 +86,16 @@ const detectUsabilityIssuesMultipleScreens = async (request, sendResponse) => {
     if (request.userTask && request.userTask.trim() !== '') {
       content.push({
         type: 'text',
-        text: `The task the user is conducting is: ${request.userTask.trim()}`,
+        text: `The user goal is: ${request.userTask.trim()}`,
       });
     }
 
-    if (request.entireWalkthrough && request.entireWalkthrough.trim() !== '') {
+    if(request.recommenderSys){
       content.push({
         type: 'text',
-        text: `The entire workflow for accomplishing the task is given as : ${request.entireWalkthrough.trim()}`,
+        text: getMetrics(),
       });
     }
-
-    content.push({
-        type: 'text',
-        text: getWalkthroughMetrics(request.recommenderSys),
-      });
 
     content.push({
       type: 'text',
@@ -217,14 +212,16 @@ const detectUsabilityIssues = async (request, sendResponse) => {
     if (request.userTask && request.userTask.trim() !== '') {
       content.push({
         type: 'text',
-        text: `The task the user is conducting is: ${request.userTask.trim()}`,
+        text: `The user goal is: ${request.userTask.trim()}`,
       });
     }
 
-    content.push({
+    if(request.recommenderSys){
+      content.push({
         type: 'text',
-        text: getMetrics(request.recommenderSys),
+        text: getMetrics(),
       });
+    }
 
     content.push({
       type: 'text',
@@ -328,8 +325,8 @@ function getRequest(isRecSys) {
   return isRecSys ? recsys_request : request_for_evaluation;
 }
 
-function getMetrics(isRecSys) {
-  return isRecSys ? recsys_metrics : nielsen_heuristics;
+function getMetrics() {
+  return recsys_metrics;
 }
 
 function getOutputFormat(isRecSys) {
@@ -342,10 +339,6 @@ function getWalkthroughSystemPrompt(isRecSys) {
 
 function getWalkthroughRequest(isRecSys) {
   return isRecSys ? rec_request_walkthrough : request_walkthrough;
-}
-
-function getWalkthroughMetrics(isRecSys) {
-  return isRecSys ? rec_walkthrough_metrics : walkthrough_metrics;
 }
 
 function getWalkthroughOutputFormat(isRecSys) {

@@ -34,6 +34,7 @@ function App() {
   const [provider, setProvider] = useState('openai');
   const [userTask, setUserTask] = useState('');
   const [userGroup, setUserGroup] = useState('');
+  const [globalUserGroup, setGlobalUserGroup] = useState('');
   const [recommenderSys, setRecommenderSys] = useState(true);
 
   useEffect(() => {
@@ -106,7 +107,7 @@ function App() {
     const selectedScreenshot = screenshots[index];
 
     if (!selectedScreenshot.userGroup || !selectedScreenshot.userTask || !overview) {
-      setSnackbarMessage('Please fill in the "Edit" details for all the screens before starting the evaluation.');
+      setSnackbarMessage('Please fill in app overview and "Edit" details before starting the evaluation.');
       setSnackbarOpen(true);
       return;
     }
@@ -152,8 +153,8 @@ function App() {
       return;
     }
 
-    if (!taskInput || walkthroughScreenshots.some(s => !s.correctAction?.trim()) || !overview) {
-      setSnackbarMessage('Please fill in the "Overview", "Task" and "Edit" details of all screens.');
+    if (!taskInput || !overview || !globalUserGroup) {
+      setSnackbarMessage('Please fill in the "overview", "User group", "goal".');
       setSnackbarOpen(true);
       return;
     }
@@ -161,9 +162,7 @@ function App() {
     setLoading(true);
   
     const base64Images = walkthroughScreenshots.map((img) => img.src.split(',')[1]);
-    const allCorrectActionsString = walkthroughScreenshots
-    .map((s, idx) => `Step ${idx + 1}: ${s.correctAction}`)
-    .join('\n');
+    const titlesArray = walkthroughScreenshots.map((s) => s.title);
   
     chrome.runtime.sendMessage(
       {
@@ -171,7 +170,8 @@ function App() {
         base64Images,
         overview,
         userTask: taskInput,
-        entireWalkthrough: allCorrectActionsString, 
+        titles: titlesArray,
+        userGroup: globalUserGroup,
         apiKey: apiKey,
         apiType: provider,
         recommenderSys: recommenderSys,
@@ -312,7 +312,7 @@ function App() {
               },
             }}
           >
-          Heuristic evaluation
+          Evaluation
           </CustomToggleButton>
           <CustomToggleButton
             variant="contained"
@@ -325,7 +325,7 @@ function App() {
               },
             }}
           >
-            Cognitive walkthrough
+            Multiscreen evaluation
           </CustomToggleButton>
         </div>
   
@@ -336,7 +336,7 @@ function App() {
           </div>
           <hr className='hr-line'></hr>
           <div style={{ padding: '0px 8px 0px 8px' }}>
-            <p className='text-field-label'>App overview</p>
+            <p className='text-field-label'>App overview*</p>
             <div style={{ textAlign: 'left', marginBottom: '5px' }}>
               <span className='text-hint'>Briefly explain what the web app does, who it's for and/or its goals.</span>
             </div>
@@ -351,21 +351,39 @@ function App() {
         </div>
   
         {evaluationType == 'walkthrough' ? (
-          <div className="card">
-          <div style={{ padding: '0px 8px 0px 8px' }}>
-            <p className='text-field-label'>User task*</p>
-            <div style={{ textAlign: 'left', marginBottom: '5px' }}>
-              <span className='text-hint'>Provide a short description of the user's activity or goal.</span>
+          <>
+         <div className="card">
+            <div style={{ padding: '0px 8px 0px 8px' }}>
+              <p className='text-field-label'>User group*</p>
+              <div style={{ textAlign: 'left', marginBottom: '5px' }}>
+                <span className='text-hint'>User relevant personal characteristics (e.g., age, domain knowledge, preferences...)</span>
+              </div>
+              <TextFieldContent
+                multiline
+                rows={2}
+                placeholder='e.g., Users aged 80 that are unfamiliar with the application.'
+                value={globalUserGroup}
+                onChange={(e) => setGlobalUserGroup(e.target.value)}
+              />
             </div>
-            <TextFieldContent
-              multiline
-              rows={2}
-              placeholder='The user task is...'
-              value={taskInput}
-              onChange={(e) => setTaskInput(e.target.value)}
-            />
-          </div>
-        </div>
+         </div>
+
+         <div className="card">
+            <div style={{ padding: '0px 8px 0px 8px' }}>
+              <p className='text-field-label'>User goal*</p>
+              <div style={{ textAlign: 'left', marginBottom: '5px' }}>
+                <span className='text-hint'>Provide a short description of the user's goal.</span>
+              </div>
+              <TextFieldContent
+                multiline
+                rows={2}
+                placeholder='The user wants to...'
+                value={taskInput}
+                onChange={(e) => setTaskInput(e.target.value)}
+              />
+            </div>
+         </div>
+         </>
         ) : null}
   
         <div className="card">
@@ -403,7 +421,7 @@ function App() {
           ) : (
             <div>
               <p className='title'>All pages</p>
-              <span className='text-hint all-pages'>Captured screens represent steps a user takes to complete the user task.
+              <span className='text-hint all-pages'>Captured screens represent steps a user takes to complete his/her goal.
                                                     These steps will be analyzed to identify usability issues.</span>
               {walkthroughScreenshots.length === 0 ? (
                 <NoContent />
@@ -412,11 +430,7 @@ function App() {
                     screenshots={walkthroughScreenshots}
                     anchorEls={anchorEls}
                     evaluationType={evaluationType}
-                    onImageClick={(idx) => {
-                      setSelectedImageIndex(idx);
-                      setCorrectActionInput(walkthroughScreenshots[idx]?.correctAction || '');
-                      setDetailsDialogOpen(true);                     
-                    }}
+                    onImageClick={() => {}}
                     onMenuOpen={handleMenuOpen}
                     onMenuClose={handleMenuClose}
                     onRenameClick={handleRenameClick}
@@ -491,7 +505,7 @@ function App() {
         <EvaluationDialog
           open={evaluationDialogOpen}
           onClose={() => setEvaluationDialogOpen(false)}
-          onEvaluate={handleHeuristicEvaluation}
+          onEvaluate={evaluationType == 'heuristic' ? handleHeuristicEvaluation : handleEvaluationMultipleImages}
           selectedIndex={selectedImageIndex}
           evaluationType={evaluationType}
         />

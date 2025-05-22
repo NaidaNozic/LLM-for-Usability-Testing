@@ -27,7 +27,7 @@ const DetailsDialog = ({
         Details
       </DarkDialogTitle>
       <DarkDialogContent>
-        {evaluationType === 'walkthrough' && (
+       {/* {evaluationType === 'walkthrough' && (
         <>
           <div className='walkthrough-container'>
               <div>
@@ -43,12 +43,12 @@ const DetailsDialog = ({
               </div>
           </div>
         </>
-        )}
+        )} */}
         {evaluationType === 'heuristic' && (
           <>
             <div>
             <p className="dialog-label">User group*</p>
-            <span className='dialog-hint'>User personal characteristics (e.g., age, domain knowledge, preferences...)</span>
+            <span className='dialog-hint'>User relevant personal characteristics (e.g., age, domain knowledge, preferences...)</span>
             <TextFieldTask
               fullWidth
               placeholder='e.g., Users aged 80 that are unfamiliar with the application.'
