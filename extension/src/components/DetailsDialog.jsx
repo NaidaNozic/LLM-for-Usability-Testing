@@ -27,23 +27,6 @@ const DetailsDialog = ({
         Details
       </DarkDialogTitle>
       <DarkDialogContent>
-       {/* {evaluationType === 'walkthrough' && (
-        <>
-          <div className='walkthrough-container'>
-              <div>
-                <p className="dialog-label">Specify correct action*</p>
-                <span className='dialog-hint'>Add the correct action on this screen for achieving the user task.</span>
-                <TextFieldTask
-                  fullWidth
-                  placeholder='The correct action is...'
-                  multiline
-                  rows={2}
-                  value={correctActionInput}
-                  onChange={onCorrectActionInputChange} />
-              </div>
-          </div>
-        </>
-        )} */}
         {evaluationType === 'heuristic' && (
           <>
             <div>
@@ -59,8 +42,8 @@ const DetailsDialog = ({
             </div>
 
             <div>
-              <p className="dialog-label">User task*</p>
-              <span className='dialog-hint'>User's intent and purpose for engaging with the application.</span>
+              <p className="dialog-label">User goal*</p>
+              <span className='dialog-hint'>Briefly explain what the web app does, who it's for and/or its goals.</span>
               <TextFieldTask
                 fullWidth
                 placeholder='e.g., User wants to find song recommendations based on recently played songs'
