@@ -63,6 +63,9 @@ STEP-BY-STEP INSTRUCTIONS:
      (Example: Instead of saying “the interface is confusing,” say “Filter options are hidden under an unlabeled icon on mobile, making it hard for new users to refine recommendations.”)
    - Provide a specific, actionable fix.
      (Example: Instead of saying “improve navigation,” say “Add a 'Home' button in the top navigation bar.”)
+   - Assign a severity level (Low, Medium, High, or Critical) based on how significantly the issue may impact user experience. Explain in 1 sentence why this severity level was assigned.
+     (Example: Severity: High- This issue directly affects users' ability to personalize recommendations, a core function of the system.)
+5. Order the final list of issues by severity, starting with **Critical**, then **High**, followed by **Medium**, and finally **Low** severity issues.
 
 =============
 GUARDRAILS:
@@ -82,7 +85,8 @@ Issues:
 
 1. **[Title of Violated Metric]**  
 [Short description of the issue (1-3 sentences)].  
-**[Recommendation]** A clear, specific suggestion for how to fix it.
+**[Recommendation]** - [A clear, specific suggestion for how to fix it].
+**[Severity: Low / Medium / High / Critical]** - [Brief explanation of why this severity level was assigned].
 
 (Continue this format for additional issues.)
 `;
@@ -112,6 +116,9 @@ STEP-BY-STEP INSTRUCTIONS:
      (Example: Instead of saying “the interface is confusing,” say “Filter options are hidden under an unlabeled icon on mobile, making it hard for new users to refine recommendations.”)
    - Suggest a specific, actionable fix.
      (Example: Instead of saying “improve navigation,” say “Add a 'Home' button in the top navigation bar.”)
+   - Assign a severity level (Low, Medium, High, or Critical) based on how significantly the issue may impact user experience. Explain in 1 sentence why this severity level was assigned.
+     (Example: Severity: High- This issue directly affects users' ability to personalize recommendations, a core function of the system.)
+5. Order the final list of issues by severity, starting with **Critical**, then **High**, followed by **Medium**, and finally **Low** severity issues.
 
 =============
 GUARDRAILS:
@@ -130,7 +137,8 @@ Issues:
 
 1. **[Title of violated heuristic]**  
 [Short description of the issue (1-3 sentences)].  
-**[Recommendation]** A clear, specific suggestion for how to fix it.
+**[Recommendation]** - [A clear, specific suggestion for how to fix it].
+**[Severity: Low / Medium / High / Critical]** - [Brief explanation of why this severity level was assigned].
 
 (Continue this format for additional issues.)
 `;
@@ -192,14 +200,17 @@ const rec_request_walkthrough = `
 =============
 STEP-BY-STEP INSTRUCTIONS:
 1. Analyze the screen(s) for usability issues in relation to the app design, domain, and user group.
-2. Focus on issues that impact users completing their goals.
-3. Evaluate only what is clearly visible in the provided screen(s). If an element or state is not visible (e.g., dynamic behavior, loading states, error messages), do not comment on it.
+2. Analyze each screen individually and then as part of a sequence. Consider how users would move from one screen to another to accomplish their goal.
+3. Focus your evaluation on the **visible UI elements** on the screen(s) and their impact on the user's ability to understand, act, and progress through their goal.
 4. Based on this analysis, identify **5 or more usability issues** that violate one or more of the recommender evaluation metrics and for each issue:
    - Provide the clear title of the violated metric(s).
    - Describe the problem in 1-3 sentences, referencing the specific UI element and explaining how the issue undermines the metric(s).
      (Example: Instead of saying “the interface is confusing,” say “Filter options are hidden under an unlabeled icon on mobile, making it hard for new users to refine recommendations.”)
    - Provide a specific, actionable fix.
      (Example: Instead of saying “improve navigation,” say “Add a 'Home' button in the top navigation bar.”)
+   - Assign a severity level (Low, Medium, High, or Critical) based on how significantly the issue may impact user experience. Explain in 1 sentence why this severity level was assigned.
+     (Example: Severity: High- This issue directly affects users' ability to personalize recommendations, a core function of the system.)
+5. Order the final list of issues by severity, starting with **Critical**, then **High**, followed by **Medium**, and finally **Low** severity issues.
 
 =============
 GUARDRAILS:
@@ -219,7 +230,8 @@ Issues:
 
 1. **[Title of Violated Metric]**  
 [Short description of the issue (1-3 sentences)].  
-**[Recommendation]** A clear, specific suggestion for how to fix it.
+**[Recommendation]** - [A clear, specific suggestion for how to fix it].
+**[Severity: Low / Medium / High / Critical]** - [Brief explanation of why this severity level was assigned].
 
 (Continue this format for additional issues.)
 `;
@@ -232,8 +244,8 @@ const request_walkthrough = `
 =============
 STEP-BY-STEP INSTRUCTIONS:
 1. Analyze the screen(s) for usability issues in relation to the app design, domain, and user group.
-2. Evaluate only what is visible in the provided screen(s). If an element is not visible (e.g., loading indicators, error states, hover effects), do not comment on it.
-3. Focus on issues that impact users completing their goals.
+2. Analyze each screen individually and then as part of a sequence. Consider how users would move from one screen to another to accomplish their goal.
+3. Focus your evaluation on the **visible UI elements** on the screen(s) and their impact on the user's ability to understand, act, and progress through their goal.
 4. Based on this analysis, identify **5 or more usability issues** and for each issue:
    - Provide the clear title of the violated Nielsen usability heuristic. Choose from:  
      1. Visibility of system status  
@@ -250,6 +262,9 @@ STEP-BY-STEP INSTRUCTIONS:
      (Example: Instead of saying “the interface is confusing,” say “Filter options are hidden under an unlabeled icon on mobile, making it hard for new users to refine recommendations.”)
    - Suggest a specific, actionable fix.
      (Example: Instead of saying “improve navigation,” say “Add a 'Home' button in the top navigation bar.”)
+   - Assign a severity level (Low, Medium, High, or Critical) based on how significantly the issue may impact user experience. Explain in 1 sentence why this severity level was assigned.
+     (Example: Severity: High- This issue directly affects users' ability to personalize recommendations, a core function of the system.)
+5. Order the final list of issues by severity, starting with **Critical**, then **High**, followed by **Medium**, and finally **Low** severity issues.
 
 =============
 GUARDRAILS:
@@ -268,6 +283,7 @@ Issues:
 
 1. **[Title of violated heuristic]**  
 [Short description of the issue (1-3 sentences)].  
-**[Recommendation]** A clear, specific suggestion for how to fix it.
+**[Recommendation]** - [A clear, specific suggestion for how to fix it].
+**[Severity: Low / Medium / High / Critical]** - [Brief explanation of why this severity level was assigned].
 
 (Continue this format for additional issues.)`;
