@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
   Snackbar,
-  Alert
+  Alert,
+  Switch
 } from '@mui/material';
 import './App.css';
 import NoContent from './components/NoContent';
@@ -25,13 +26,16 @@ function App() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [correctActionInput, setCorrectActionInput] = useState('');
-  const [questionsInput, setQuestionsInput] = useState('');
   const [evaluationType, setEvaluationType] = useState('heuristic');
   const [evaluationDialogOpen, setEvaluationDialogOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [apiKey, setApiKey] = useState('');
   const [hasApiKey, setHasApiKey] = useState(false);
   const [provider, setProvider] = useState('openai');
+  const [userTask, setUserTask] = useState('');
+  const [userGroup, setUserGroup] = useState('');
+  const [globalUserGroup, setGlobalUserGroup] = useState('');
+  const [recommenderSys, setRecommenderSys] = useState(true);
 
   useEffect(() => {
     chrome.storage.local.get(['apiKey', 'provider'], (result) => {
@@ -64,6 +68,12 @@ function App() {
   };  
 
   const handleCaptureScreenshot = () => {
+    if (evaluationType !== 'heuristic' && walkthroughScreenshots.length >= 7) {
+      setSnackbarMessage('Maximum of 7 screenshots allowed for walkthrough.');
+      setSnackbarOpen(true);
+      return;
+    }
+
     setCapturing(true);
     chrome.runtime.sendMessage({ type: 'TAKE_SCREENSHOT' }, (response) => {
       setCapturing(false);
@@ -77,7 +87,8 @@ function App() {
           title: `Screen ${newIndex}`,
           editing: false,
           correctAction: '',
-          questions: ''
+          userGroup: '',
+          userTask: '',
         };
   
         if (evaluationType === 'heuristic') {
@@ -94,6 +105,12 @@ function App() {
 
   const handleHeuristicEvaluation = (index) => {
     const selectedScreenshot = screenshots[index];
+
+    if (!selectedScreenshot.userGroup || !selectedScreenshot.userTask || !overview) {
+      setSnackbarMessage('Please fill in app overview and "Edit" details before starting the evaluation.');
+      setSnackbarOpen(true);
+      return;
+    }
   
     setLoading(true);
     const base64Image = selectedScreenshot.src.split(',')[1];
@@ -103,9 +120,11 @@ function App() {
         type: 'DETECT_USABILITY',
         base64Images: [base64Image],
         overview,
-        questions: selectedScreenshot.questions,
+        userGroup: selectedScreenshot.userGroup,
+        userTask: selectedScreenshot.userTask,
         apiKey: apiKey,
         apiType: provider,
+        recommenderSys: recommenderSys,
       },
       (responseFromSW) => {
         setLoading(false);
@@ -127,53 +146,49 @@ function App() {
     );
   };
 
-  const handleWalkthrough = (index) => {
-    const selectedScreenshot = walkthroughScreenshots[index];
+  const handleEvaluationMultipleImages = () => {
+    if (walkthroughScreenshots.length === 0) {
+      setSnackbarMessage('Please capture at least one screenshot first.');
+      setSnackbarOpen(true);
+      return;
+    }
 
-    if (!taskInput || !selectedScreenshot.correctAction || walkthroughScreenshots.some(s => !s.correctAction)) {
-      setSnackbarMessage('Please fill in the "Edit" details for all the screens before starting the walkthrough.');
+    if (!taskInput || !overview || !globalUserGroup) {
+      setSnackbarMessage('Please fill in the "overview", "User group", "goal".');
       setSnackbarOpen(true);
       return;
     }
   
     setLoading(true);
-
-    const allCorrectActionsString = walkthroughScreenshots
-    .map((s, idx) => `Step ${idx + 1}: ${s.correctAction}`)
-    .join('\n');
-    const base64Image = selectedScreenshot.src.split(',')[1];
-
+  
+    const base64Images = walkthroughScreenshots.map((img) => img.src.split(',')[1]);
+    const titlesArray = walkthroughScreenshots.map((s) => s.title);
+  
     chrome.runtime.sendMessage(
       {
-        type: 'DETECT_WALKTHROUGH_ISSUES',
-        base64Images: [base64Image],
+        type: 'DETECT_USABILITY_MULTIPLE_IMAGES',
+        base64Images,
         overview,
-        tasks: [taskInput],
-        correctActions: [selectedScreenshot.correctAction],
-        entireWalkthrough: allCorrectActionsString, 
-        questions: selectedScreenshot.questions,
+        userTask: taskInput,
+        titles: titlesArray,
+        userGroup: globalUserGroup,
         apiKey: apiKey,
         apiType: provider,
+        recommenderSys: recommenderSys,
       },
       (responseFromSW) => {
         setLoading(false);
         if (responseFromSW?.result) {
-          chrome.storage.local.set(
-            {
-              usabilityOutput: responseFromSW.result,
-              usabilityImage: selectedScreenshot.src
-            },
-            () => {
-              window.open(chrome.runtime.getURL('result.html'), '_blank');
-            }
-          );
+          chrome.storage.local.set({ usabilityOutput: responseFromSW.result }, () => {
+            window.open(chrome.runtime.getURL('result-walkthrough.html'), '_blank');
+          });
         } else {
           setSnackbarMessage('Sorry, I could not detect any usability issues.');
           setSnackbarOpen(true);
         }
       }
     );
-  };
+  };  
 
   const handleDeleteClick = (index) => {
     const updated = getCurrentScreenshots().filter((_, i) => i !== index);
@@ -220,14 +235,16 @@ function App() {
       i === selectedImageIndex ? {
         ...s,
         correctAction: correctActionInput,
-        questions: questionsInput
+        userGroup: userGroup,
+        userTask: userTask,
       } : s
     );
     setCurrentScreenshots(updated);
     setDetailsDialogOpen(false);
     setSelectedImageIndex(null);
     setCorrectActionInput('');
-    setQuestionsInput('');
+    setUserGroup('');
+    setUserTask('');
   };
 
   const handleViewClick = (index) => {
@@ -295,7 +312,7 @@ function App() {
               },
             }}
           >
-          Heuristic evaluation
+          Evaluation
           </CustomToggleButton>
           <CustomToggleButton
             variant="contained"
@@ -308,13 +325,18 @@ function App() {
               },
             }}
           >
-            Cognitive walkthrough
+            Multiscreen evaluation
           </CustomToggleButton>
         </div>
   
         <div className="card">
+          <div className='recsys-switch'>
+            <p className='text-field-label'>Recommender system</p>
+            <Switch checked={recommenderSys} onChange={(event) => setRecommenderSys(event.target.checked)} color="primary" />
+          </div>
+          <hr className='hr-line'></hr>
           <div style={{ padding: '0px 8px 0px 8px' }}>
-            <p className='text-field-label'>App overview (optional)</p>
+            <p className='text-field-label'>App overview*</p>
             <div style={{ textAlign: 'left', marginBottom: '5px' }}>
               <span className='text-hint'>Briefly explain what the web app does, who it's for and/or its goals.</span>
             </div>
@@ -329,21 +351,39 @@ function App() {
         </div>
   
         {evaluationType == 'walkthrough' ? (
-          <div className="card">
-          <div style={{ padding: '0px 8px 0px 8px' }}>
-            <p className='text-field-label'>User task*</p>
-            <div style={{ textAlign: 'left', marginBottom: '5px' }}>
-              <span className='text-hint'>Provide a short description of the user's activity or goal.</span>
+          <>
+         <div className="card">
+            <div style={{ padding: '0px 8px 0px 8px' }}>
+              <p className='text-field-label'>User group*</p>
+              <div style={{ textAlign: 'left', marginBottom: '5px' }}>
+                <span className='text-hint'>User relevant personal characteristics (e.g., age, domain knowledge, preferences...)</span>
+              </div>
+              <TextFieldContent
+                multiline
+                rows={2}
+                placeholder='e.g., Users aged 80 that are unfamiliar with the application.'
+                value={globalUserGroup}
+                onChange={(e) => setGlobalUserGroup(e.target.value)}
+              />
             </div>
-            <TextFieldContent
-              multiline
-              rows={2}
-              placeholder='The user task is...'
-              value={taskInput}
-              onChange={(e) => setTaskInput(e.target.value)}
-            />
-          </div>
-        </div>
+         </div>
+
+         <div className="card">
+            <div style={{ padding: '0px 8px 0px 8px' }}>
+              <p className='text-field-label'>User goal*</p>
+              <div style={{ textAlign: 'left', marginBottom: '5px' }}>
+                <span className='text-hint'>Provide a short description of the user's goal.</span>
+              </div>
+              <TextFieldContent
+                multiline
+                rows={2}
+                placeholder='The user wants to...'
+                value={taskInput}
+                onChange={(e) => setTaskInput(e.target.value)}
+              />
+            </div>
+         </div>
+         </>
         ) : null}
   
         <div className="card">
@@ -371,7 +411,8 @@ function App() {
                     onEditDetailsClick={(idx) => {
                       setSelectedImageIndex(idx);
                       setCorrectActionInput(screenshots[idx]?.correctAction || '');
-                      setQuestionsInput(screenshots[idx]?.questions || '');
+                      setUserGroup(screenshots[idx]?.userGroup || '');
+                      setUserTask(screenshots[idx]?.userTask || '');
                       setDetailsDialogOpen(true);
                     }}
                     onViewClick={handleViewClick} />
@@ -380,7 +421,7 @@ function App() {
           ) : (
             <div>
               <p className='title'>All pages</p>
-              <span className='text-hint all-pages'>Captured screens represent steps a user takes to complete the user task.
+              <span className='text-hint all-pages'>Captured screens represent steps a user takes to complete his/her goal.
                                                     These steps will be analyzed to identify usability issues.</span>
               {walkthroughScreenshots.length === 0 ? (
                 <NoContent />
@@ -389,10 +430,7 @@ function App() {
                     screenshots={walkthroughScreenshots}
                     anchorEls={anchorEls}
                     evaluationType={evaluationType}
-                    onImageClick={(idx) => {
-                      setSelectedImageIndex(idx);
-                      setEvaluationDialogOpen(true);
-                    }}
+                    onImageClick={() => {}}
                     onMenuOpen={handleMenuOpen}
                     onMenuClose={handleMenuClose}
                     onRenameClick={handleRenameClick}
@@ -402,7 +440,6 @@ function App() {
                     onEditDetailsClick={(idx) => {
                       setSelectedImageIndex(idx);
                       setCorrectActionInput(walkthroughScreenshots[idx]?.correctAction || '');
-                      setQuestionsInput(walkthroughScreenshots[idx]?.questions || '');
                       setDetailsDialogOpen(true);
                     }}
                     onViewClick={handleViewClick} />
@@ -424,10 +461,20 @@ function App() {
   
           <CustomButton
             variant="contained"
-            sx={{width: '170px'}} 
+            sx={{width: 'auto'}} 
             onClick={clearData} >
             Clear all
           </CustomButton>
+
+          {evaluationType === 'walkthrough' && (
+            <CustomButton
+              sx={{width: 'auto'}}
+              variant="contained"
+              onClick={handleEvaluationMultipleImages}
+            >
+              Start
+            </CustomButton>
+          )}
         </div>
   
         {loading && <LoadingOverlay message="Detecting usability issues..." />}
@@ -449,14 +496,16 @@ function App() {
           correctActionInput={correctActionInput}
           onCorrectActionInputChange={(e) => setCorrectActionInput(e.target.value)}
           evaluationType={evaluationType}
-          questionsInput={questionsInput}
-          questionsInputChange={(e) => setQuestionsInput(e.target.value)}
+          userGroup={userGroup}
+          userGroupChange={(e) => setUserGroup(e.target.value)}
+          userTaskInput={userTask}
+          userTaskInputChange={(e) => setUserTask(e.target.value)}
         />
   
         <EvaluationDialog
           open={evaluationDialogOpen}
           onClose={() => setEvaluationDialogOpen(false)}
-          onEvaluate={evaluationType == 'heuristic' ? handleHeuristicEvaluation : handleWalkthrough}
+          onEvaluate={evaluationType == 'heuristic' ? handleHeuristicEvaluation : handleEvaluationMultipleImages}
           selectedIndex={selectedImageIndex}
           evaluationType={evaluationType}
         />

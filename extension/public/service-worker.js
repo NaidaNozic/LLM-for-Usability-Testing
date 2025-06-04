@@ -45,153 +45,7 @@ function takeScreenshot(sendResponse) {
   return true;
 }
 
-const detectWalkthroughIssues = async (request, sendResponse) => {
-  const base64Images = request.base64Images;
-  const tasks = request.tasks || [];
-  const correctActions = request.correctActions || [];
-
-  for (let i = 0; i < base64Images.length; i++) {
-    const base64Image = base64Images[i];
-    const imageSizeInBytes = Math.ceil((base64Image.length * 3) / 4);
-    const imageSizeInMB = imageSizeInBytes / (1024 * 1024);
-
-    if (imageSizeInMB > 20) {
-      sendResponse({
-        result: `Image ${i + 1} is too large (${imageSizeInMB.toFixed(2)} MB). OpenAI only accepts images under 20MB.`,
-      });
-      return true;
-    }
-  }
-
-  try {
-    const messages = [{"role": "system", "content": system_walkthrough_prompt}];
-    const content = [];
-
-    if (request.overview && request.overview.trim() !== '') {
-      content.push({
-        type: 'text',
-        text: `You are given a web application about: ${request.overview.trim()}`,
-      });
-    }
-
-    content.push({
-      type: 'text',
-      text: "You are shown one screenshot of a web interface, before the user takes an action to achieve his task.",
-    });
-
-    base64Images.forEach((base64Image, index) => {
-      content.push({
-        type: 'image_url',
-        image_url: { url: `data:image/png;base64,${base64Image}` },
-      });
-
-
-      const task = tasks[index];
-      if (task && task.trim() !== '') {
-        content.push({
-          type: 'text',
-          text: `In the above app view, the user task is: ${task.trim()}`,
-        });
-      }
-
-      if (request.entireWalkthrough && request.entireWalkthrough.trim() !== '') {
-        content.push({
-          type: 'text',
-          text: `The entire workflow for accomplishing the task is given as : ${request.entireWalkthrough.trim()}`,
-        });
-      }
-
-      const correctAction = correctActions[index];
-      if (correctAction && correctAction.trim() !== '') {
-        content.push({
-          type: 'text',
-          text: `The given screen corresponds to the state before the user does the action: ${correctAction.trim()}`,
-        });
-      }
-    });
-
-    content.push({
-      type: 'text',
-      text: request_walkthrough,
-    });
-
-    if (request.questions && request.questions.trim() !== '') {
-      content.push({
-        type: 'text',
-        text: request.questions.trim(),
-      });
-    } else {
-      content.push({
-        type: 'text',
-        text: walkthrough_questions,
-      });
-    }
-
-    content.push({
-      type: 'text',
-      text: output_format_walkthrough,
-    });
-
-    messages.push({
-      role: "user",
-      content: content
-    });
-
-    console.log(messages);
-
-    if (request.apiType === 'gemini') {
-      // Gemini API call
-      const geminiResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${request.apiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'gemini-2.0-flash',
-          messages: messages,
-        }),
-      });
-
-      if (!geminiResponse.ok) {
-        const errorText = await geminiResponse.text();
-        sendResponse({ result: `Gemini API Error (${geminiResponse.status}): ${errorText}` });
-        return;
-      }
-
-      const geminiData = await geminiResponse.json();
-      sendResponse({ result: geminiData.choices[0].message.content });
-
-    } else {
-      // OpenAI API call
-      const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${request.apiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: messages,
-        }),
-      });
-
-      if (!openaiResponse.ok) {
-        const errorText = await openaiResponse.text();
-        sendResponse({ result: `OpenAI API Error (${openaiResponse.status}): ${errorText}` });
-        return;
-      }
-
-      const openaiData = await openaiResponse.json();
-      sendResponse({ result: openaiData.choices[0].message.content });
-    }
-  } catch (error) {
-    console.log(error);
-    sendResponse({ result: 'Sorry, there was an error analyzing the usability.' });
-  }
-}
-
-const detectUsabilityIssues = async (request, sendResponse) => {
+const detectUsabilityIssuesMultipleScreens = async (request, sendResponse) => {
   const base64Images = request.base64Images;
 
   for (let i = 0; i < base64Images.length; i++) {
@@ -201,21 +55,14 @@ const detectUsabilityIssues = async (request, sendResponse) => {
 
     if (imageSizeInMB > 20) {
       sendResponse({
-        result: `Image ${i + 1} is too large (${imageSizeInMB.toFixed(2)} MB). OpenAI only accepts images under 20MB.`,
+        result: `Image ${i + 1} is too large (${imageSizeInMB.toFixed(2)} MB). LLM only accepts images under 20MB.`,
       });
       return true;
     }
   }
 
   try {
-    const content = [{ type: 'text', text: system_prompt }];
-
-    if (request.overview && request.overview.trim() !== '') {
-      content.push({
-        type: 'text',
-        text: `You are given a web application about: ${request.overview.trim()}`,
-      });
-    }
+    const content = [{ type: 'text', text: getWalkthroughSystemPrompt(request.recommenderSys) }];
 
     base64Images.forEach((base64Image, index) => {
       content.push({
@@ -224,26 +71,40 @@ const detectUsabilityIssues = async (request, sendResponse) => {
       });
     });
 
-    content.push({
-      type: 'text',
-      text: request_for_evaluation,
-    });
-
-    if (request.questions && request.questions.trim() !== '') {
+    if (request.overview && request.overview.trim() !== '') {
       content.push({
         type: 'text',
-        text: request.questions.trim(),
+        text: `You are given a web application about: ${request.overview.trim()}`,
       });
-    } else {
+    }
+    if (request.userGroup && request.userGroup.trim() !== '') {
       content.push({
         type: 'text',
-        text: nielsen_heuristics,
+        text: `The target user group of this application is: ${request.userGroup.trim()}`,
+      });
+    }
+    if (request.userTask && request.userTask.trim() !== '') {
+      content.push({
+        type: 'text',
+        text: `The user goal is: ${request.userTask.trim()}`,
+      });
+    }
+
+    if(request.recommenderSys){
+      content.push({
+        type: 'text',
+        text: getMetrics(),
       });
     }
 
     content.push({
       type: 'text',
-      text: output_format,
+      text: getWalkthroughRequest(request.recommenderSys),
+    });
+
+    content.push({
+      type: 'text',
+      text: getWalkthroughOutputFormat(request.recommenderSys),
     });
 
     console.log(content);
@@ -305,6 +166,133 @@ const detectUsabilityIssues = async (request, sendResponse) => {
       sendResponse({ result: openaiData.choices[0].message.content });
     }
   } catch (error) {
+    console.log(error);
+    sendResponse({ result: 'Sorry, there was an error analyzing the usability.' });
+  }
+}
+
+const detectUsabilityIssues = async (request, sendResponse) => {
+  const base64Images = request.base64Images;
+
+  for (let i = 0; i < base64Images.length; i++) {
+    const base64Image = base64Images[i];
+    const imageSizeInBytes = Math.ceil((base64Image.length * 3) / 4);
+    const imageSizeInMB = imageSizeInBytes / (1024 * 1024);
+
+    if (imageSizeInMB > 20) {
+      sendResponse({
+        result: `Image ${i + 1} is too large (${imageSizeInMB.toFixed(2)} MB). OpenAI only accepts images under 20MB.`,
+      });
+      return true;
+    }
+  }
+
+  try {
+    const content = [{ type: 'text', text: getSystemPrompt(request.recommenderSys) }];
+
+    base64Images.forEach((base64Image, index) => {
+      content.push({
+        type: 'image_url',
+        image_url: { url: `data:image/png;base64,${base64Image}` },
+      });
+    });
+
+    if (request.overview && request.overview.trim() !== '') {
+      content.push({
+        type: 'text',
+        text: `You are given a web application about: ${request.overview.trim()}`,
+      });
+    }
+    if (request.userGroup && request.userGroup.trim() !== '') {
+      content.push({
+        type: 'text',
+        text: `The target user group of this application is: ${request.userGroup.trim()}`,
+      });
+    }
+    if (request.userTask && request.userTask.trim() !== '') {
+      content.push({
+        type: 'text',
+        text: `The user goal is: ${request.userTask.trim()}`,
+      });
+    }
+
+    if(request.recommenderSys){
+      content.push({
+        type: 'text',
+        text: getMetrics(),
+      });
+    }
+
+    content.push({
+      type: 'text',
+      text: getRequest(request.recommenderSys),
+    });
+
+    content.push({
+      type: 'text',
+      text: getOutputFormat(request.recommenderSys),
+    });
+
+    console.log(content);
+
+    if (request.apiType === 'gemini') {
+      // Gemini API call
+      const geminiResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${request.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'gemini-2.0-flash',
+          messages: [
+            {
+              role: 'user',
+              content: content,
+            },
+          ]
+        }),
+      });
+
+      if (!geminiResponse.ok) {
+        const errorText = await geminiResponse.text();
+        sendResponse({ result: `Gemini API Error (${geminiResponse.status}): ${errorText}` });
+        return;
+      }
+
+      const geminiData = await geminiResponse.json();
+      sendResponse({ result: geminiData.choices[0].message.content });
+
+    } else {
+      // OpenAI API call
+      const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${request.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: [
+            {
+              role: 'user',
+              content: content,
+            },
+          ]
+        }),
+      });
+
+      if (!openaiResponse.ok) {
+        const errorText = await openaiResponse.text();
+        sendResponse({ result: `OpenAI API Error (${openaiResponse.status}): ${errorText}` });
+        return;
+      }
+
+      const openaiData = await openaiResponse.json();
+      sendResponse({ result: openaiData.choices[0].message.content });
+    }
+  } catch (error) {
+    console.log(error);
     sendResponse({ result: 'Sorry, there was an error analyzing the usability.' });
   }
 };
@@ -319,8 +307,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       detectUsabilityIssues(request, sendResponse);
       return true;
 
-    case 'DETECT_WALKTHROUGH_ISSUES':
-      detectWalkthroughIssues(request, sendResponse);
+    case 'DETECT_USABILITY_MULTIPLE_IMAGES':
+      detectUsabilityIssuesMultipleScreens(request, sendResponse);
       return true;
 
     default:
@@ -328,3 +316,31 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       break;
   }
 });
+
+function getSystemPrompt(isRecSys) {
+  return isRecSys ? recsys_prompt : system_prompt;
+}
+
+function getRequest(isRecSys) {
+  return isRecSys ? recsys_request : request_for_evaluation;
+}
+
+function getMetrics() {
+  return recsys_metrics;
+}
+
+function getOutputFormat(isRecSys) {
+  return isRecSys ? recsys_output_format : output_format;
+}
+
+function getWalkthroughSystemPrompt(isRecSys) {
+  return isRecSys ? rec_system_walkthrough_prompt : system_walkthrough_prompt;
+}
+
+function getWalkthroughRequest(isRecSys) {
+  return isRecSys ? rec_request_walkthrough : request_walkthrough;
+}
+
+function getWalkthroughOutputFormat(isRecSys) {
+  return isRecSys ? rec_output_format_walkthrough : output_format_walkthrough;
+}

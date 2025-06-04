@@ -16,8 +16,10 @@ const DetailsDialog = ({
   correctActionInput,
   onCorrectActionInputChange,
   evaluationType,
-  questionsInput,
-  questionsInputChange
+  userTaskInput,
+  userTaskInputChange,
+  userGroup,
+  userGroupChange
 }) => {
   return (
     <DarkDialog open={open} onClose={onClose} aria-hidden={open ? "false" : "true"} >
@@ -25,35 +27,33 @@ const DetailsDialog = ({
         Details
       </DarkDialogTitle>
       <DarkDialogContent>
-        {evaluationType === 'walkthrough' && (
-        <>
-          <div className='walkthrough-container'>
-              <div>
-                <p className="dialog-label">Specify correct action*</p>
-                <span className='dialog-hint'>Add the correct action on this screen for achieving the user task.</span>
-                <TextFieldTask
-                  fullWidth
-                  placeholder='The correct action is...'
-                  multiline
-                  rows={2}
-                  value={correctActionInput}
-                  onChange={onCorrectActionInputChange} />
-              </div>
-          </div>
-        </>
-        )}
+        {evaluationType === 'heuristic' && (
+          <>
+            <div>
+            <p className="dialog-label">User group*</p>
+            <span className='dialog-hint'>User relevant personal characteristics (e.g., age, domain knowledge, preferences...)</span>
+            <TextFieldTask
+              fullWidth
+              placeholder='e.g., Users aged 80 that are unfamiliar with the application.'
+              multiline
+              rows={2} 
+              value={userGroup}
+              onChange={userGroupChange}/>
+            </div>
 
-        <div>
-          <p className="dialog-label">Add questions (optional)</p>
-          <span className='dialog-hint'>Add specific questions about the user experience that you want the usability analysis to address.</span>
-          <TextFieldTask
-            fullWidth
-            placeholder='e.g., What is the most confusing part about the website?'
-            multiline
-            rows={2} 
-            value={questionsInput}
-            onChange={questionsInputChange}/>
-        </div>
+            <div>
+              <p className="dialog-label">User goal*</p>
+              <span className='dialog-hint'>Briefly explain what the web app does, who it's for and/or its goals.</span>
+              <TextFieldTask
+                fullWidth
+                placeholder='e.g., User wants to find song recommendations based on recently played songs'
+                multiline
+                rows={2} 
+                value={userTaskInput}
+                onChange={userTaskInputChange}/>
+            </div>
+          </>
+        )}
 
       </DarkDialogContent>
       <DarkDialogActions>
