@@ -34,6 +34,7 @@ function App() {
   const [provider, setProvider] = useState('openai');
   const [userTask, setUserTask] = useState('');
   const [userGroup, setUserGroup] = useState('');
+  const [transcript, setTranscript] = useState('');
   const [globalUserGroup, setGlobalUserGroup] = useState('');
   const [recommenderSys, setRecommenderSys] = useState(true);
 
@@ -154,7 +155,7 @@ function App() {
     }
 
     if (!taskInput || !overview || !globalUserGroup) {
-      setSnackbarMessage('Please fill in the "overview", "User group", "goal".');
+      setSnackbarMessage('Please fill in the "overview", "User group", "task".');
       setSnackbarOpen(true);
       return;
     }
@@ -172,6 +173,7 @@ function App() {
         userTask: taskInput,
         titles: titlesArray,
         userGroup: globalUserGroup,
+        transcript: transcript,
         apiKey: apiKey,
         apiType: provider,
         recommenderSys: recommenderSys,
@@ -290,6 +292,7 @@ function App() {
     if(evaluationType == "walkthrough") {
       setWalkthroughScreenshots([]);
       setTaskInput('');
+      setTranscript('');
     } else {
       setScreenshots([]);
     }
@@ -370,16 +373,31 @@ function App() {
 
          <div className="card">
             <div style={{ padding: '0px 8px 0px 8px' }}>
-              <p className='text-field-label'>User goal*</p>
+              <p className='text-field-label'>User task*</p>
               <div style={{ textAlign: 'left', marginBottom: '5px' }}>
-                <span className='text-hint'>Provide a short description of the user's goal.</span>
+                <span className='text-hint'>Provide a short description of the user's task.</span>
               </div>
               <TextFieldContent
                 multiline
                 rows={2}
-                placeholder='The user wants to...'
+                placeholder='e.g., User wants to find song recommendations based on recently played songs'
                 value={taskInput}
                 onChange={(e) => setTaskInput(e.target.value)}
+              />
+            </div>
+         </div>
+
+         <div className="card">
+            <div style={{ padding: '0px 8px 0px 8px' }}>
+              <p className='text-field-label'>Interaction transcript</p>
+              <div style={{ textAlign: 'left', marginBottom: '5px' }}>
+                <span className='text-hint'>A transcript or summary of the user's actions and input during interaction.</span>
+              </div>
+              <TextFieldContent
+                multiline
+                rows={3}
+                value={transcript}
+                onChange={(e) => setTranscript(e.target.value)}
               />
             </div>
          </div>

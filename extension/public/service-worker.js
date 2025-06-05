@@ -89,6 +89,12 @@ const detectUsabilityIssuesMultipleScreens = async (request, sendResponse) => {
         text: `The user goal is: ${request.userTask.trim()}`,
       });
     }
+    if (request.transcript && request.transcript.trim() !== '') {
+      content.push({
+        type: 'text',
+        text: `A transcript or summary of the user's actions and input during interaction: ${request.transcript.trim()}`,
+      });
+    }
 
     if(request.recommenderSys){
       content.push({

@@ -42,8 +42,8 @@ const DetailsDialog = ({
             </div>
 
             <div>
-              <p className="dialog-label">User goal*</p>
-              <span className='dialog-hint'>Briefly explain what the web app does, who it's for and/or its goals.</span>
+              <p className="dialog-label">User task*</p>
+              <span className='dialog-hint'>Provide a short description of the user's task.</span>
               <TextFieldTask
                 fullWidth
                 placeholder='e.g., User wants to find song recommendations based on recently played songs'
