@@ -57,7 +57,7 @@ STEP-BY-STEP INSTRUCTIONS:
 1. Analyze the screen(s) for usability issues in relation to the app design, domain, and user group.
 2. Focus on issues that impact users completing their goals.
 3. Evaluate only what is clearly visible in the provided screen(s). If an element or state is not visible (e.g., dynamic behavior, loading states, error messages), do not comment on it.
-4. Based on this analysis, identify **5 or more usability issues** that violate one or more of the recommender evaluation metrics and for each issue:
+4. Based on this analysis, identify **as many usability issues possible** that violate one or more of the recommender evaluation metrics and for each issue:
    - Provide the clear title of the violated metric(s).
    - Describe the problem in 1-3 sentences, referencing the specific UI element and explaining how the issue undermines the metric(s).
      (Example: Instead of saying “the interface is confusing,” say “Filter options are hidden under an unlabeled icon on mobile, making it hard for new users to refine recommendations.”)
@@ -100,7 +100,7 @@ STEP-BY-STEP INSTRUCTIONS:
 1. Analyze the screen(s) for usability issues in relation to the app design, domain, and user group.
 2. Evaluate only what is visible in the provided screen(s). If an element is not visible (e.g., loading indicators, error states, hover effects), do not comment on it.
 3. Focus on issues that impact users completing their goals.
-4. Based on this analysis, identify **5 or more usability issues** and for each issue:
+4. Based on this analysis, identify **as many usability issues possible** and for each issue:
    - Provide the clear title of the violated Nielsen usability heuristic. Choose from:  
      1. Visibility of system status  
      2. Match between system and the real world  
@@ -202,7 +202,7 @@ STEP-BY-STEP INSTRUCTIONS:
 1. Analyze the screen(s) for usability issues in relation to the app design, domain, and user group.
 2. Analyze each screen individually and then as part of a sequence. Consider how users would move from one screen to another to accomplish their goal.
 3. Focus your evaluation on the **visible UI elements** on the screen(s) and their impact on the user's ability to understand, act, and progress through their goal.
-4. Based on this analysis, identify **5 or more usability issues** that violate one or more of the recommender evaluation metrics and for each issue:
+4. Based on this analysis, identify **as many usability issues possible** that violate one or more of the recommender evaluation metrics and for each issue:
    - Provide the clear title of the violated metric(s).
    - Describe the problem in 1-3 sentences, referencing the specific UI element and explaining how the issue undermines the metric(s).
      (Example: Instead of saying “the interface is confusing,” say “Filter options are hidden under an unlabeled icon on mobile, making it hard for new users to refine recommendations.”)
@@ -246,7 +246,7 @@ STEP-BY-STEP INSTRUCTIONS:
 1. Analyze the screen(s) for usability issues in relation to the app design, domain, and user group.
 2. Analyze each screen individually and then as part of a sequence. Consider how users would move from one screen to another to accomplish their goal.
 3. Focus your evaluation on the **visible UI elements** on the screen(s) and their impact on the user's ability to understand, act, and progress through their goal.
-4. Based on this analysis, identify **5 or more usability issues** and for each issue:
+4. Based on this analysis, identify **as many usability issues possible** and for each issue:
    - Provide the clear title of the violated Nielsen usability heuristic. Choose from:  
      1. Visibility of system status  
      2. Match between system and the real world  

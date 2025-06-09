@@ -69,7 +69,7 @@ function App() {
   };  
 
   const handleCaptureScreenshot = () => {
-    if (evaluationType !== 'heuristic' && walkthroughScreenshots.length >= 7) {
+    if (evaluationType !== 'heuristic' && walkthroughScreenshots.length >= 12) {
       setSnackbarMessage('Maximum of 7 screenshots allowed for walkthrough.');
       setSnackbarOpen(true);
       return;
