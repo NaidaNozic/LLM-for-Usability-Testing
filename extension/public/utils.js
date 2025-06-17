@@ -5,50 +5,51 @@ const recsys_metrics = `
 ===========
 RECOMMENDER SYSTEM EVALUATION METRICS (with guiding questions):
 
-- Trust  
-  • Does the interface appear reliable and secure?  
-  • Are recommendations presented in a way that builds user confidence?  
-  • Are data sources, credibility, or logic behind recommendations visible?
+Recommendation Quality
+• Are the recommendations relevant to the user's preferences and interests?
+• Do they include a diverse set of options to avoid redundancy?
+• Are novel or unexpected items introduced to spark discovery?
+• Are some items familiar or recognizable to the user?
+• Is the content presented in an attractive or engaging way?
+• Are recommendations appropriate to the user's current context or situation?
 
-- Satisfaction  
-  • Does the layout and interaction feel pleasant and user-friendly?  
-  • Is the user likely to have a positive overall experience?
+Interface Adequacy
+• Is the interface visually pleasing and well-organized?
+• Are labels, buttons, and categories intuitive and clearly named?
+• Is the presented information sufficient for the user to make sense of the system?
 
-- Ease of Use  
-  • Is it obvious how to interact with the interface?  
-  • Are actions intuitive and simple to perform?
+User Control
+• Can users easily modify, refine, or undo their actions?  
+• Are filters, sorting, or personalization options accessible?
+• Can users easily express or update their preferences?
 
-- Recommendation Quality  
-  • Are the visible recommendations relevant, diverse, and well-labeled?  
-  • Are they clearly connected to user needs or context?
+Transparency  
+• Is it clear why each recommendation was shown?  
+• Are explanation or hint features visible?
 
-- User Control  
-  • Can users easily modify, refine, or undo their actions?  
-  • Are filters, sorting, or personalization options accessible?
+Ease of Use
+• Is the interface simple to learn and navigate?
+• Can users complete tasks with minimal effort or confusion?
+• Is the user journey smooth and free of unnecessary complexity?
 
-- Usefulness  
-  • Do the visible features help the user achieve their goal effectively?  
-  • Is the recommended content helpful or actionable?
+Usefulness
+• Does the system have the ability to help users find ideal products and make decisions more efficiently?
 
-- Enjoyment  
-  • Does the UI invite engagement or interest?  
-  • Are there enjoyable elements (design, interactivity) visible on screen?
+Satisfaction
+• Does the system meet or exceed user expectations?
+• Does it contribute to a positive overall experience?
+• Would users describe the interaction as pleasant or enjoyable?
 
-- Decision Confidence  
-  • Can users easily compare options and make informed choices?  
-  • Is important information (e.g. price, ratings, description) clearly presented?
+Trust
+• Does the system seem reliable and credible?
+• Are data sources and justifications provided in a trustworthy manner?
 
-- Effort  
-  • Does the interface minimize unnecessary clicks or scrolling?  
-  • Is information easy to locate and interpret?
+Decision Confidence
+• Do users feel assured in acting on the recommendations?
+• Does the system convey a sense of accuracy and dependability?
 
-- Transparency  
-  • Is it clear why each recommendation was shown?  
-  • Are explanation or hint features visible?
-
-- Return Intent  
-  • Does the experience encourage users to return or continue using the system?  
-  • Is the value proposition of the system clear from the screen?
+Return Intent
+• Does the experience encourage future use or purchases?
 `;
 
 const recsys_request = `
@@ -58,7 +59,8 @@ STEP-BY-STEP INSTRUCTIONS:
 2. Focus on issues that impact users completing their goals.
 3. Evaluate only what is clearly visible in the provided screen(s). If an element or state is not visible (e.g., dynamic behavior, loading states, error messages), do not comment on it.
 4. Based on this analysis, identify **as many usability issues possible** that violate one or more of the recommender evaluation metrics and for each issue:
-   - Provide the clear title of the violated metric(s).
+   - Provide title(s) of the violated metric(s).
+   - Metric Justification: Explain why each listed metric was chosen and how the issue specifically violates it.
    - Describe the problem in 1-3 sentences, referencing the specific UI element and explaining how the issue undermines the metric(s).
      (Example: Instead of saying “the interface is confusing,” say “Filter options are hidden under an unlabeled icon on mobile, making it hard for new users to refine recommendations.”)
    - Provide a specific, actionable fix.
@@ -83,13 +85,14 @@ Then list each issue using the following format, numbered sequentially. Do not i
 
 Issues:
 
-1. **[Title of Violated Metric]**  
-[Short description of the issue (1-3 sentences)].  
+1. **[Title(s) of violated metric(s)]**
+**[Metric Justification]** - [Explain why the metric(s) is/are chosen and violated]
+
+**[Issue Description]** - [Short description of the issue (1-3 sentences)].  
 **[Recommendation]** - [A clear, specific suggestion for how to fix it].
 **[Severity: Low / Medium / High / Critical]** - [Brief explanation of why this severity level was assigned].
 
-(Continue this format for additional issues.)
-`;
+(Continue this format for additional issues.)`;
 
 /* Prompts for the standard evaluation */
 const system_prompt = `You are a UX/UI expert evaluating a screen of a web application for Nielsen usability issues.`;
@@ -112,6 +115,7 @@ STEP-BY-STEP INSTRUCTIONS:
      8. Aesthetic and minimalist design  
      9. Help users recognize, diagnose, and recover from errors  
      10. Help and documentation
+   - Metric Justification: Explain why each listed metric was chosen and how the issue specifically violates it.
    - Describe the problem in 1-3 sentences, referencing the **specific UI element** and its relation to the user group, goal, or app domain.
      (Example: Instead of saying “the interface is confusing,” say “Filter options are hidden under an unlabeled icon on mobile, making it hard for new users to refine recommendations.”)
    - Suggest a specific, actionable fix.
@@ -135,13 +139,14 @@ Then list each issue using the following format, numbered sequentially. Do not i
 
 Issues:
 
-1. **[Title of violated heuristic]**  
-[Short description of the issue (1-3 sentences)].  
+1. **[Title of violated heuristic]**
+**[Metric Justification]** - [Explain why this heuristic was chosen and how it was violated]
+
+**[Issue Description]** - [Short description of the issue (1-3 sentences)].  
 **[Recommendation]** - [A clear, specific suggestion for how to fix it].
 **[Severity: Low / Medium / High / Critical]** - [Brief explanation of why this severity level was assigned].
 
-(Continue this format for additional issues.)
-`;
+(Continue this format for additional issues.)`;
 
 /* Prompts for the walkthrough for recommendation systems*/
 const rec_system_walkthrough_prompt =`You are a UX/UI expert evaluating recommender system screens for usability issues.`;
@@ -150,60 +155,62 @@ const rec_walkthrough_metrics = `
 ===========
 RECOMMENDER SYSTEM EVALUATION METRICS (with guiding questions):
 
-- Trust  
-  • Does the interface appear reliable and secure?  
-  • Are recommendations presented in a way that builds user confidence?  
-  • Are data sources, credibility, or logic behind recommendations visible?
+Recommendation Quality
+• Are the recommendations relevant to the user's preferences and interests?
+• Do they include a diverse set of options to avoid redundancy?
+• Are novel or unexpected items introduced to spark discovery?
+• Are some items familiar or recognizable to the user?
+• Is the content presented in an attractive or engaging way?
+• Are recommendations appropriate to the user's current context or situation?
 
-- Satisfaction  
-  • Does the layout and interaction feel pleasant and user-friendly?  
-  • Is the user likely to have a positive overall experience?
+Interface Adequacy
+• Is the interface visually pleasing and well-organized?
+• Are labels, buttons, and categories intuitive and clearly named?
+• Is the presented information sufficient for the user to make sense of the system?
 
-- Ease of Use  
-  • Is it obvious how to interact with the interface?  
-  • Are actions intuitive and simple to perform?
+User Control
+• Can users easily modify, refine, or undo their actions?  
+• Are filters, sorting, or personalization options accessible?
+• Can users easily express or update their preferences?
 
-- Recommendation Quality  
-  • Are the visible recommendations relevant, diverse, and well-labeled?  
-  • Are they clearly connected to user needs or context?
+Transparency  
+• Is it clear why each recommendation was shown?  
+• Are explanation or hint features visible?
 
-- User Control  
-  • Can users easily modify, refine, or undo their actions?  
-  • Are filters, sorting, or personalization options accessible?
+Ease of Use
+• Is the interface simple to learn and navigate?
+• Can users complete tasks with minimal effort or confusion?
+• Is the user journey smooth and free of unnecessary complexity?
 
-- Usefulness  
-  • Do the visible features help the user achieve their goal effectively?  
-  • Is the recommended content helpful or actionable?
+Usefulness
+• Does the system have the ability to help users find ideal products and make decisions more efficiently?
 
-- Enjoyment  
-  • Does the UI invite engagement or interest?  
-  • Are there enjoyable elements (design, interactivity) visible on screen?
+Satisfaction
+• Does the system meet or exceed user expectations?
+• Does it contribute to a positive overall experience?
+• Would users describe the interaction as pleasant or enjoyable?
 
-- Decision Confidence  
-  • Can users easily compare options and make informed choices?  
-  • Is important information (e.g. price, ratings, description) clearly presented?
+Trust
+• Does the system seem reliable and credible?
+• Are data sources and justifications provided in a trustworthy manner?
 
-- Effort  
-  • Does the interface minimize unnecessary clicks or scrolling?  
-  • Is information easy to locate and interpret?
+Decision Confidence
+• Do users feel assured in acting on the recommendations?
+• Does the system convey a sense of accuracy and dependability?
 
-- Transparency  
-  • Is it clear why each recommendation was shown?  
-  • Are explanation or hint features visible?
-
-- Return Intent  
-  • Does the experience encourage users to return or continue using the system?  
-  • Is the value proposition of the system clear from the screen?
+Return Intent
+• Does the experience encourage future use or purchases?
 `;
 
 const rec_request_walkthrough = `
 =============
 STEP-BY-STEP INSTRUCTIONS:
-1. Analyze the screen(s) for usability issues in relation to the app design, domain, and user group.
+1. Analyze the screen(s) for usability issues in relation to the app domain and user group.
 2. Analyze each screen individually and then as part of a sequence. Consider how users would move from one screen to another to accomplish their goal.
 3. Focus your evaluation on the **visible UI elements** on the screen(s) and their impact on the user's ability to understand, act, and progress through their goal.
-4. Based on this analysis, identify **as many usability issues possible** that violate one or more of the recommender evaluation metrics and for each issue:
-   - Provide the clear title of the violated metric(s).
+4. Based on this analysis, identify **as many usability issues possible** that violate one or multiple of the recommender evaluation metrics and for each issue:
+   - Provide title(s) of the violated metric(s)
+   - Metric Justification: Explain why each listed metric was chosen and how the issue specifically violates it.
    - Describe the problem in 1-3 sentences, referencing the specific UI element and explaining how the issue undermines the metric(s).
      (Example: Instead of saying “the interface is confusing,” say “Filter options are hidden under an unlabeled icon on mobile, making it hard for new users to refine recommendations.”)
    - Provide a specific, actionable fix.
@@ -228,13 +235,14 @@ Then list each issue using the following format, numbered sequentially. Do not i
 
 Issues:
 
-1. **[Title of Violated Metric]**  
-[Short description of the issue (1-3 sentences)].  
+1. **[Title(s) of violated metric(s)]**
+**[Metric Justification]** - [Explain why the metric(s) is/are chosen and violated]
+
+**[Issue Description]** - [Short description of the issue (1-3 sentences)].  
 **[Recommendation]** - [A clear, specific suggestion for how to fix it].
 **[Severity: Low / Medium / High / Critical]** - [Brief explanation of why this severity level was assigned].
 
-(Continue this format for additional issues.)
-`;
+(Continue this format for additional issues.)`;
 
 
 /*Prompts for a standard walkthrough*/
@@ -258,12 +266,13 @@ STEP-BY-STEP INSTRUCTIONS:
      8. Aesthetic and minimalist design  
      9. Help users recognize, diagnose, and recover from errors  
      10. Help and documentation
-   - Describe the problem in 1-3 sentences, referencing the **specific UI element** and its relation to the user group, goal, or app domain.
+   - Metric Justification: Explain why each listed metric was chosen and how the issue specifically violates it.
+   - Describe the problem in 1-3 sentences, referencing the **specific UI element** and its relation to the user group, task, or app domain.
      (Example: Instead of saying “the interface is confusing,” say “Filter options are hidden under an unlabeled icon on mobile, making it hard for new users to refine recommendations.”)
    - Suggest a specific, actionable fix.
      (Example: Instead of saying “improve navigation,” say “Add a 'Home' button in the top navigation bar.”)
    - Assign a severity level (Low, Medium, High, or Critical) based on how significantly the issue may impact user experience. Explain in 1 sentence why this severity level was assigned.
-     (Example: Severity: High- This issue directly affects users' ability to personalize recommendations, a core function of the system.)
+     (Example: Severity: High - This issue directly affects users' ability to personalize recommendations, a core function of the system.)
 5. Order the final list of issues by severity, starting with **Critical**, then **High**, followed by **Medium**, and finally **Low** severity issues.
 
 =============
@@ -281,8 +290,10 @@ Then list each issue using the following format, numbered sequentially. Do not i
 
 Issues:
 
-1. **[Title of violated heuristic]**  
-[Short description of the issue (1-3 sentences)].  
+1. **[Title of violated heuristic]**
+**[Metric Justification]** - [Explain why this heuristic was chosen and how it was violated]
+
+**[Issue Description]** - [Short description of the issue (1-3 sentences)].  
 **[Recommendation]** - [A clear, specific suggestion for how to fix it].
 **[Severity: Low / Medium / High / Critical]** - [Brief explanation of why this severity level was assigned].
 
