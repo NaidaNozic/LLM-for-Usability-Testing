@@ -61,8 +61,7 @@ STEP-BY-STEP INSTRUCTIONS:
 4. Based on this analysis, identify **as many usability issues possible** that violate one or more of the recommender evaluation metrics and for each issue:
    - Provide title(s) of the violated metric(s).
    - Metric Justification: Explain why each listed metric was chosen and how the issue specifically violates it.
-   - Describe the problem in 1-3 sentences, referencing the specific UI element and explaining how the issue undermines the metric(s).
-     (Example: Instead of saying “the interface is confusing,” say “Filter options are hidden under an unlabeled icon on mobile, making it hard for new users to refine recommendations.”)
+   - Describe the problem in 1-3 sentences.
    - Provide a specific, actionable fix.
      (Example: Instead of saying “improve navigation,” say “Add a 'Home' button in the top navigation bar.”)
    - Assign a severity level (Low, Medium, High, or Critical) based on how significantly the issue may impact user experience. Explain in 1 sentence why this severity level was assigned.
@@ -205,26 +204,21 @@ Return Intent
 const rec_request_walkthrough = `
 =============
 STEP-BY-STEP INSTRUCTIONS:
-1. Analyze the screen(s) for usability issues in relation to the app domain and user group.
-2. Analyze each screen individually and then as part of a sequence. Consider how users would move from one screen to another to accomplish their goal.
-3. Focus your evaluation on the **visible UI elements** on the screen(s) and their impact on the user's ability to understand, act, and progress through their goal.
-4. Based on this analysis, identify **as many usability issues possible** that violate one or multiple of the recommender evaluation metrics and for each issue:
+1. Analyze screen(s) for usability issues based on the app description and user group, both individually and as part of a sequence to complete the user task(s).
+2. Based on the analysis, identify **as many usability issues possible** that violate one or more of the recommender evaluation metrics and for each issue:
    - Provide title(s) of the violated metric(s)
-   - Metric Justification: Explain why each listed metric was chosen and how the issue specifically violates it.
-   - Describe the problem in 1-3 sentences, referencing the specific UI element and explaining how the issue undermines the metric(s).
-     (Example: Instead of saying “the interface is confusing,” say “Filter options are hidden under an unlabeled icon on mobile, making it hard for new users to refine recommendations.”)
+   - In 1-2 sentances describe the usability issue by outlining the problematic UI aspect and its impact on the user and task — no metric reasoning.
+   - In 1-2 sentances justify why each violated metric was chosen and how the issue violates it. 
    - Provide a specific, actionable fix.
      (Example: Instead of saying “improve navigation,” say “Add a 'Home' button in the top navigation bar.”)
    - Assign a severity level (Low, Medium, High, or Critical) based on how significantly the issue may impact user experience. Explain in 1 sentence why this severity level was assigned.
-     (Example: Severity: High- This issue directly affects users' ability to personalize recommendations, a core function of the system.)
-5. Order the final list of issues by severity, starting with **Critical**, then **High**, followed by **Medium**, and finally **Low** severity issues.
+3. Order the final list of issues by severity, starting with **Critical**, then **High**, **Medium**, and ending with **Low**.
 
 =============
 GUARDRAILS:
-- Only describe issues directly visible on the static screen(s).
-- Do not invent features, behaviors, or problems that are not evident.
+- Do not invent features, behaviors, or problems that are not evident from the screens.
 - Do not list generic or vague issues without strong evidence from the screen.
-- You are NOT limited to one issue per metric — you may identify multiple issues inspired by a single metric.
+- Multiple issues per metric are allowed.
 `;
 
 const rec_output_format_walkthrough = `
@@ -235,12 +229,11 @@ Then list each issue using the following format, numbered sequentially. Do not i
 
 Issues:
 
-1. **[Title(s) of violated metric(s)]**
-**[Metric Justification]** - [Explain why the metric(s) is/are chosen and violated]
+1. **[Issue title]** - [Short description of the issue with 1-2 sentances].  
 
-**[Issue Description]** - [Short description of the issue (1-3 sentences)].  
+**[Title(s) of violated metric(s)]** - [Explain why the metric(s) is/are chosen and violated with 1-2 sentances]
 **[Recommendation]** - [A clear, specific suggestion for how to fix it].
-**[Severity: Low / Medium / High / Critical]** - [Brief explanation of why this severity level was assigned].
+**[Severity: Low / Medium / High / Critical]** - [Short explanation of why this severity level was assigned].
 
 (Continue this format for additional issues.)`;
 
@@ -266,7 +259,7 @@ STEP-BY-STEP INSTRUCTIONS:
      8. Aesthetic and minimalist design  
      9. Help users recognize, diagnose, and recover from errors  
      10. Help and documentation
-   - Metric Justification: Explain why each listed metric was chosen and how the issue specifically violates it.
+   - Heuristic Justification: Explain why each listed heuristic was chosen and how the issue specifically violates it.
    - Describe the problem in 1-3 sentences, referencing the **specific UI element** and its relation to the user group, task, or app domain.
      (Example: Instead of saying “the interface is confusing,” say “Filter options are hidden under an unlabeled icon on mobile, making it hard for new users to refine recommendations.”)
    - Suggest a specific, actionable fix.
