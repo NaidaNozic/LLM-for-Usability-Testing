@@ -62,59 +62,62 @@ const detectUsabilityIssuesMultipleScreens = async (request, sendResponse) => {
   }
 
   try {
-    const content = [{ type: 'text', text: getWalkthroughSystemPrompt(request.recommenderSys) }];
+    const systemContent = [
+      { type: "text", text: getWalkthroughSystemPrompt(request.recommenderSys) },
+    ];
 
-    base64Images.forEach((base64Image, index) => {
-      content.push({
-        type: 'image_url',
+    if (request.recommenderSys) {
+      systemContent.push({ type: "text", text: getMetrics() });
+    }
+
+    systemContent.push(
+      { type: "text", text: getWalkthroughRequest(request.recommenderSys) },
+      { type: "text", text: getWalkthroughOutputFormat(request.recommenderSys) }
+    );
+
+    const userContent = [];
+
+    // Add images
+    base64Images.forEach((base64Image) => {
+      userContent.push({
+        type: "image_url",
         image_url: { url: `data:image/png;base64,${base64Image}` },
       });
     });
 
-    if (request.overview && request.overview.trim() !== '') {
-      content.push({
-        type: 'text',
+    // Add extra context if provided
+    if (request.overview?.trim()) {
+      userContent.push({
+        type: "text",
         text: `You are given a web application about: ${request.overview.trim()}`,
       });
     }
-    if (request.userGroup && request.userGroup.trim() !== '') {
-      content.push({
-        type: 'text',
+    if (request.userGroup?.trim()) {
+      userContent.push({
+        type: "text",
         text: `The target user group of this application is: ${request.userGroup.trim()}`,
       });
     }
-    if (request.userTask && request.userTask.trim() !== '') {
-      content.push({
-        type: 'text',
+    if (request.userTask?.trim()) {
+      userContent.push({
+        type: "text",
         text: `The user goal is: ${request.userTask.trim()}`,
       });
     }
-    if (request.transcript && request.transcript.trim() !== '') {
-      content.push({
-        type: 'text',
+    if (request.transcript?.trim()) {
+      userContent.push({
+        type: "text",
         text: `A transcript or summary of the user's actions and input during interaction: ${request.transcript.trim()}`,
       });
     }
 
-    if(request.recommenderSys){
-      content.push({
-        type: 'text',
-        text: getMetrics(),
-      });
-    }
+    const messages = [
+      { role: "system", content: systemContent },
+      { role: "user", content: userContent },
+    ];
 
-    content.push({
-      type: 'text',
-      text: getWalkthroughRequest(request.recommenderSys),
-    });
-
-    content.push({
-      type: 'text',
-      text: getWalkthroughOutputFormat(request.recommenderSys),
-    });
-
-    console.log(content);
-
+    console.log(messages);
+    
     if (request.apiType === 'gemini') {
       // Gemini API call
       const geminiResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
@@ -125,12 +128,7 @@ const detectUsabilityIssuesMultipleScreens = async (request, sendResponse) => {
         },
         body: JSON.stringify({
           model: 'gemini-2.0-flash',
-          messages: [
-            {
-              role: 'user',
-              content: content,
-            },
-          ]
+          messages: messages
         }),
       });
 
@@ -153,12 +151,7 @@ const detectUsabilityIssuesMultipleScreens = async (request, sendResponse) => {
         },
         body: JSON.stringify({
           model: 'gpt-4o',
-          messages: [
-            {
-              role: 'user',
-              content: content,
-            },
-          ]
+          messages: messages
         }),
       });
 
@@ -194,52 +187,52 @@ const detectUsabilityIssues = async (request, sendResponse) => {
   }
 
   try {
-    const content = [{ type: 'text', text: getSystemPrompt(request.recommenderSys) }];
+    const systemContent = [
+      { type: "text", text: getSystemPrompt(request.recommenderSys) },
+    ];
 
-    base64Images.forEach((base64Image, index) => {
-      content.push({
-        type: 'image_url',
+    if (request.recommenderSys) {
+      systemContent.push({ type: "text", text: getMetrics() });
+    }
+
+    systemContent.push(
+      { type: "text", text: getRequest(request.recommenderSys) },
+      { type: "text", text: getOutputFormat(request.recommenderSys) }
+    );
+
+    const userContent = [];
+    base64Images.forEach((base64Image) => {
+      userContent.push({
+        type: "image_url",
         image_url: { url: `data:image/png;base64,${base64Image}` },
       });
     });
 
-    if (request.overview && request.overview.trim() !== '') {
-      content.push({
-        type: 'text',
+    if (request.overview?.trim()) {
+      userContent.push({
+        type: "text",
         text: `You are given a web application about: ${request.overview.trim()}`,
       });
     }
-    if (request.userGroup && request.userGroup.trim() !== '') {
-      content.push({
-        type: 'text',
+    if (request.userGroup?.trim()) {
+      userContent.push({
+        type: "text",
         text: `The target user group of this application is: ${request.userGroup.trim()}`,
       });
     }
-    if (request.userTask && request.userTask.trim() !== '') {
-      content.push({
-        type: 'text',
+    if (request.userTask?.trim()) {
+      userContent.push({
+        type: "text",
         text: `The user goal is: ${request.userTask.trim()}`,
       });
     }
 
-    if(request.recommenderSys){
-      content.push({
-        type: 'text',
-        text: getMetrics(),
-      });
-    }
+    const messages = [
+      { role: "system", content: systemContent },
+      { role: "user", content: userContent },
+    ];
 
-    content.push({
-      type: 'text',
-      text: getRequest(request.recommenderSys),
-    });
-
-    content.push({
-      type: 'text',
-      text: getOutputFormat(request.recommenderSys),
-    });
-
-    console.log(content);
+    console.log(messages);
 
     if (request.apiType === 'gemini') {
       // Gemini API call
@@ -251,12 +244,7 @@ const detectUsabilityIssues = async (request, sendResponse) => {
         },
         body: JSON.stringify({
           model: 'gemini-2.0-flash',
-          messages: [
-            {
-              role: 'user',
-              content: content,
-            },
-          ]
+          messages: messages
         }),
       });
 
@@ -279,12 +267,7 @@ const detectUsabilityIssues = async (request, sendResponse) => {
         },
         body: JSON.stringify({
           model: 'gpt-4o',
-          messages: [
-            {
-              role: 'user',
-              content: content,
-            },
-          ]
+          messages: messages
         }),
       });
 
