@@ -79,19 +79,18 @@ GUARDRAILS:
 const recsys_output_format = `
 =============
 Output Format:
-At the top, write: "Issues"  
-Then list each issue using the following format, numbered sequentially. Do not include headings, categories, or extra recommendations.
+Begin with the heading: "Issues"
 
-Issues:
+For each issue, present the information as follows:
 
-1. **[Title(s) of violated metric(s)]**
-**[Metric Justification]** - [Explain why the metric(s) is/are chosen and violated]
-
-**[Issue Description]** - [Short description of the issue (1-3 sentences)].  
-**[Recommendation]** - [A clear, specific suggestion for how to fix it].
-**[Severity: Low / Medium / High / Critical]** - [Brief explanation of why this severity level was assigned].
-
-(Continue this format for additional issues.)`;
+Issue #N
+Title: [Title of the identified usability issue]
+Description: [1-2 sentence description of the issue]
+Violated Dimension(s): [1-2 sentence explanation of why the
+dimension is chosen and how it is violated]
+Recommendation: [Specific, actionable fix]
+Severity: [Low / Medium / High / Critical + justification]
+`;
 
 /* Prompts for the standard evaluation */
 const system_prompt = `You are a UX/UI expert evaluating a screen of a web application for Nielsen usability issues.`;
@@ -148,7 +147,8 @@ Issues:
 (Continue this format for additional issues.)`;
 
 /* Prompts for the walkthrough for recommendation systems*/
-const rec_system_walkthrough_prompt =`You are a UX/UI expert evaluating recommender system screens for usability issues.`;
+const rec_system_walkthrough_prompt =`You are a UX/UI expert evaluating screens of a recommendation
+ system for usability issues based on given usability dimensions.`;
 
 const rec_walkthrough_metrics = `
 ===========
@@ -204,14 +204,15 @@ Return Intent
 const rec_request_walkthrough = `
 =============
 STEP-BY-STEP INSTRUCTIONS:
-1. Analyze screen(s) for usability issues based on the app description and user group, both individually and as part of a sequence to complete the user task(s).
-2. Based on the analysis, identify **as many usability issues possible** that violate one or more of the recommender evaluation metrics and for each issue:
-   - Provide title(s) of the violated metric(s)
-   - In 1-2 sentances describe the usability issue by outlining the problematic UI aspect and its impact on the user and task — no metric reasoning.
-   - In 1-2 sentances justify why each violated metric was chosen and how the issue violates it. 
-   - Provide a specific, actionable fix.
-     (Example: Instead of saying “improve navigation,” say “Add a 'Home' button in the top navigation bar.”)
-   - Assign a severity level (Low, Medium, High, or Critical) based on how significantly the issue may impact user experience. Explain in 1 sentence why this severity level was assigned.
+1. Analyze screen(s) for usability issues based on the app
+ description and user group, both individually and as part of a
+ sequence to complete the user task(s).
+2. Based on the analysis, identify **as many usability issues possible** that violate one or more of the recommendation usability dimensions and for each issue:
+
+- Name the identified usability issue and describe it by outlining the problematic UI aspect and its impact on the user and task with no usability dimension reasoning.
+- Name the violated usability dimension(s) and justify why each dimension was chosen and how the issue violates it.
+- Provide a specific, actionable fix. (Example: Instead of saying “improve navigation,” say “Add a 'Home' button in the top navigation bar.”)
+- Assign a severity level (Low, Medium, High, or Critical) based on how significantly the issue may impact user experience. Explain why this severity level was assigned.
 3. Order the final list of issues by severity, starting with **Critical**, then **High**, **Medium**, and ending with **Low**.
 
 =============
@@ -224,18 +225,18 @@ GUARDRAILS:
 const rec_output_format_walkthrough = `
 =============
 Output Format:
-At the top, write: "Issues"  
-Then list each issue using the following format, numbered sequentially. Do not include headings, categories, or extra recommendations.
+Begin with the heading: "Issues"
 
-Issues:
+For each issue, present the information as follows:
 
-1. **[Issue title]** - [Short description of the issue with 1-2 sentances].  
-
-**[Title(s) of violated metric(s)]** - [Explain why the metric(s) is/are chosen and violated with 1-2 sentances]
-**[Recommendation]** - [A clear, specific suggestion for how to fix it].
-**[Severity: Low / Medium / High / Critical]** - [Short explanation of why this severity level was assigned].
-
-(Continue this format for additional issues.)`;
+Issue #N
+Title: [Title of the identified usability issue]
+Description: [1-2 sentence description of the issue]
+Violated Dimension(s): [1-2 sentence explanation of why the
+dimension is chosen and how it is violated]
+Recommendation: [Specific, actionable fix]
+Severity: [Low / Medium / High / Critical + justification]
+`;
 
 
 /*Prompts for a standard walkthrough*/
