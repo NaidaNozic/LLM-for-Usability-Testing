@@ -65,81 +65,152 @@ const detectUsabilityIssuesMultipleScreens = async (request, sendResponse) => {
     if (request.apiType === 'gemini') {
       const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
-      const systemContent = [
-        { text: getWalkthroughSystemPrompt(request.recommenderSys) },
-      ];
-      if (request.recommenderSys) {
-        systemContent.push({ text: getMetrics() });
-      }
-      systemContent.push(
-        { text: getWalkthroughRequest(request.recommenderSys) },
-        { text: getWalkthroughOutputFormat(request.recommenderSys) }
-      );
-  
-      const parts = [];
-  
-      base64Images.forEach((base64Image) => {
+      const systemInstruction = {
+        role: "system",
+        parts: [
+          { text: getWalkthroughSystemPrompt(request.recommenderSys) },
+          ...(request.recommenderSys ? [{ text: getMetrics() }] : []),
+          { text: getWalkthroughRequest(request.recommenderSys) },
+          { text: getWalkthroughOutputFormat(request.recommenderSys) },
+        ],
+      };
+
+      let allIssues = new Set();
+      let previousModelOutput = "";
+
+      for (let i = 0; i < base64Images.length; i++) {
+        const parts = [];
+
         parts.push({
           inline_data: {
             mime_type: "image/png",
-            data: base64Image,
+            data: base64Images[i],
           },
         });
-      });
-      if (request.overview?.trim()) {
-        parts.push({
-          text: `You are given a web application about: ${request.overview.trim()}`,
+
+        if (request.overview?.trim())
+          parts.push({ text: `Web app overview: ${request.overview.trim()}` });
+        if (request.userGroup?.trim())
+          parts.push({
+            text: `Target user group: ${request.userGroup.trim()}`,
+          });
+        if (request.userTask?.trim())
+          parts.push({ text: `User goal: ${request.userTask.trim()}` });
+        if (request.transcript?.trim())
+          parts.push({
+            text: `User actions summary: ${request.transcript.trim()}`,
+          });
+
+        if (previousModelOutput) {
+          parts.push({
+            text: `Use the previous issues as reference for generating new issues.\n${previousModelOutput}`,
+          });
+        }
+
+        const body = {
+          system_instruction: {
+            parts: systemInstruction.parts,
+          },
+          contents: [
+            {
+              role: "user",
+              parts: parts,
+            },
+          ],
+        };
+
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "x-goog-api-key": request.apiKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.log(errorText);
+          sendResponse({
+            result: `Gemini API Error (${response.status}): ${errorText}`,
+          });
+          return;
+        }
+
+        const data = await response.json();
+        const text =
+          data.candidates?.[0]?.content?.parts
+            ?.map((p) => p.text)
+            .join("") ?? "";
+
+        previousModelOutput = text;
+
+        text.split(/\n|,/).forEach((issue) => {
+          const trimmed = issue.trim();
+          if (trimmed && !allIssues.has(trimmed)) {
+            allIssues.add(trimmed);
+          }
         });
       }
-      if (request.userGroup?.trim()) {
-        parts.push({
-          text: `The target user group of this application is: ${request.userGroup.trim()}`,
-        });
+
+      // After the loop over all images
+      if (previousModelOutput) {
+        try {
+          const formatBody = {
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  {
+                    text: `Here are all collected issues. Remove all duplicates, format content as follows and reorder based on severity:\n
+                    Issue #N
+                    Description: [1-2 sentence description of the issue]
+                    Violated Dimension(s): [1-2 sentence explanation of why the
+                    dimension is chosen and how it is violated]
+                    Recommendation: [Specific, actionable fix]
+                    Severity: [Low / Medium / High / Critical + justification]
+                    NEW LINE\n
+                  ${Array.from(allIssues).join("\n\n")}`,
+                  },
+                ],      
+              },
+            ],
+          };
+      
+          const formatResponse = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+              "x-goog-api-key": request.apiKey,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formatBody),
+          });
+      
+          if (!formatResponse.ok) {
+            const errorText = await formatResponse.text();
+            console.log(errorText);
+            sendResponse({
+              result: `Gemini API Error on formatting step (${formatResponse.status}): ${errorText}`,
+            });
+            return;
+          }
+      
+          const formatData = await formatResponse.json();
+          const formattedText =
+            formatData.candidates?.[0]?.content?.parts
+              ?.map((p) => p.text)
+              .join("") ?? "";
+
+          sendResponse({
+            result: "### Consolidated and Formatted Usability Issues\n" + formattedText,
+          });
+        } catch (error) {
+          console.log("Error in formatting usability issues:", error);
+          sendResponse({
+            result: 'Sorry, there was an error formatting the usability issues.',
+          });
+        }
       }
-      if (request.userTask?.trim()) {
-        parts.push({
-          text: `The user goal is: ${request.userTask.trim()}`,
-        });
-      }
-      if (request.transcript?.trim()) {
-        parts.push({
-          text: `A transcript or summary of the user's actions and input during interaction: ${request.transcript.trim()}`,
-        });
-      }  
-
-      const body = {
-        contents: {
-          role: "user",
-          parts: parts,
-        },
-        system_instruction:
-        {
-          parts: systemContent,
-        },
-      };
-
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "x-goog-api-key": request.apiKey,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        sendResponse({ result: `Gemini API Error (${response.status}): ${errorText}` });
-        return;
-      }
-
-      const data = await response.json();
-
-      const text = data.candidates?.[0]?.content?.parts
-        ?.map(p => p.text)
-        .join("") ?? "";
-
-      sendResponse({ result: text });
 
     } else {
       // OpenAI call
@@ -202,6 +273,7 @@ const detectUsabilityIssuesMultipleScreens = async (request, sendResponse) => {
   
       if (!openaiResponse.ok) {
         const errorText = await openaiResponse.text();
+        console.log(errorText);
         sendResponse({ result: `OpenAI API Error (${openaiResponse.status}): ${errorText}` });
         return;
       }
@@ -210,7 +282,7 @@ const detectUsabilityIssuesMultipleScreens = async (request, sendResponse) => {
       sendResponse({ result: openaiData.choices[0].message.content });
     }
   } catch (error) {
-    console.error("Error in detecting usability issues:", error);
+    console.log("Error in detecting usability issues:", error);
     sendResponse({ result: 'Sorry, there was an error analyzing the usability.' });
   }
 };

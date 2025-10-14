@@ -205,11 +205,11 @@ const rec_request_walkthrough = `
 =============
 STEP-BY-STEP INSTRUCTIONS:
 1. Analyze screen(s) for usability issues based on the app
- description and user group, both individually and as part of a
+ description,  user group, and previous detected issues of previous screens, both individually and as part of a
  sequence to complete the user task(s).
 2. Based on the analysis, identify **as many usability issues possible** that violate one or more of the recommendation usability dimensions and for each issue:
 
-- Name the identified usability issue and describe it by outlining the problematic UI aspect and its impact on the user and task with no usability dimension reasoning.
+- Describe the usability issue by outlining the problematic UI aspect and its impact on the user and task with no usability dimension reasoning.
 - Name the violated usability dimension(s) and justify why each dimension was chosen and how the issue violates it.
 - Provide a specific, actionable fix. (Example: Instead of saying “improve navigation,” say “Add a 'Home' button in the top navigation bar.”)
 - Assign a severity level (Low, Medium, High, or Critical) based on how significantly the issue may impact user experience. Explain why this severity level was assigned.
@@ -227,15 +227,15 @@ const rec_output_format_walkthrough = `
 Output Format:
 Begin with the heading: "Issues"
 
-For each issue, present the information as follows:
+For each issue, present the information as follows and end the issue with a new line:
 
 Issue #N
-Title: [Title of the identified usability issue]
 Description: [1-2 sentence description of the issue]
 Violated Dimension(s): [1-2 sentence explanation of why the
 dimension is chosen and how it is violated]
 Recommendation: [Specific, actionable fix]
 Severity: [Low / Medium / High / Critical + justification]
+
 `;
 
 
