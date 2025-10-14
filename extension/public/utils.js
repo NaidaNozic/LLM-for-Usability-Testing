@@ -208,8 +208,7 @@ STEP-BY-STEP INSTRUCTIONS:
  description and user group, both individually and as part of a
  sequence to complete the user task(s).
 2. Based on the analysis, identify **as many usability issues possible** that violate one or more of the recommendation usability dimensions and for each issue:
-
-- Name the identified usability issue and describe it by outlining the problematic UI aspect and its impact on the user and task with no usability dimension reasoning.
+- Describe the identified usability issue by outlining the problematic UI aspect and its impact on the user and task with no usability dimension reasoning.
 - Name the violated usability dimension(s) and justify why each dimension was chosen and how the issue violates it.
 - Provide a specific, actionable fix. (Example: Instead of saying “improve navigation,” say “Add a 'Home' button in the top navigation bar.”)
 - Assign a severity level (Low, Medium, High, or Critical) based on how significantly the issue may impact user experience. Explain why this severity level was assigned.
@@ -230,7 +229,6 @@ Begin with the heading: "Issues"
 For each issue, present the information as follows:
 
 Issue #N
-Title: [Title of the identified usability issue]
 Description: [1-2 sentence description of the issue]
 Violated Dimension(s): [1-2 sentence explanation of why the
 dimension is chosen and how it is violated]
