@@ -141,7 +141,7 @@ const detectUsabilityIssuesMultipleScreens = async (request, sendResponse) => {
 
       sendResponse({ result: text });
 
-    } else {
+    } else if (request.apiType === 'openai') {
       // OpenAI call
       const systemOpenAiContent = [
         { type: "text", text: getWalkthroughSystemPrompt(request.recommenderSys) },
@@ -213,6 +213,85 @@ const detectUsabilityIssuesMultipleScreens = async (request, sendResponse) => {
   
       const openaiData = await openaiResponse.json();
       sendResponse({ result: openaiData.choices[0].message.content });
+    } else {
+      // Claude API call
+      const systemClaudeContent = [
+        { type: "text", text: getWalkthroughSystemPrompt(request.recommenderSys) },
+      ];
+  
+      if (request.recommenderSys) {
+        systemClaudeContent.push({ type: "text", text: getMetrics() });
+      }
+  
+      systemClaudeContent.push(
+        { type: "text", text: getWalkthroughRequest(request.recommenderSys) },
+        { type: "text", text: getWalkthroughOutputFormat(request.recommenderSys) }
+      );
+  
+      const userClaudeContent = [];
+      base64Images.forEach((base64Image) => {
+        userClaudeContent.push({
+          type: "image",
+          source: {
+            type: "base64",
+            media_type: "image/png",
+            data: base64Image,
+          },
+        });
+      });
+      if (request.overview?.trim()) {
+        userClaudeContent.push({
+          type: "text",
+          text: `You are given a web application about: ${request.overview.trim()}`,
+        });
+      }
+      if (request.userGroup?.trim()) {
+        userClaudeContent.push({
+          type: "text",
+          text: `The target user group of this application is: ${request.userGroup.trim()}`,
+        });
+      }
+      if (request.userTask?.trim()) {
+        userClaudeContent.push({
+          type: "text",
+          text: `The user goal is: ${request.userTask.trim()}`,
+        });
+      }
+      if (request.transcript?.trim()) {
+        userClaudeContent.push({
+          type: "text",
+          text: `A transcript or summary of the user's actions and input during interaction: ${request.transcript.trim()}`,
+        });
+      }
+
+      const messages = [
+      { role: "user", content: userClaudeContent },
+      ];
+  
+      const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          "x-api-key": request.apiKey,
+          "anthropic-version": "2023-06-01",
+          "Anthropic-Dangerous-Direct-Browser-Access": "true"
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5',
+          system: systemClaudeContent,
+          max_tokens: 8000,
+          messages: messages,
+        }),
+      });
+  
+      if (!claudeResponse.ok) {
+        const errorText = await claudeResponse.text();
+        sendResponse({ result: `Claude API Error (${claudeResponse.status}): ${errorText}` });
+        return;
+      }
+  
+      const claudeData = await claudeResponse.json();
+      sendResponse({ result: claudeData.content[0].text });
     }
   } catch (error) {
     console.error("Error in detecting usability issues:", error);

@@ -50,6 +50,7 @@ export default function ApiKeyPrompt({ onSave }) {
         >
           <MenuItem value="openai">OpenAI</MenuItem>
           <MenuItem value="gemini">Gemini</MenuItem>
+          <MenuItem value="claude">Claude</MenuItem>
         </WhiteBorderSelect>
       </FormControl>
 
