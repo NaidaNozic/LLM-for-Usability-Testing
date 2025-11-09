@@ -187,6 +187,11 @@ const detectUsabilityIssuesMultipleScreens = async (request, sendResponse) => {
           text: `A transcript or summary of the user's actions and input during interaction: ${request.transcript.trim()}`,
         });
       }
+
+      const messages = [
+      { role: "system", content: systemOpenAiContent },
+      { role: "user", content: userContent },
+      ];
   
       const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
